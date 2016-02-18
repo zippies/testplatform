@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+	<link href="/static/codemirror/monokai.css" rel="stylesheet">
+	<link href="/static/codemirror/codemirror.css" rel="stylesheet">
+  	<script src="/static/jquery/jquery.min.js"></script>
+  	<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+	<script src="/static/codemirror/codemirror.js"></script>
+	<script src="/static/codemirror/placeholder.js"></script>
+	<script src="/static/codemirror/autorefresh.js"></script>
+	<script src="/static/codemirror/sublime.js"></script>
+	<script src="/static/codemirror/python.js"></script>
+  	<script src="/static/js/common.js"></script>
+  	<script src="/static/js/layer.js"></script>
+</head>
+<body>
+<ul id="myTab" class="nav nav-tabs">
+	<li class="active">
+		<a href="#writecasediv" data-toggle="tab">
+			写测试用例
+		</a>
+	</li>
+	<li>
+		<a href="#uploadcasediv" data-toggle="tab">上传测试用例</a>
+	</li>
+</ul>
+
+<div id="myTabContent" class="tab-content">
+	<div class="tab-pane fade in active" id="writecasediv">
+			<div class="panel-body">
+				<div>
+					<div>
+						<div role="tab" id="headingOne">
+							<a role="button" id="closeelements" data-toggle="collapse" href="#elementspanel" aria-expanded="false" aria-controls="collapseOne" style="display:none"><span class="glyphicon glyphicon-chevron-down"> 收起元素</span></a>
+							<a role="button" id="openelements" data-toggle="collapse" href="#elementspanel" aria-expanded="false" aria-controls="collapseOne"><span class="
+glyphicon glyphicon-chevron-right"> 查看元素</span></a>
+						</div>
+						<div id="elementspanel" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
+							<div class="panel-body">
+								<iframe id="caseelements" src="/elements" frameborder="no" width="100%" height="250px"></iframe>
+							</div>
+						</div>
+					</div>
+				</div>
+				<hr>
+				<form id="writecaseform">
+					<div class="row" style="padding:10px">
+						<div style="float:left"><label>用例名称：</label></div>
+						<div style="float:left;margin-left:5px"><input name="casename" type="text" class="form-control" style="width:300px"/></div>
+						<div style="float:left;margin-left:5px"><label>用例描述：</label></div>
+						<div style="float:left;margin-left:5px"><input name="casedesc" type="text" class="form-control" style="width:500px"/></div>
+						<div style="float:left;margin-left:20px"><a href="javascript:;" id="viewapi">查看api</a></div>
+						<div style="float:left;margin-left:20px"><a href="javascript:;" id="openmirror">打开模拟器</a></div>
+						<div style="float:left;margin-left:30px"><a href="javascript:;" id="submitwritecase" class="btn form-control btn-success">保存</a></div>
+					</div>
+					<hr>
+					<div>
+						<textarea name="casecontent" class="form-control" id="casecontent"></textarea>
+						<script>
+							var casecode = CodeMirror.fromTextArea(document.getElementById("casecontent"), {
+								lineNumbers: true,
+								mode: "python",
+								theme: "monokai"
+							});
+							casecode.setSize('100%',500);
+						</script>
+					</div>
+				</form>
+			</div>
+	</div>
+	<div class="tab-pane fade" id="uploadcasediv">
+			<div class="panel-body row">
+				<form id="uploadcaseform">
+					<div class="col-sm-3"><input id="uploadcase" type="file" class="form-control" /></div>
+					<div class="col-sm-3"><input type="text" class="form-control" placeholder="输入用例名称" /></div>
+					<div class="col-sm-3"><input type="text" class="form-control" placeholder="输入用例描述" /></div>
+					<div class="col-sm-3"><a href="javascript:;" class="btn btn-info" id="upload_submit">上传</a></div>
+				</form>
+			</div>
+	</div>
+</div>
+</body>
+<script>
+	$(function(){
+		resizeFrame()
+
+		$("#upload_submit").click(function(){
+			$.ajax({
+				url:"/uploadcase",
+				type:"post",
+				data:$("#uploadcaseform").serialize(),
+				success:function(data){
+					parent.layer.msg(data)
+				}
+			})
+		})
+
+		$("#submitwritecase").click(function(){
+			$("#casecontent").val(casecode.getDoc().getValue())
+			$.ajax({
+				url:"/writecase",
+				type:"post",
+				data:$("#writecaseform").serialize(),
+				success:function(data){
+					parent.layer.msg(data)
+				}
+			})
+		})
+
+
+		$("#viewapi").click(function(){
+			parent.showapi();
+		})
+
+		$("#openmirror").click(function(){
+			parent.openmirror();
+		})
+
+		$("#openelements,#closeelements").click(function(){
+			$("#openelements").toggle()
+			$("#closeelements").toggle()
+			resizeFrame()
+		})
+	})
+</script>
+</html>

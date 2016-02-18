@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+	<script src="/static/jquery/jquery.min.js"></script>
+	<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+	<script src="/static/js/common.js"></script>
+</head>
+<body>
+<div>
+	<form action="/newdevice" method="post">
+		<label>手机型号:</label>
+		<input name="phoneModel" type="text" class="form-control" />
+		<label>设备名:</label>
+		<input name="deviceName" type="text" class="form-control" />
+		<label>生产厂商:</label>
+		<input name="manufacturer" type="text" class="form-control" />
+		<label>平台:</label>
+		<select name="platform" type="text" class="form-control">
+			<option>Android</option>
+			<option>IOS</option>
+		</select>
+		<label>平台版本:</label>
+		<input name="platformVersion" type="text" class="form-control" />
+		<label>分辨率:</label>
+		<input name="resolution" type="text" class="form-control" />
+		<button class="btn btn-primary" type="submit">submit</button>
+	</form>
+</div>
+
+<script>
+	$(function(){
+		resizeFrame()
+	})
+</script>
+</body>
+</html>

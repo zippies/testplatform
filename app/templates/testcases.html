@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+</head>
+<body>
+<ul>
+	{% for case in testcases %}
+		<div>{{case.caseName}} {{case.caseDesc}} <textarea width="1000px" height="400px">{{ case.caseContent }}</textarea></div>
+	{% endfor %}
+</ul>
+</body>
+</html>

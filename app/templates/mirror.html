@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Mirror</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+	<script src="/static/jquery/jquery.min.js"></script>
+	<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+</head>
+<body style="background-color:#EAEAEA">
+	<div class="container-fluid">
+		<div>
+		<div class="row" style="height:120px">
+			<div class="col-xs-4" style="align:center">
+				<div class="row">
+					<div class="col-xs-6">
+						<label>APP信息: (指定需要操作的apk路径)</label>
+					</div>
+					<div class="col-xs-6">
+						<form action="/mirror/getapp" id="upload_form" method="post" enctype="multipart/form-data">
+							<input type="file" name="file" id="upload_apk" accept="apk"/>
+						</form>
+					</div>
+				</div>
+				<table class="table table-bordered" style="width:100%;text-align:center">
+					<thread>
+						<tr>
+							<th style="text-align:center">appPackage</th>
+							<th style="text-align:center">appActivity</th>
+						</tr>
+					</thread>
+					<tbody>
+						<tr><td><input type="text" class="form-control" value="{{ packageName }}" /></td><td><input type="text" class="form-control" value="{{ main_activity }}" /></td></tr>
+					</tbody>
+				</table>
+			</div>
+			<div class="col-xs-5" style="align:center">
+				<label>设备信息:</label>
+				<table class="table table-bordered" style="width:100%;text-align:center">
+					{% if devices %}
+				  <thead>
+					<tr>
+					  <th style="width:30%;text-align:center">设备名称</th>
+					  <th style="width:20%;text-align:center">连接状态</th>
+					  <th style="width:50%;text-align:center">操作</th>
+					</tr>
+				  </thead>
+				  <tbody>
+				  
+					  {% for device in devices %}
+							<tr>
+								{% if device.state == 'device' %}
+									<td>{{ device.deviceName }}</td>
+									
+									<td>{% if deviceStatus[device.deviceName] %}操作中..{% else %}连接正常{% endif %}</td>
+									<td>
+										<button class="btn btn-danger disconnDevice" desc="{{device.replacedName}}" name="{{device.deviceName}}" id="dis_{{ device.replacedName }}" {% if not deviceStatus[device.deviceName] %}style="display:none"{% endif %}>断开连接</button>
+									
+										<button class="btn btn-default connectDevice" desc="{{device.replacedName}}" name="{{device.deviceName}}" id="con_{{ device.replacedName }}" data-toggle="tooltip" data-placement="right" title="初始化可能较慢,请耐心等待" {% if deviceStatus[device.deviceName] %}style="display:none"{% endif %}>安装并启动app</button>
+									</td>
+								{% elif device.state == 'unauthorized' %}
+									<td>{{ device.deviceName }}</td><td>未授权</td><td><button class="btn btn-default connectDevice" name="{{device.deviceName}}" id="{{ device.replacedName }}" disabled>未授权(unauthorized)</button></td>
+								{% elif device.state == 'offline' %}
+									<td>{{ device.deviceName }}</td><td>离线(offline)</td><td><button class="btn btn-default connectDevice" name="{{device.deviceName}}" id="{{ device.replacedName }}" disabled>离线(offline)</button></td>
+								{% endif %}
+							</tr>
+					  {% endfor %}
+				  {% else %}
+						<td>没有连接的设备</td>
+				  {% endif %}
+				  </tbody>
+				</table>
+			</div>
+			<div class="col-xs-3">
+				<label>连接信息:</label>
+				<textarea id="connect-info" class="panel panel-warning" style="background-color:black;width:100%;height:90px;color:yellow;padding:4px"></textarea>
+			</div>
+		</div>
+		<hr>
+		<div class="row">
+			<iframe id="devicecontainer" name="devicecontainer" align="center" width="100%" src="/mirror/getscreen" frameborder="no" border="0" marginwidth="0" marginheight="0" height="2000" scrolling="no">
+			</iframe>
+		</div>
+	</div>
+	
+<script language="javascript">
+	$(function() {
+		$(".connectDevice").click(function() {
+			$(this).attr("disabled", true).removeClass("btn-default").addClass("btn-warning").html("正在连接")
+			$("#connect-info").empty().append("正在启动appium...\r\n")
+			var deviceName = this.name
+			var device = this.getAttribute("desc")
+			$.post("/mirror/connect/"+deviceName,function(data) {
+				isAppiumReady(deviceName,device)
+			})
+		});
+
+		$(".disconnDevice").click(function(){
+			var desc = this.getAttribute("desc")
+			$("#connect-info").append("正在断开连接...")
+			$.ajax({
+				type: "GET",
+				url: "/mirror/disconnect",
+				async: true,
+				error: function(request) {
+					$("#connect-info").empty().append(request.statusText + " " + request.status)
+				},
+				success: function(data) {
+					if(data.status) {
+						$("#connect-info").empty().append("断开成功！")
+						$("#con_"+desc).show()
+						$("#dis_"+desc).hide()
+						refreshframe();
+					}else{
+						$("#con_"+desc).show().removeClass("btn-success").addClass("btn-warning").html("重新连接")
+						$("#dis_"+desc).hide()
+						$("#connect-info").empty().append("断开失败："+data.info)
+					}
+				}
+			})
+		})
+
+		$('[data-toggle="tooltip"]').tooltip()
+
+		$("#upload_apk").change(function(){
+			$("#upload_form").submit()
+		})
+
+	})
+
+	function isAppiumReady(deviceName,desc){
+		var appium_not_ready = true;
+		var interval_id = window.setInterval(function() {
+			$.get("/mirror/isappiumready",function(data) {
+				if (data.status) {
+					$("#connect-info").empty().append(data.info+"\r\n")
+					window.clearInterval(interval_id)
+					if(appium_not_ready){
+						appium_not_ready = false
+						$("#connect-info").append("正在启动app..."+"\r\n")
+						$.ajax({
+							cache: false,
+							type: "POST",
+							url:"/mirror/getscreen",
+							data:{"devicename":deviceName},
+							async: true,
+							error: function(request) {
+								$("#con_"+desc).removeClass("btn-default").addClass("btn-warning").html("连接失败,点击重试")
+								$("#connect-info").empty().append("connection error");
+							},
+							success: function(data) {
+								$("#connect-info").append("启动成功！"+"\r\n")
+								$("#con_"+desc).attr("disabled",false).removeClass("btn-warning").addClass("btn-default").html("安装并启动app").hide();
+								$("#dis_"+desc).show();
+								$(".tooltip").hide();
+								refreshframe();
+							}
+						});
+					}
+				}else{
+					$("#connect-info").append(data.info+"\r\n")
+				}
+			})
+		},1500)
+	}
+
+	function refreshframe(framename){
+		devicecontainer.window.initSelectableTree();
+	}
+
+</script>
+</body>
+</html>

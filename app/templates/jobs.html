@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+	<script src="/static/jquery/jquery.min.js"></script>
+	<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+	<script src="/static/js/layer.js"></script>
+</head>
+<body>
+<table class="table">
+	<thread>
+		<tr>
+			<th>ID</th>
+			<th>NAME</th>
+			<th>Type</th>
+			<th>RelateCase</th>
+			<th>RelateDevice</th>
+			<th>Status</th>
+			<th>CreatedTime</th>
+			<th>Operation</th>
+		</tr>
+	</thread>
+	<tbody>
+	{% for job in jobs %}
+		<tr>
+			<th>{{ job.id }}</th>
+			<th>{{ job.jobName }}</th>
+			<th>{{ job.jobType }}</th>
+			<th>{{ job.relateCases }}</th>
+			<th>{{ job.relateDevices }}</th>
+			<th>{{ job.status }}</th>
+			<th>{{ job.createdtime }}</th>
+			<th>
+				<div class="btn-group">
+					<button type="button" id="runbtn" name="{{ job.id }}" class="btn btn-primary">运行</button>
+					<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						<span class="caret"></span>
+						<span class="sr-only">Toggle Dropdown</span>
+					</button>
+					<ul class="dropdown-menu">
+						<li><a href="#">编辑</a></li>
+						<li><a href="#">删除</a></li>
+					</ul>
+				</div>
+			</th> 
+		</tr>
+	{% endfor %}
+	</tbody>
+</table>
+<script>
+	$(function(){
+		$("#runbtn").click(function(){
+			$.ajax({
+				url:"/runjob/"+$(this).attr("name"),
+				type:"post",
+				async:true,
+				error:function(request){
+					layer.msg(request.status)
+				},
+				success:function(data){
+					if(!data.result){
+						layer.msg(data.info)
+					}else{
+						layer.msg("Running")
+					}
+				}
+			})
+		})
+	})
+</script>
+
+</body>
+</html>

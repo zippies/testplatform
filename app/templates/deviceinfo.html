@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Test Report</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="/static/mirror/smartMenu.css" />
+	<link rel="stylesheet" href="/static/mirror/imgnotes.css" />
+	<script src="/static/jquery/jquery.min.js"></script>
+	<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+	<script src="/static/mirror/bootstrap-treeview.js"></script>
+	<script src="/static/mirror/jquery.imgnotes-0.1.js"></script>
+	<script src="/static/mirror/jquery-smartMenu.js"></script>
+	<script src="/static/js/layer.js"></script>
+</head>
+<body style="background-color:#EAEAEA">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-4">
+				<table class="table table-bordered table-striped bs-events-table">
+					  <thead>
+						<tr>
+						  <th style="width:20%">属性</th>
+						  <th style="width:80%;text-align:center">值</th>
+						</tr>
+					  </thead>
+					  <tbody id="nodebody">
+					  	<tr><td>resource-id</td><td><input type="text" value="" class="form-control"></input></td></tr>
+					  	<tr><td>class</td><td><input type="text" value="" class="form-control"></input></td></tr>
+					  	<tr><td>content-desc</td><td><input type="text" value="" class="form-control"></input></td></tr>
+					  	<tr><td>text</td><td><input type="text" value="" class="form-control"></input></td></tr>
+					  	<tr><td>index</td><td><input type="text" value="" class="form-control"></input></td></tr>
+					  	<tr><td>xpath</td><td><input type="text" value="" class="form-control"></input></td></tr>
+					  	<tr><td>bounds</td><td><input type="text" value="" class="form-control"></input></td></tr>
+					  	<tr><td>package</td><td><input type="text" value="" class="form-control"></input></td></tr>
+						<tr><td>focusable</td><td><input type="text" value="" class="form-control"></input></td></tr>
+						<tr><td>scrollable</td><td><input type="text" value="" class="form-control"></input></td></tr>
+						<tr><td>long-clickable</td><td><input type="text" value="" class="form-control"></input></td></tr>
+						<tr><td>password</td><td><input type="text" value="" class="form-control"></input></td></tr>
+						<tr><td>instance</td><td><input type="text" value="" class="form-control"></input></td></tr>
+						<tr><td>focused</td><td><input type="text" value="" class="form-control"></input></td></tr>
+						<tr><td>clickable</td><td><input type="text" value="" class="form-control"></input></td></tr>
+						<tr><td>selected</td><td><input type="text" value="" class="form-control"></input></td></tr>
+						<tr><td>checked</td><td><input type="text" value="" class="form-control"></input></td></tr>
+						<tr><td>checkable</td><td><input type="text" value="" class="form-control"></input></td></tr>
+						<tr><td>enabled</td><td><input type="text" value="" class="form-control"></input></td></tr>
+					  </tbody>
+					</table>
+			</div>
+			<div class="col-md-4">
+				<div id="imgarea" class="row" style="text-align:center">
+					<span class="col-xs-5"><a href="javascript:;" id="goback">Back</a></span>
+					<span class="col-xs-2"><a href="javascript:;" id="gohome">Home</a></span>
+					<span class="col-xs-5"><a href="javascript:;" id="power">Power</a></span>
+				</div>
+
+			</div>
+			<div class="col-md-4">
+				<button onclick="$('#nodeTreeView').treeview('expandAll')" class="btn btn-default">展开所有(Expand All)</button>
+				<button onclick="$('#nodeTreeView').treeview('collapseAll')" class="btn btn-default">收起所有(Collapse All)</button>
+				<div id="nodeTreeView" style="margin-top:5px;height:300px">
+				</div>
+			</div>
+		</div>
+	</div>
+	
+<script type="text/javascript">
+$(function() {
+	initSelectableTree()
+	$("#goback").click(function(){
+		$(window.parent.document).find("#connect-info").empty().append("按返回键,等待响应....")
+		$.get("/mirror/sendkeycode/4",function(data){
+			if(!data.status){
+				$(window.parent.document).find("#connect-info").append("\r\n操作失败:appium已断开,请重启服务！")
+				layer.alert("error:"+data.info)
+			}else{
+				$(window.parent.document).find("#connect-info").append("完成")
+				initSelectableTree()
+			}
+		})
+	});
+
+	$("#gohome").click(function(){
+		$(window.parent.document).find("#connect-info").empty().append("按Home键,等待响应....")
+		$.get("/mirror/sendkeycode/3",function(data){
+			if(!data.status){
+				$(window.parent.document).find("#connect-info").append("\r\n操作失败:appium已断开,请重启服务！")
+				layer.alert("error:"+data.info)
+			}else{
+				$(window.parent.document).find("#connect-info").append("完成")
+				initSelectableTree()
+			}
+		})
+	});
+
+	$("#power").click(function(){
+		$(window.parent.document).find("#connect-info").empty().append("按电源键,等待响应....")
+		$.get("/mirror/sendkeycode/26",function(data){
+			if(!data.status){
+				$(window.parent.document).find("#connect-info").append("\r\n操作失败:appium已断开,请重启服务！")
+				layer.alert("error:"+data.info)
+			}else{
+				$(window.parent.document).find("#connect-info").append("完成")
+				initSelectableTree()
+			}
+		})
+	})
+
+});
+
+	function initSelectableTree() {
+		$("#screenshot").remove()
+		$.ajax({
+			url:"/mirror/isconnect",
+			async:true,
+			error:function(request){
+				$(window.parent.document).find("#connect-info").append(request.statusText + " " + request.status)
+			},
+			success:function(data){
+				if(data.status){
+					$("#imgarea").append('<img id="screenshot" alt="img" width="432" height="768" src="/static/uploads/current.png?temp='+Math.random()+'" >')
+				}else{
+					$("#imgarea").append('<img id="screenshot" alt="img" width="432" height="768" src="/static/imgs/mirror.jpg?temp='+Math.random()+'" >')
+				}
+			}
+		})
+		$(".note").remove()
+		$(".notep").remove()
+		$("#nodeTreeView").empty()
+
+		$.get("/mirror/getdata",function(data){
+			nodeData = data.nodeDatas
+			nodeinfos = data.nodeinfos
+			frameinfos = data.frameinfos
+			var notes = new Array()
+
+			layer.config({
+				extend: 'extend/layer.ext.js'
+			});
+			for(var k in frameinfos) {
+				notes[k] = frameinfos[k]
+			}
+			
+			$('#screenshot').imgNotes(notes);
+
+			var imageMenuData = [
+				[
+					{
+						text: "点击",
+						func: function() {
+							elem_id = this.id
+							$(window.parent.document).find("#connect-info").empty().append("点击区域: "+nodeinfos[this.id]['bounds']+" ,等待响应....")
+							$.ajax({
+								type:"GET",
+								url:"/mirror/click/"+elem_id,
+								async:true,
+								error:function(request){
+									$(window.parent.document).find("#connect-info").append("操作失败: "+request.statusText+" "+request.status)
+								},
+								success:function(data){
+									if(!data.status){
+										layer.alert(data.info)
+									}else{
+										$(window.parent.document).find("#connect-info").append("完成")
+										initSelectableTree()
+										//window.parent.frames["devicecontainer"].contentWindow.location.reload(true);
+									}
+								}
+							})
+						}
+					},
+					{
+						text: "刷新屏幕",
+						func: function() {
+							elem_id = this.id
+							$(window.parent.document).find("#connect-info").empty().append("刷新屏幕,等待响应....")
+							$.ajax({
+								type:"GET",
+								url:"/mirror/fresh",
+								async:true,
+								error:function(request){
+									$(window.parent.document).find("#connect-info").append("操作失败: "+request.statusText+" "+request.status)
+								},
+								success:function(data){
+									if(!data.status){
+										layer.alert(data.info)
+									}else{
+										$(window.parent.document).find("#connect-info").append("完成")
+										initSelectableTree()
+									}
+								}
+							})
+						}
+					},
+					{
+						text: "滑动元素",
+						data:
+							[[
+								{
+									text: "向上滑动",
+									func: function() {
+										var id = this.id
+										layer.prompt({
+											title: '输入内容,并确认',
+											formType: 0
+										}, function(px){
+											$(".layui-layer-btn1").click()
+											$(window.parent.document).find("#connect-info").empty().append("向上滑动: "+px+"像素,等待响应....")
+											$.get("/mirror/swipe/up",{"id":id,"px":px},function(data){
+												if(!data.status){
+													layer.alert(data.info)
+												}else{
+													$(window.parent.document).find("#connect-info").append("完成")
+													initSelectableTree()
+												}
+											})
+										});
+									}
+								},
+								{
+									text: "向下滑动",
+									func: function() {
+										var id = this.id
+										layer.prompt({
+											title: '输入内容,并确认',
+											formType: 0
+										}, function(px){
+											$(".layui-layer-btn1").click()
+											$(window.parent.document).find("#connect-info").empty().append("向下滑动: "+px+"像素,等待响应....")
+											$.get("/mirror/swipe/down",{"id":id,"px":px},function(data){
+												if(!data.status){
+													layer.alert(data.info)
+												}else{
+													$(window.parent.document).find("#connect-info").append("完成")
+													initSelectableTree()
+												}
+											})
+										});
+									}
+								},
+								{
+									text: "向左滑动",
+									func: function() {
+										var id = this.id
+										layer.prompt({
+											title: '输入内容,并确认',
+											formType: 0
+										}, function(px){
+											$(".layui-layer-btn1").click()
+											$(window.parent.document).find("#connect-info").empty().append("向左滑动: "+px+"像素,等待响应....")
+											$.get("/mirror/swipe/left",{"id":id,"px":px},function(data){
+												if(!data.status){
+													layer.alert(data.info)
+												}else{
+													$(window.parent.document).find("#connect-info").append("完成")
+													initSelectableTree()
+												}
+											})
+										});
+									}
+								},
+								{
+									text: "向右滑动",
+									func: function() {
+										var id = this.id
+										layer.prompt({
+											title: '输入内容,并确认',
+											formType: 0
+										}, function(px){
+											$(".layui-layer-btn1").click()
+											$(window.parent.document).find("#connect-info").empty().append("向右滑动: "+px+"像素,等待响应....")
+											$.get("/mirror/swipe/right",{"id":id,"px":px},function(data){
+												if(!data.status){
+													layer.alert(data.info)
+												}else{
+													$(window.parent.document).find("#connect-info").append("完成")
+													initSelectableTree()
+												}
+											})
+										});
+									}
+								}
+							]]
+					},
+					{
+						text: "输入内容",
+						func: function() {
+							elem_id = this.id
+							layer.prompt({
+								title: '输入内容,并确认',
+								formType: 0
+							}, function(text){
+								$(".layui-layer-btn1").click()
+								$(window.parent.document).find("#connect-info").empty().append("输入内容: "+text+",等待响应....")
+								$.get("/mirror/sendtext/"+elem_id,{"text":text},function(data){
+									if(!data.status){
+										layer.alert("error:"+data.info)
+									}else{
+										$(window.parent.document).find("#connect-info").append("完成")
+										initSelectableTree()
+									}
+								})
+							});
+						}
+					},
+					{
+						text: "清空内容",
+						func: function() {
+							elem_id = this.id
+							$(window.parent.document).find("#connect-info").empty().append("清空内容,等待响应....")
+							$.get("/mirror/cleartext/"+elem_id,function(data){
+								if(!data.status){
+									layer.alert("error:"+data.info)
+								}else{
+									$(window.parent.document).find("#connect-info").append("完成")
+									initSelectableTree()
+								}
+							})
+						}
+					}
+				],
+				[
+					{
+						text: "取消选择",
+						func: function() {
+							$("#"+this.id).hide()
+						}
+					}
+				]
+			];
+
+			$(".note").smartMenu(imageMenuData);
+
+			$('#nodeTreeView').treeview({
+				data: nodeData,
+				showBorder: false,
+				showTags: true,
+				onNodeSelected: function(event, node) {
+					$("#nodebody").empty()
+					var id = node.id
+					var infos = ['enabled','checkable','checked','selected','clickable','focused','instance','password','long-clickable','scrollable','focusable','package','bounds','xpath','index','text','content-desc','class','resource-id']
+					nodeinfo = nodeinfos[id]
+					infos.forEach(function(key) {
+						$("#nodebody").prepend('<tr><td>'+key+'</td><td><input type="text" value="'+nodeinfo[key]+'" class="form-control"></input></td></tr>')
+						$("#"+id).show();
+					})
+				},
+				onNodeUnselected:function(event,node) {
+					$("#"+node.id).hide();
+				}
+			});
+		});
+
+	};
+
+</script>
+</body>
+</html>

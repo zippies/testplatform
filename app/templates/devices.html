@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+  	<script src="/static/jquery/jquery.min.js"></script>
+  	<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+  	<script src="/static/js/layer.js"></script>
+  	<style>
+  		.deviceinfo {
+  			disabled:disabled;
+  		}
+  	</style>
+</head>
+<body>
+	<div style="padding:10px">
+		<div id="searcharea">
+			<label>选择设备：</label>
+			<select>
+				<option>请选择平台</option>
+				{% for platform in deviceinfos.platform %}
+				<option>{{ platform }}</option>
+				{% endfor %}
+				}
+			</select>
+			<select>
+				<option>请选择平台版本</option>
+				{% for platformversion in deviceinfos.platformversion %}
+				<option>{{ platformversion }}</option>
+				{% endfor %}
+				}
+			</select>
+			<select>
+				<option>请选择分辨率</option>
+				{% for resolution in deviceinfos.resolution %}
+				<option>{{ resolution }}</option>
+				{% endfor %}
+				}
+			</select>
+			<select>
+				<option>请选择厂商</option>
+				{% for manufacturer in deviceinfos.manufacturer %}
+				<option>{{ manufacturer }}</option>
+				{% endfor %}
+				}
+			</select>
+			<select>
+				<option>请选择状态</option>
+				{% for status in deviceinfos.status %}
+				<option>{{ status }}</option>
+				{% endfor %}
+				}
+			</select>
+		</div>
+		<hr>
+		<div id="devicelist" class="row">
+			{% for device in devices %}
+				<div class="col-sm-6 col-md-3">
+					<div class="thumbnail">
+						<img src="static/imgs/phone.png" alt="htc">
+						<table class="table table-bordered table-striped">
+							<tbody>
+								<tr>
+									<th>phoneModel:</th>
+									<td><input class="deviceinfo_{{ device.id }}" name="phoneModel" type="text" value="{{ device.phoneModel }}" disabled="disabled"></td>
+								</tr>
+								<tr>
+									<th>platform:</th>
+									<td><input class="deviceinfo_{{ device.id }}" name="platform" type="text" value="{{ device.platform }}" disabled="disabled"></td>
+								</tr>
+								<tr>
+									<th>paltformVersion:</th>
+									<td><input class="deviceinfo_{{ device.id }}" name="platformVersion" type="text" value="{{ device.platformVersion }}" disabled="disabled"></td>
+								</tr>
+								<tr>
+									<th>resolution:</th>
+									<td><input class="deviceinfo_{{ device.id }}" name="resolution" type="text" value="{{ device.resolution }}" disabled="disabled"></td>
+								</tr>
+								<tr>
+									<th>status:</th>
+									<td><input class="deviceinfo_{{ device.id }}" name="status" type="text" value="{{ device.status }}" disabled="disabled"></td>
+								</tr>
+								<tr>
+									<th>deviceName:</th>
+									<td><input class="deviceinfo_{{ device.id }}" name="deviceName" type="text" value="{{ device.deviceName }}" disabled="disabled"></td>
+								</tr>
+							</tbody>
+						</table>
+							<a href="javascript:;" class="btn btn-primary editdevice" id="editdevice_{{ device.id }}">编辑</a>
+							<a href="javascript:;" class="btn btn-primary saveedit" id="saveedit_{{ device.id }}" style="display:none">保存</a>
+							<a href="javascript:;" class="btn btn-danger deldevice" id="deldevice_{{ device.id }}">删除</a>
+					</div>
+				</div>
+			{% endfor %}
+		</div>
+	</div>
+
+
+<script>
+	$(function(){
+		layer.config({
+			extend: 'extend/layer.ext.js'
+		});
+
+		$(".editdevice").click(function(){
+			var id = this.id.substring(11,this.id.length)
+			$(this).hide()
+			$("#saveedit_"+id).show()
+			$(".deviceinfo_"+id).removeAttr("disabled")
+		})
+
+		$(".saveedit").click(function(){
+			var id = this.id.substring(9,this.id.length)
+			var values = "?id="+ id + "&";
+			$(".deviceinfo_"+id).each(function(){
+				values += $(this).attr("name") + "=" + $(this).val() + "&"
+			})
+			values = values.substring(0,values.length-1)
+			$.get("/editdevice"+values,function(data){
+				if(data.result){
+					layer.msg('保存成功', {icon: 1})
+				}else{
+					layer.msg('失败:'+data.info, {icon: 2})
+				}
+			})
+			$(this).hide()
+			$("#editdevice_"+id).show()
+			$(".deviceinfo_"+id).attr("disabled","disabled")
+		})
+
+		$(".deldevice").click(function(){
+			var id = this.id.substring(10,this.id.length)
+			layer.confirm("确定删除吗？",{btn:['确定','取消']},function(){
+				$.get("/deldevice/"+id,function(data){
+					if(data.result){
+						layer.msg('删除成功', {icon: 6})
+					}else{
+						layer.msg('失败:'+data.info, {icon: 5})
+					}
+				})
+				
+			},function(){
+				console.log('取消')
+			})
+		})
+	})
+</script>
+</body>
+</html>
