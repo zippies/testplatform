@@ -32,7 +32,8 @@
 			<th>{{ job.createdtime }}</th>
 			<th>
 				<div class="btn-group">
-					<button type="button" id="runbtn" name="{{ job.id }}" class="btn btn-primary">运行</button>
+					<button type="button" id="{{ job.id }}" class="btn btn-primary runbtn">运行</button>
+					<a id="viewreport_{{ job.id }}" name="{{ job.id }}" class="btn btn-info viewreport" style="display:none">查看报告</a>
 					<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 						<span class="caret"></span>
 						<span class="sr-only">Toggle Dropdown</span>
@@ -49,24 +50,64 @@
 </table>
 <script>
 	$(function(){
-		$("#runbtn").click(function(){
+		
+		checkStatus(0)
+
+		$(".runbtn").click(function(){
+			var jobid = this.id
+			$(this).html("正在运行..").attr("disabled","disabled")
+			$(".runbtn").attr("disabled","disabled")
 			$.ajax({
-				url:"/runjob/"+$(this).attr("name"),
+				url:"/runjob/"+jobid,
 				type:"post",
 				async:true,
 				error:function(request){
-					layer.msg(request.status)
+					parent.layer.msg(request.status)
+					$(this).html("运行").removeAttr("disabled")
+					$(".runbtn").removeAttr("disabled")
 				},
 				success:function(data){
 					if(!data.result){
-						layer.msg(data.info)
+						parent.layer.msg(data.info)
 					}else{
-						layer.msg("Running")
+						parent.layer.msg("任务正在运行")
+						console.log(jobid)
+						checkStatus(jobid)
 					}
 				}
 			})
 		})
+
+		$(".viewreport").click(function(){
+			parent.viewreport($(this).attr("name"));
+		})
 	})
+
+	function checkStatus(id){
+		var jobid = id
+		var interval = window.setInterval(function(){
+			$.get("/getStatus/"+jobid,function(data){
+				if(data){
+					jobid = data.jobid
+					if(data.status == 1){
+						parent.layer.msg("running")
+					}else if(data.status == 2){
+						parent.layer.msg("finished")
+						window.clearInterval(interval)
+						$(".runbtn").removeAttr("disabled")
+						$("#"+id).hide()
+						$("#viewreport_"+id).show()
+					}
+				}else{
+					console.log("no job running")
+					window.clearInterval(interval)
+				}
+			})
+		},3000);
+	}
+
+
+
 </script>
 
 </body>

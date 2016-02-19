@@ -20,7 +20,9 @@ caselist_template = '''
 case_template = \
 '''
 # -*- coding: utf-8 -*-
-from main.android.basecase import AndroidDevice
+import sys
+sys.path.append("C:/Users/Administrator/Desktop/selftest/testplatform/app/main/defender/main")
+from android.basecase import AndroidDevice
 {% for lib in libs %}{{lib}};{% endfor %}
 
 class TestCase(AndroidDevice):
@@ -32,12 +34,15 @@ class TestCase(AndroidDevice):
 		self.bootstrap_port = ce['bootstrap_port']
 		self.device_name = dc['deviceName']
 		self.appium_url = ce['url']
-		self.filename = str(self.__class__).split('.')[0].split('\'')[1]
+		self.filename = str(self.__class__).split('.')[0].split("\'")[1]
 		self.casename = '%s_%s_%s' %(dc['deviceName'].replace('.','_').replace(":","_"),ce['port'],self.filename)
 
 	def __call__(self,conflict_datas):
 		super(TestCase,self).__init__(conflict_datas,command_executor=self.appium_url,desired_capabilities=self.dc)
 		return self
+
+	def __repr__(self):
+		return "<Testcase:%s>" %self.filename
 
 	def run(self):
 		self.implicitly_wait(10)

@@ -48,3 +48,16 @@ function openmirror(){
 		content: '/mirror'
 	});
 }
+
+function viewreport(id){
+	layer.open({
+		type: 2,
+		title: 'TestReport',
+		shadeClose: true,
+		shade: false,
+		maxmin: true, //开启最大化最小化按钮
+		offset: ['50px', '500px'],
+		area: ['1200px','800px'],
+		content: '/viewreport/'+id
+	});
+}

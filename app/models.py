@@ -29,20 +29,39 @@ class Testjob(db.Model):
 	jobType = db.Column(db.Integer)   # 0:兼容性  1:稳定性  2:功能性
 	relateCases = db.Column(db.PickleType)
 	relateDevices = db.Column(db.PickleType)
+	testapk = db.Column(db.String(512))
+	appPackage = db.Column(db.String(64))
+	appActivity = db.Column(db.String(64))
 	result = db.Column(db.Integer,default=0)
 	reportID = db.Column(db.Integer,default=0)
 	status = db.Column(db.Integer,default=0)
 	createdtime = db.Column(db.DateTime,default=datetime.now)
 
-	def __init__(self,jobName,jobType,relateCases,relateDevices):
+	def __init__(self,jobName,jobType,relateCases,relateDevices,testapk,appPackage,appActivity):
 		self.jobName = jobName
 		self.jobType = jobType
 		self.relateCases = relateCases
 		self.relateDevices = relateDevices
+		self.testapk = testapk
+		self.appPackage = appPackage
+		self.appActivity = appActivity
 
 	def __repr__(self):
 		return "<testjob:%s>" % self.jobName
 
+class Report(db.Model):
+	id = db.Column(db.Integer,primary_key=True)
+	result = db.Column(db.Integer)
+	successCases = db.Column(db.PickleType)
+	failedCases = db.Column(db.PickleType)
+	runtime = db.Column(db.String(64))
+	createdtime = db.Column(db.DateTime,default=datetime.now)
+
+	def __init__(self,result,successCases,failedCases,runtime):
+		self.result = result
+		self.successCases = successCases
+		self.failedCases = failedCases
+		self.runtime = runtime
 
 class Device(db.Model):
 	id = db.Column(db.Integer,primary_key=True)

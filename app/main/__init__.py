@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from flask import Blueprint
+from .defender.androidRunner import AndroidRunner
 
 main = Blueprint('main',__name__)
 
