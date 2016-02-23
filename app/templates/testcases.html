@@ -15,6 +15,7 @@
   	<script src="/static/js/layer.js"></script>
 </head>
 <body>
+{% if testcases%}
 <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="false">
 {% for case in testcases %}
 	<div class="panel panel-default">
@@ -60,6 +61,9 @@
 	</div>
 {% endfor %}
 </div>
+{% else %}
+	<label><a href="/newtestcase">还没有用例,去添加</a></label>
+{% endif %}
 </body>
 <script>
 	$(function(){

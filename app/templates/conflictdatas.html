@@ -13,8 +13,8 @@
 <body style="overflow-x: hidden;">
 <div>
 	<div class="row">
-			<form id="newtestdataform">
-				<div style="float:left;margin-left:20px"><label>添加通用测试数据:</label></div>
+			<form id="newconflictdataform">
+				<div style="float:left;margin-left:20px"><label>添加冲突测试数据:</label></div>
 				<div style="float:left;margin-left:10px"><input id="newname" type="text" name="name" class="form-control" placeholder="name"  /></div>
 				<div style="float:left;margin-left:10px"><input id="newvalue" type="text" name="value" class="form-control" placeholder="value" /></div>
 			</form>
@@ -34,9 +34,9 @@
 		$("#newbtn").click(function(){
 			if($("#newname").val() && $("#newvalue").val()){
 				$.ajax({
-					url:"/testdatas",
+					url:"/conflictdatas",
 					type:"post",
-					data:$("#newtestdataform").serialize(),
+					data:$("#newconflictdataform").serialize(),
 					error:function(request){
 						parent.layer.msg(request.status)
 					},
@@ -51,11 +51,11 @@
 		})
 	})
 
-	function saveedittestdata(id) {
+	function saveeditconflictdata(id) {
 		value = $("#value_"+id).val()
 		if(value){
 			$.ajax({
-				url:"/saveedittestdata/"+id,
+				url:"/saveeditconflictdata/"+id,
 				data:{"value":value},
 				type:"get",
 				async:true,
@@ -72,12 +72,12 @@
 
 	}
 
-	function deltestdata(id) {
+	function delconflictdata(id) {
 		parent.layer.confirm('真的需要删除吗？',{
 			btn:['确定','取消']
 		},function(){
 			$.ajax({
-				url:"/deltestdata/"+id,
+				url:"/delconflictdata/"+id,
 				type:"get",
 				async:true,
 				error:function(request){
@@ -113,7 +113,7 @@
 			title: 'Operate'
 		}
 		],
-		url: "/testdata" 
+		url: "/conflictdata" 
 	});
 
 </script>

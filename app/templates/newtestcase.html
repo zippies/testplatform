@@ -42,13 +42,24 @@ glyphicon glyphicon-chevron-right"> 查看元素</span></a>
 					</div>
 
 					<div role="tab" id="headingTwo">
-						<a role="button" id="closetestdatas" data-toggle="collapse" href="#testdataspanel" aria-expanded="false" aria-controls="collapseTwo" style="display:none"><span class="glyphicon glyphicon-chevron-down"> 收起元素</span></a>
+						<a role="button" id="closetestdatas" data-toggle="collapse" href="#testdataspanel" aria-expanded="false" aria-controls="collapseTwo" style="display:none"><span class="glyphicon glyphicon-chevron-down"> 收起通用测试数据</span></a>
 						<a role="button" id="opentestdatas" data-toggle="collapse" href="#testdataspanel" aria-expanded="false" aria-controls="collapseTwo"><span class="
-glyphicon glyphicon-chevron-right"> 查看测试数据</span></a>
+glyphicon glyphicon-chevron-right"> 查看通用测试数据</span></a>
 					</div>
 					<div id="testdataspanel" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
 						<div class="panel-body">
 							<iframe id="caseelements" src="/testdatas" frameborder="no" width="100%" height="250px"></iframe>
+						</div>
+					</div>
+
+					<div role="tab" id="headingThree">
+						<a role="button" id="closeconflictdatas" data-toggle="collapse" href="#conflictdataspanel" aria-expanded="false" aria-controls="collapseTwo" style="display:none"><span class="glyphicon glyphicon-chevron-down"> 收起冲突测试数据</span></a>
+						<a role="button" id="openconflictdatas" data-toggle="collapse" href="#conflictdataspanel" aria-expanded="false" aria-controls="collapseTwo"><span class="
+glyphicon glyphicon-chevron-right"> 查看冲突测试数据</span></a>
+					</div>
+					<div id="conflictdataspanel" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
+						<div class="panel-body">
+							<iframe id="caseelements" src="/conflictdatas" frameborder="no" width="100%" height="250px"></iframe>
 						</div>
 					</div>
 				</div>

@@ -55,7 +55,7 @@ class AndroidRunner(Process):
 		self.system_alert_ids = system_alert_ids
 		self.case_elements = CaseElements(case_elements)
 		self.test_datas = TestData(test_datas)
-		self.conflict_datas = conflict_datas
+		self.conflict_datas = self._parseConflictData(conflict_datas)
 		self.current_time = time.time()
 		self.logtime = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 		self.appiums = appiums
@@ -86,19 +86,11 @@ class AndroidRunner(Process):
 				os.makedirs(case_screenshot)
 				setattr(case,'screenshotdir',case_screenshot)
 
-	def _parseConflictData(self,datastr):
+	def _parseConflictData(conflict_datas):
 		datas = {}
-		if os.path.exists(datastr):
-			with open(datastr,'r') as f:
-				datastr = f.read().strip()
+		for data in conflict_datas:
+			datas[data.name] = data.value
 
-		lines = datastr.split("\n")
-		for line in lines:
-			try:
-				name ,value = [s.strip("\t ") for s in line.split('|')]
-				datas[name] = eval(value)
-			except:
-				continue
 		return datas
 
 	def is_Appium_Alive(self,port):
@@ -170,10 +162,9 @@ class AndroidRunner(Process):
 			for cases in self.cases.values():
 				self.startAppium(cases)
 				testjobs = []
-				datas = self._parseConflictData(self.conflict_datas)
 
 				for case in cases:
-					t = Thread(target=self.runTest,args=(case,datas))
+					t = Thread(target=self.runTest,args=(case,self.conflict_datas))
 					testjobs.append(t)
 
 				for job in testjobs:
@@ -190,7 +181,7 @@ class AndroidRunner(Process):
 			with open("tasks.pkl","wb") as f:
 				pickle.dump(tasks,f)
 
-	def runTest(self,case,datas):
+	def runTest(self,case,conflict_datas):
 		print("[action]Initializing case %s" %case.casename)
 		start = time.time()
 		initsuccess = False
@@ -204,7 +195,7 @@ class AndroidRunner(Process):
 		setattr(case, 'test_datas',self.test_datas)
 		setattr(case, 'system_alert_ids',self.system_alert_ids)
 		try:
-			case = case(datas)
+			case = case(conflict_datas)
 			initsuccess = True
 			print("[action]running test:%s %s" %(case.casename,case.desc))
 			case.run()

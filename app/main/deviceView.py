@@ -115,20 +115,21 @@ def updatedevicesinfo():
 	p = Popen(cmd,stdout=PIPE,shell=True)
 	for info in p.stdout.readlines():
 		info = info.decode()
-		if 'List' in info or len(info)<5:
+		if 'List' in info:
 			continue
-
-		name,state = [n.strip() for n in info.split('\t') if n.strip()]
-		if 'offline' in info:
+		elif 'offline' in info:
+			name,state = [n.strip() for n in info.split('\t') if n.strip()]
 			connected_devices[name] = -1
 		elif 'unauthorized' in info:
+			name,state = [n.strip() for n in info.split('\t') if n.strip()]
 			connected_devices[name] = -2
 		elif 'device' in info:
+			name,state = [n.strip() for n in info.split('\t') if n.strip()]
 			connected_devices[name] = 0
 		else:
 			continue
 	
-	p.kill()   
+	p.kill()
 
 	devices = Device.query.all()
 	for device in devices:

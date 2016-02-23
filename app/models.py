@@ -119,7 +119,7 @@ class Appelement(db.Model):
 class Testdata(db.Model):
 	id = db.Column(db.Integer,primary_key=True)
 	name = db.Column(db.String(64))
-	value = db.Column(db.String(512))
+	value = db.Column(db.PickleType)
 	createdtime = db.Column(db.DateTime,default=datetime.now)
 
 	def __init__(self,name,value):
@@ -128,3 +128,16 @@ class Testdata(db.Model):
 
 	def __repr__(self):
 		return "<Testdata:%s>" % self.name
+
+class Conflictdata(db.Model):
+	id = db.Column(db.Integer,primary_key=True)
+	name = db.Column(db.String(64))
+	value = db.Column(db.PickleType)
+	createdtime = db.Column(db.DateTime,default=datetime.now)
+
+	def __init__(self,name,value):
+		self.name = name
+		self.value = value
+
+	def __repr__(self):
+		return "<Conflictdata:%s>" % self.name

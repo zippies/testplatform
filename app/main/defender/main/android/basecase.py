@@ -64,6 +64,9 @@ class AndroidDevice(webdriver.Remote):
 	def __repr__(self):
 		return "<TestCase>:"+self.casename
 #=============================================自定义方法  BEGIN ==============================================================
+	def log(self,info):
+		self.logger.log("[log]%s" %info)
+
 	def sleep(self,seconds):
 		self.logger.log("[action]sleep(seconds='%s')" %seconds)
 		time.sleep(seconds)
@@ -257,7 +260,14 @@ class AndroidDevice(webdriver.Remote):
 				if ele:
 					ele.click()
 
-	def get_conflict(self,name):
+	def testdatas(self,name):
+		data = self.test_datas.get(name)
+		if data:
+			return data
+		else:
+			raise CaseError("testdata '%s' undefined,please add first." %name)
+
+	def conflictdatas(self,name):
 		if name in self.conflict_datas.keys():
 			try:
 				data = self.conflict_datas[name].pop()
@@ -265,7 +275,7 @@ class AndroidDevice(webdriver.Remote):
 			except Exception as e:
 				raise CaseError("%s:got no more value to be popped(%s)" %(name,str(e)))
 		else:
-			raise CaseError("undefined:%s check your 'androidConfig.py' to see if it is configured correctly" %name)
+			raise CaseError("conflictdata '%s' undefined,please add first." %name)
 
 	def click_point(self,x,y,duration=None):
 		self.logger.log("[action]click_point(x=%s,y=%s,duration=%s)" %(x,y,duration))

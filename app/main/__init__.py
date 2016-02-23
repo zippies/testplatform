@@ -4,4 +4,4 @@ from .defender.androidRunner import AndroidRunner
 
 main = Blueprint('main',__name__)
 
-from . import deviceView,jobView,caseView,loginView,mirrorView
+from . import deviceView,jobView,caseView,loginView,mirrorView,dataView

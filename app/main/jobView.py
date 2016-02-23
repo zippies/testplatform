@@ -161,6 +161,9 @@ def runFunctionalTest(job):
 	assert len(choiceddevices) > 0,"没有可用的设备"
 
 	appelements = Appelement.query.all()
+	testdatas = Testdata.query.all()
+	conflict_datas = Conflictdata.query.all()
+
 	capabilities = []
 	for c_device in choiceddevices:
 		capabilities.append({"deviceName":c_device.deviceName,"platformName":c_device.platform,"platformVersion":c_device.platformVersion})
@@ -206,8 +209,8 @@ def runFunctionalTest(job):
 							"info",
 							Config.system_alerts,
 							appelements,
-							Config.test_datas,
-							Config.conflict_datas	
+							testdatas,
+							conflict_datas	
 	)
 	runner.start()
 	job.status = 1
@@ -240,3 +243,7 @@ def viewreport(id):
 def getscreenshot():
 	imgfile = request.args.get("file")
 	return send_file(imgfile,mimetype="image/png")
+
+@main.route("/showapi")
+def showapi():
+	return render_template("api.html")

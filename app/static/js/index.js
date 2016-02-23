@@ -19,6 +19,10 @@ function initNavBar() {
 			$("#content_detail").attr("src","/newtestcase")
 		}else if(this.id == 'nav_allcase'){
 			$("#content_detail").attr("src","/testcases")
+		}else if(this.id == 'nav_normaldata'){
+			$("#content_detail").attr("src","/testdatas")
+		}else if(this.id == 'nav_conflictdata'){
+			$("#content_detail").attr("src","/conflictdatas")
 		}else{
 			alert("no such item:"+this.id)
 		}

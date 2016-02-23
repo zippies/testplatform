@@ -33,18 +33,10 @@ class Config:
     log_path = "C:/Users/Administrator/Desktop/selftest/testplatform/logs"
     snapshot_path = "C:/Users/Administrator/Desktop/selftest/testplatform/snapshots"
 
-    test_datas = \
-    '''
-    评价内容    |   [ "好好学习,天天向上!   " , "你行你上，不行别BB   " ]
-    测试数据    |   "abcdef123456"
-    '''
-
     conflict_datas = \
     '''
     登录帐号    |   [ ('11266661001','111111'), ('11266661002','111111'), ('11266661004','111111'),('11266661005','111111'),('11266661007','111111'),('11266661008','111111')]
-    其他数据    |   [1,2]
     '''
-
 
     case_template = \
 '''
@@ -79,9 +71,6 @@ class TestCase(AndroidDevice):
         {{ action }}
 {% endfor %}
 '''
-
-
-
 
 
     @staticmethod
