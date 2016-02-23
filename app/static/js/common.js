@@ -1,5 +1,3 @@
-
-
 function resizeFrame(){
 	ifm = parent.document.getElementById("content_detail");	
 	var subWeb = parent.document.frames?parent.document.frames["content_detail"].document:ifm.contentDocument;
@@ -7,5 +5,3 @@ function resizeFrame(){
 		ifm.height = subWeb.body.scrollHeight;
 	}
 }
-
-

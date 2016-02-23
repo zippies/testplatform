@@ -4,6 +4,7 @@
 	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
   	<script src="/static/jquery/jquery.min.js"></script>
   	<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+  	<script src="/static/js/common.js"></script>
   	<script src="/static/js/layer.js"></script>
   	<style>
   		.deviceinfo {
@@ -76,18 +77,18 @@
 									<td><input class="deviceinfo_{{ device.id }}" name="resolution" type="text" value="{{ device.resolution }}" disabled="disabled"></td>
 								</tr>
 								<tr>
-									<th>status:</th>
-									<td><input class="deviceinfo_{{ device.id }}" name="status" type="text" value="{{ device.status }}" disabled="disabled"></td>
-								</tr>
-								<tr>
 									<th>deviceName:</th>
 									<td><input class="deviceinfo_{{ device.id }}" name="deviceName" type="text" value="{{ device.deviceName }}" disabled="disabled"></td>
 								</tr>
+								<tr>
+									<th>状态:</th>
+									<td id="status_{{device.id}}">{% if device.status == 0%}<font color="green">连接正常</font>{%else%}<font color="red">连接异常</font>{% endif %}</td>
+								</tr>
 							</tbody>
 						</table>
-							<a href="javascript:;" class="btn btn-primary editdevice" id="editdevice_{{ device.id }}">编辑</a>
-							<a href="javascript:;" class="btn btn-primary saveedit" id="saveedit_{{ device.id }}" style="display:none">保存</a>
-							<a href="javascript:;" class="btn btn-danger deldevice" id="deldevice_{{ device.id }}">删除</a>
+							<a href="javascript:;" class="btn btn-info editdevice" id="editdevice_{{ device.id }}">编辑</a>
+							<a href="javascript:;" class="btn btn-info saveedit" id="saveedit_{{ device.id }}" style="display:none">保存</a>
+							<a href="javascript:;" class="btn btn-warning deldevice" id="deldevice_{{ device.id }}">删除</a>
 					</div>
 				</div>
 			{% endfor %}
@@ -97,6 +98,10 @@
 
 <script>
 	$(function(){
+		interval = setInterval("resizeFrame()",50)
+		
+		getDeviceStatus()
+
 		layer.config({
 			extend: 'extend/layer.ext.js'
 		});
@@ -117,9 +122,9 @@
 			values = values.substring(0,values.length-1)
 			$.get("/editdevice"+values,function(data){
 				if(data.result){
-					layer.msg('保存成功', {icon: 1})
+					parent.layer.msg('保存成功', {icon: 1})
 				}else{
-					layer.msg('失败:'+data.info, {icon: 2})
+					parent.layer.msg('失败:'+data.info, {icon: 2})
 				}
 			})
 			$(this).hide()
@@ -129,12 +134,13 @@
 
 		$(".deldevice").click(function(){
 			var id = this.id.substring(10,this.id.length)
-			layer.confirm("确定删除吗？",{btn:['确定','取消']},function(){
+			parent.layer.confirm("确定删除吗？",{btn:['确定','取消']},function(){
 				$.get("/deldevice/"+id,function(data){
 					if(data.result){
-						layer.msg('删除成功', {icon: 6})
+						parent.layer.msg('删除成功', {icon: 6})
+						window.location.reload(true);
 					}else{
-						layer.msg('失败:'+data.info, {icon: 5})
+						parent.layer.msg('失败:'+data.info, {icon: 5})
 					}
 				})
 				
@@ -143,6 +149,22 @@
 			})
 		})
 	})
+
+	function getDeviceStatus(){
+		var source = new EventSource("/getDeviceStatus");
+		source.onmessage = function(event){
+			var resp = JSON.parse(event.data);
+			for(var o in resp){
+				if(resp[o] != 0){
+					console.log(o+":连接不可用")
+					$("#status_"+o).html("<font color='red'>连接异常</font>")
+				}else{
+					console.log(o+":连接可用")
+					$("#status_"+o).html("<font color='green'>连接正常</font>")
+				}
+			}
+		}
+	}
 </script>
 </body>
 </html>

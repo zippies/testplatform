@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-import sys,os,time,requests,platform
+import sys,os,time,requests,platform,pickle
 from .main import Logger,TestData,CaseElements
 from multiprocessing import Process
 from threading import Thread
 from datetime import datetime
 from pprint import pprint
-import json
 
 class CaseObject(object):
 	def __init__(self,case):
@@ -66,8 +65,7 @@ class AndroidRunner(Process):
 				"failed":[],
 				"totalcount":0,
 				"casecount":0,
-				"duration":0,
-				"report":None
+				"duration":0
 		}
 		self._initdirs()
 
@@ -131,7 +129,7 @@ class AndroidRunner(Process):
 					 --log-timestamp \
 					 --log-level %s \
 					 -U %s \
-					 --log-no-colors > tmp.txt" %(case.appium_port,case.bootstrap_port,appiumlog,self.appium_log_level,case.device_name)
+					 --log-no-colors > %s.txt" %(case.appium_port,case.bootstrap_port,appiumlog,self.appium_log_level,case.device_name,case.appium_port)
 			p = Process(target=os.system,args=(cmd,))
 			p.daemon = True
 			appium_process_list.append(p)
@@ -186,11 +184,11 @@ class AndroidRunner(Process):
 		except Exception as e:
 			print("error occured while running 'runMultiTest':",str(e))
 		finally:
-			time.sleep(2)
+			time.sleep(1)
 			self.stopAppium()
-			tasks = json.load(open("tasks.json","r"))
-			tasks[self.id] = 2
-			json.dump(open("tasks.json","w"))
+			tasks = {str(self.id):{"status":"2","result":self.result}}
+			with open("tasks.pkl","wb") as f:
+				pickle.dump(tasks,f)
 
 	def runTest(self,case,datas):
 		print("[action]Initializing case %s" %case.casename)

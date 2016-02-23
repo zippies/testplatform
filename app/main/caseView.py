@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from flask import render_template,request,jsonify
-from ..models import db,Testcase,Appelement
+from flask import render_template,request,jsonify,flash,redirect,url_for
+from ..models import db,Testcase,Appelement,Testdata
 from flask.ext.login import login_required
 from .. import Config
 from jinja2 import Template
@@ -17,43 +17,8 @@ caselist_template = '''
 {% endfor %}
 '''
 
-case_template = \
-'''
-# -*- coding: utf-8 -*-
-import sys
-sys.path.append("C:/Users/Administrator/Desktop/selftest/testplatform/app/main/defender/main")
-from android.basecase import AndroidDevice
-{% for lib in libs %}{{lib}};{% endfor %}
-
-class TestCase(AndroidDevice):
-	desc = "{{ desc }}"
-
-	def __init__(self,ce,dc):
-		self.dc = dc
-		self.appium_port = ce['port']
-		self.bootstrap_port = ce['bootstrap_port']
-		self.device_name = dc['deviceName']
-		self.appium_url = ce['url']
-		self.filename = str(self.__class__).split('.')[0].split("\'")[1]
-		self.casename = '%s_%s_%s' %(dc['deviceName'].replace('.','_').replace(":","_"),ce['port'],self.filename)
-
-	def __call__(self,conflict_datas):
-		super(TestCase,self).__init__(conflict_datas,command_executor=self.appium_url,desired_capabilities=self.dc)
-		return self
-
-	def __repr__(self):
-		return "<Testcase:%s>" %self.filename
-
-	def run(self):
-		self.implicitly_wait(10)
-{% for action in actions %}
-		{{ action }}
-{% endfor %}
-'''
-
 @main.route("/getcases")
 def getcases():
-	global caselist_template
 	data = []
 	cases = Testcase.query.all()
 	for case in cases:
@@ -69,38 +34,58 @@ def getcases():
 def newtestcase():
 	return render_template("newtestcase.html")
 
-
 @main.route("/writecase",methods=["POST"])
 def writecase():
-	global case_template
 	name = request.form.get('casename')
 	desc = request.form.get('casedesc')
 	content = request.form.get('casecontent')
-	libs,actions = [],[]
-
-	for c in content.split("\r\n"):
-		if c:
-			libs.append(c) if c.startswith('from') or c.startswith("import") else actions.append(c)
-
-	casecontent = Template(case_template.strip()).render(
-		desc = desc,
-		libs = libs,
-		actions = actions
-	)
-
 	case = Testcase(
 		name,
 		desc,
-		casecontent
+		content
 	)
 	db.session.add(case)
 	db.session.commit()
 
-	casefile = os.path.join(Config.CASE_FOLDER,"%s.py" %name)
-	with open(casefile,'wb') as f:
-		f.write(str(casecontent).encode('utf-8'))
-
 	return "新增成功"
+
+@main.route("/editcase/<int:id>",methods=['POST'])
+def editcase(id):
+	try:
+		name = request.form.get('casename')
+		desc = request.form.get('casedesc')
+		content = request.form.get("casecontent")
+		case = Testcase.query.filter_by(id=id).first()
+		if case:
+			case.caseName = name
+			case.caseDesc = desc
+			case.caseContent = content
+			db.session.add(case)
+			db.session.commit()
+			flash("编辑成功")
+		else:
+			flash("该用例不存在")
+	except Exception as e:
+		flash("编辑失败:%s" %str(e))
+	finally:
+		return redirect(url_for(".testcases"))
+
+@main.route("/delcase/<int:id>")
+def delcase(id):
+	resp = {"result":True,"info":None}
+	try:
+		case = Testcase.query.filter_by(id=id).first()
+		if case:
+			db.session.delete(case)
+			db.session.commit()
+		else:
+			resp["result"] = False
+			resp["info"] = "用例不存在"
+	except Exception as e:
+		resp["result"] = False
+		resp["info"] = str(e)
+	finally:
+		return jsonify(resp)
 
 @main.route("/uploadcase",methods=["POST"])
 def uploadcase():
@@ -109,7 +94,7 @@ def uploadcase():
 @main.route("/testcases")
 def testcases():
 	testcases = Testcase.query.all()
-	return render_template("testcases.html",testcases=testcases)
+	return render_template("testcases.html",testcases=testcases[::-1])
 
 #=============================================================================================
 
@@ -165,6 +150,62 @@ def delelement(id):
 		ele = Appelement.query.filter_by(id=id).first()
 		if ele:
 			db.session.delete(ele)
+			db.session.commit()
+	except:
+		return "删除失败"
+	return "删除成功"
+
+#=============================================================================================
+
+@main.route("/testdatas",methods=["POST","GET"])
+def testdatas():
+	if request.method == "POST":
+		data = "添加成功"
+		try:
+			testdata = Testdata(
+				request.form.get("name"),
+				request.form.get("value")
+			)
+			db.session.add(testdata)
+			db.session.commit()
+		except Exception as e:
+			data = "添加失败:%s" %str(e)
+		return data
+	return render_template("testdatas.html")
+
+@main.route("/testdata")
+def testdata():
+	testdatas = Testdata.query.all()
+	data = [
+		{
+		"id": testdata.id,
+		"name":testdata.name,
+		"value":"<input id='value_%s' type='text' class='form-control' value='%s'/>" %(testdata.id,testdata.value),
+		"operate":"<button class='btn btn-default' onclick='saveedittestdata(%s)'>保存</button> <button class='btn btn-danger' onclick='deltestdata(%s)'>删除</button>" %(testdata.id,testdata.id)
+		} for testdata in testdatas
+	]
+	return json.dumps(data)
+
+@main.route("/saveedittestdata/<int:id>")
+def saveedittestdata(id):
+	try:
+		testdata = Testdata.query.filter_by(id=id).first()
+		name = request.args.get("name")
+		value = request.args.get("value")
+		testdata.name = name
+		testdata.value = value
+		db.session.add(testdata)
+		db.session.commit()
+	except Exception as e:
+		return "保存失败:%s" %str(e)
+	return "保存成功"
+
+@main.route("/deltestdata/<int:id>")
+def deltestdata(id):
+	try:
+		testdata = Testdata.query.filter_by(id=id).first()
+		if testdata:
+			db.session.delete(testdata)
 			db.session.commit()
 	except:
 		return "删除失败"

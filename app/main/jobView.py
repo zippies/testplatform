@@ -1,32 +1,82 @@
 # -*- coding: utf-8 -*-
-from flask import render_template,request,jsonify,redirect,url_for,send_file
+from flask import render_template,request,jsonify,redirect,url_for,send_file,Response,session,flash
 from ..models import db,Testjob,Appelement,Testcase,Device,Report
 from flask.ext.login import login_required
 from werkzeug.utils import secure_filename
 from multiprocessing import Process
 from subprocess import Popen,PIPE
 from . import main,AndroidRunner
+from jinja2 import Template
 from .. import Config
-import os,sys,json
+import os,sys,json,time,pickle
 sys.path.append(Config.CASE_FOLDER)
 
 tasks = {}
-json.dump(tasks,open("tasks.json",'w'))
 
 @main.route("/")
 @main.route("/index")
 def index():
-	deviceCount = 10
-	testcaseCount = 75
+	'''
+		首页导航
+	'''
+	pickle.dump(tasks,open("tasks.pkl",'wb'))
+	devices = Device.query.all()
+	testcases = Testcase.query.all()
 	return render_template("index.html",
-							deviceCount = deviceCount,
-							testcaseCount = testcaseCount
+							deviceCount = len(devices),
+							testcaseCount = len(testcases)
 	)
+
+
+@main.route("/getStatus")
+def getStatus():
+	task = {}
+	try:
+		task = pickle.load(open("tasks.pkl",'rb'))
+	except:
+		pass
+	job = Testjob.query.filter_by(status=1).first()
+	data = {"jobid":None,"status":None}
+	if job:
+		data["jobid"] = str(job.id)
+		if str(job.id) not in session:
+			session[str(job.id)] = "1"
+		else:
+			if task.values():
+				result = task[str(job.id)]["result"]
+				report = Report(
+					-1 if len(result["success"]) != result['totalcount'] else 0,
+					result["success"],
+					result["failed"],
+					result["duration"]
+				)
+				db.session.add(report)
+				db.session.commit()
+				job.status = 2
+				job.reportID = report.id
+				db.session.add(job)
+				db.session.commit()
+				data["status"] = "2"
+				pickle.dump({},open("tasks.pkl",'wb'))
+			else:
+				data["status"] = "1"
+	else:
+		for jobid in task.keys():
+			if jobid in session:
+				session.clear()
+			else:
+				print("jobid not in session")
+
+	data = json.dumps(data)
+
+	return Response("data:"+data+"\n\n",mimetype="text/event-stream")
+
 
 @main.route("/jobs")
 def jobs():
 	jobs = Testjob.query.all()
-	return render_template("jobs.html",jobs=jobs)
+	return render_template("jobs.html",jobs=jobs[::-1])
+
 
 @main.route("/newjob",methods=["POST","GET"])
 def newjob():
@@ -36,7 +86,6 @@ def newjob():
 			choicedcases = dict(request.form).get("choicedCase")
 			jobname = request.form.get('jobName')
 			testtype = request.form.get('testType')
-			print(choiceddevices,choicedcases,jobname,testtype)
 			f = request.files['file']
 			fname = secure_filename(f.filename)
 			apk = os.path.join(Config.UPLOAD_FOLDER,fname)
@@ -58,6 +107,21 @@ def newjob():
 	else:
 		pass
 	return render_template("newjob.html")
+
+@main.route("/deljob/<int:id>")
+def deljob(id):
+	try:
+		job = Testjob.query.filter_by(id=id).first()
+		if job:
+			db.session.delete(job)
+			db.session.commit()
+			flash("删除成功！")
+		else:
+			flash("任务不存在")
+	except Exception as e:
+		flash("删除失败:%s" %str(e))
+	finally:
+		return redirect(url_for(".jobs"))
 
 @main.route("/runjob/<int:id>",methods=["POST"])
 def runjob(id):
@@ -82,30 +146,20 @@ def runjob(id):
 		resp["info"] = "任务不存在"
 	return jsonify(resp)
 
-@main.route("/getStatus/<int:id>")
-def getStatus(id):
-	tasks = json.load(open("tasks.json","r"))
-	job = None
-	resp = {}
-	print("current_jobstate:",tasks)
-	if tasks.keys():
-		job = Testjob.query.filter_by(id=id).first() if id else Testjob.query.filter_by(status=1).first()
-		if tasks[job.id] == 1:
-			resp = {"status":1,"jobid":job.id}
-		else:
-			job.status = 2
-			db.session.add(job)
-			db.session.commit()
-			resp = {"status":2,"jobid":job.id}
-		return jsonify(resp)
-	else:
-		return ""
-
-
 def runFunctionalTest(job):
 	testcases = {}
 	cases = [Testcase.query.filter_by(id=caseid).first() for caseid in job.relateCases]
-	choiceddevices = [Device.query.filter_by(id=deviceid).first() for deviceid in job.relateDevices]
+
+	assert len(cases) > 0,"没有可用的测试用例"
+
+	choiceddevices = []
+	for deviceid in job.relateDevices:
+		device = Device.query.filter_by(id=deviceid).first()
+		if device.status == 0:
+			choiceddevices.append(device)
+
+	assert len(choiceddevices) > 0,"没有可用的设备"
+
 	appelements = Appelement.query.all()
 	capabilities = []
 	for c_device in choiceddevices:
@@ -119,14 +173,25 @@ def runFunctionalTest(job):
 		device["appActivity"] = job.appActivity
 		device['automationName'] = 'Appium' if float(device['platformVersion']) > 4.2 else 'Selendroid'
 		capabilities[index] = device
-		port = str(13230 + index)
-		bootstrap_port = str(14230 + index)
+		port = str(16230 + index)
+		bootstrap_port = str(17230 + index)
 		selendroid_port = str(15230 + index)
 		appiums.append({"port":port,"bootstrap_port":bootstrap_port,"url":"http://localhost:%s/wd/hub" %port})
 
 	for case in cases:
 		with open(os.path.join(Config.CASE_FOLDER,"%s.py" %case.caseName),'wb') as f:
-			f.write(str(case.caseContent).encode('utf-8'))
+			libs,actions = [],[]
+			for c in case.caseContent.split("\r\n"):
+				if c:
+					libs.append(c) if c.startswith('from') or c.startswith("import") else actions.append(c)
+
+			content = Template(Config.case_template.strip()).render(
+				desc = case.caseDesc,
+				libs = libs,
+				actions = actions
+			)
+			f.write(str(content).encode('utf-8'))
+
 		undertest_cases = []
 		for index,device in enumerate(capabilities):
 			undertest_cases.append(__import__(case.caseName).TestCase(appiums[index],device))
@@ -144,15 +209,10 @@ def runFunctionalTest(job):
 							Config.test_datas,
 							Config.conflict_datas	
 	)
-
 	runner.start()
-	tasks = json.load(open("tasks.json",'r'))
-	tasks[job.id] = 1
-	json.dump(tasks,open("tasks.json",'w'))
 	job.status = 1
 	db.session.add(job)
 	db.session.commit()
-
 
 @main.route("/viewreport/<int:id>")
 def viewreport(id):

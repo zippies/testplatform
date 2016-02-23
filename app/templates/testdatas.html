@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.1/bootstrap-table.min.css">
+	<script src="/static/jquery/jquery.min.js"></script>
+	<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.1/bootstrap-table.min.js"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.1/locale/bootstrap-table-zh-CN.min.js"></script>
+</head>
+<body>
+<div>
+	<div class="row">
+			<form id="newtestdataform">
+				<div style="float:left;margin-left:20px"><label>添加测试数据：</label></div>
+				<div style="float:left;margin-left:10px"><input id="newname" type="text" name="name" class="form-control" placeholder="name"  /></div>
+				<div style="float:left;margin-left:10px"><input id="newvalue" type="text" name="value" class="form-control" placeholder="value" /></div>
+			</form>
+			<div style="float:left;margin-left:10px"><button id="newbtn" class="btn btn-default">添加</button></div>
+	</div>
+	<div style="margin-top:10px">
+		<table id="table">
+		</table>
+	</div>
+</div>
+
+<script>
+	$(function(){
+		$("#newbtn").click(function(){
+			if($("#newname").val() && $("#newvalue").val()){
+				$.ajax({
+					url:"/testdatas",
+					type:"post",
+					data:$("#newtestdataform").serialize(),
+					error:function(request){
+						parent.layer.msg(request.status)
+					},
+					success:function(data){
+						window.location.reload(true)
+						parent.layer.msg(data)
+					}
+				})
+			}else{
+				parent.layer.msg("name/value 不允许为空")
+			}
+		})
+	})
+
+	function saveedittestdata(id) {
+		findby = $("#findby_"+id).val()
+		value = $("#value_"+id).val()
+		if(value){
+			$.ajax({
+				url:"/saveedittestdata/"+id,
+				data:{"value":value},
+				type:"get",
+				async:true,
+				error:function(request){
+					parent.layer.msg(request.status)
+				},
+				success:function(data){
+					parent.layer.msg(data)
+				}
+			})
+		}else{
+			parent.layer.msg("不允许为空")
+		}
+
+	}
+
+	function deltestdata(id) {
+		parent.layer.confirm('真的需要删除吗？',{
+			btn:['确定','取消']
+		},function(){
+			$.ajax({
+				url:"/deltestdata/"+id,
+				type:"get",
+				async:true,
+				error:function(request){
+					parent.layer.msg(request.status)
+				},
+				success:function(data){
+					window.location.reload(true)
+					parent.layer.msg(data);
+				}
+			})
+		},function(){
+			console.log("取消")
+		})
+	}
+
+	$("#table").empty().bootstrapTable({
+		columns: [{
+			field: 'id',
+			width: '8%',
+			align: 'center',
+			title: 'TestdataID'
+		 }, {
+			field: 'name',
+			width: '15%',
+			title: 'TestdataName'
+		}, {
+			field: 'value',
+			width: '37%',
+			title: 'TestdataValue'
+		},{
+			field: 'operate',
+			width: '20%',
+			title: 'Operate'
+		}
+		],
+		url: "/testdata" 
+	});
+
+</script>
+</body>
+</html>

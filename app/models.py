@@ -71,7 +71,7 @@ class Device(db.Model):
 	platform = db.Column(db.String(64))
 	platformVersion = db.Column(db.String(64))
 	resolution = db.Column(db.String(64))
-	status = db.Column(db.Integer,default=0)
+	status = db.Column(db.Integer,default=0)    #0:连接正常   -1：offline   -2：未授权   -3：未连接
 	createdtime = db.Column(db.DateTime,default=datetime.now)
 
 	def __init__(self,phoneModel,deviceName,manufacturer,platform,platformVersion,resolution):
@@ -115,3 +115,16 @@ class Appelement(db.Model):
 
 	def __repr__(self):
 		return "<Appelement:%s>" % self.name
+
+class Testdata(db.Model):
+	id = db.Column(db.Integer,primary_key=True)
+	name = db.Column(db.String(64))
+	value = db.Column(db.String(512))
+	createdtime = db.Column(db.DateTime,default=datetime.now)
+
+	def __init__(self,name,value):
+		self.name = name
+		self.value = value
+
+	def __repr__(self):
+		return "<Testdata:%s>" % self.name

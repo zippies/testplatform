@@ -5,7 +5,7 @@ from android.basecase import AndroidDevice
 
 
 class TestCase(AndroidDevice):
-    desc = "测试用例1"
+    desc = "登录注册"
 
     def __init__(self,ce,dc):
         self.dc = dc
@@ -26,4 +26,6 @@ class TestCase(AndroidDevice):
     def run(self):
         self.implicitly_wait(10)
 
-        print(234)
+        self.super_click("登录注册按钮")
+
+        self.save_screen("login")

@@ -30,16 +30,25 @@
 	<div class="tab-pane fade in active" id="writecasediv">
 			<div class="panel-body">
 				<div>
-					<div>
-						<div role="tab" id="headingOne">
-							<a role="button" id="closeelements" data-toggle="collapse" href="#elementspanel" aria-expanded="false" aria-controls="collapseOne" style="display:none"><span class="glyphicon glyphicon-chevron-down"> 收起元素</span></a>
-							<a role="button" id="openelements" data-toggle="collapse" href="#elementspanel" aria-expanded="false" aria-controls="collapseOne"><span class="
+					<div role="tab" id="headingOne">
+						<a role="button" id="closeelements" data-toggle="collapse" href="#elementspanel" aria-expanded="false" aria-controls="collapseOne" style="display:none"><span class="glyphicon glyphicon-chevron-down"> 收起元素</span></a>
+						<a role="button" id="openelements" data-toggle="collapse" href="#elementspanel" aria-expanded="false" aria-controls="collapseOne"><span class="
 glyphicon glyphicon-chevron-right"> 查看元素</span></a>
+					</div>
+					<div id="elementspanel" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
+						<div class="panel-body">
+							<iframe id="caseelements" src="/elements" frameborder="no" width="100%" height="250px"></iframe>
 						</div>
-						<div id="elementspanel" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
-							<div class="panel-body">
-								<iframe id="caseelements" src="/elements" frameborder="no" width="100%" height="250px"></iframe>
-							</div>
+					</div>
+
+					<div role="tab" id="headingTwo">
+						<a role="button" id="closetestdatas" data-toggle="collapse" href="#testdataspanel" aria-expanded="false" aria-controls="collapseTwo" style="display:none"><span class="glyphicon glyphicon-chevron-down"> 收起元素</span></a>
+						<a role="button" id="opentestdatas" data-toggle="collapse" href="#testdataspanel" aria-expanded="false" aria-controls="collapseTwo"><span class="
+glyphicon glyphicon-chevron-right"> 查看测试数据</span></a>
+					</div>
+					<div id="testdataspanel" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+						<div class="panel-body">
+							<iframe id="caseelements" src="/testdatas" frameborder="no" width="100%" height="250px"></iframe>
 						</div>
 					</div>
 				</div>
@@ -53,6 +62,7 @@ glyphicon glyphicon-chevron-right"> 查看元素</span></a>
 						<div style="float:left;margin-left:20px"><a href="javascript:;" id="viewapi">查看api</a></div>
 						<div style="float:left;margin-left:20px"><a href="javascript:;" id="openmirror">打开模拟器</a></div>
 						<div style="float:left;margin-left:30px"><a href="javascript:;" id="submitwritecase" class="btn form-control btn-success">保存</a></div>
+						<input type="reset" id="reset" style="display:none"/>
 					</div>
 					<hr>
 					<div>
@@ -83,7 +93,7 @@ glyphicon glyphicon-chevron-right"> 查看元素</span></a>
 </body>
 <script>
 	$(function(){
-		resizeFrame()
+		interval = setInterval("resizeFrame()",50)
 
 		$("#upload_submit").click(function(){
 			$.ajax({
@@ -104,6 +114,9 @@ glyphicon glyphicon-chevron-right"> 查看元素</span></a>
 				data:$("#writecaseform").serialize(),
 				success:function(data){
 					parent.layer.msg(data)
+					$("#reset").click();
+					casecode.getDoc().setValue("");
+					casecode.refresh();
 				}
 			})
 		})
@@ -120,7 +133,6 @@ glyphicon glyphicon-chevron-right"> 查看元素</span></a>
 		$("#openelements,#closeelements").click(function(){
 			$("#openelements").toggle()
 			$("#closeelements").toggle()
-			resizeFrame()
 		})
 	})
 </script>

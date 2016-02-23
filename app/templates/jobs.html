@@ -32,15 +32,18 @@
 			<th>{{ job.createdtime }}</th>
 			<th>
 				<div class="btn-group">
-					<button type="button" id="{{ job.id }}" class="btn btn-primary runbtn">运行</button>
-					<a id="viewreport_{{ job.id }}" name="{{ job.id }}" class="btn btn-info viewreport" style="display:none">查看报告</a>
+					{% if job.status != 2 %}
+						<button type="button" id="{{ job.id }}" class="btn btn-primary runbtn">运行</button>
+						<a id="viewreport_{{ job.id }}" name="{{ job.id }}" class="btn btn-info viewreport" style="display:none">查看报告</a>
+					{% else %}
+						<a id="viewreport_{{ job.id }}" name="{{ job.id }}" class="btn btn-info viewreport">查看报告</a>
+					{% endif %}
 					<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 						<span class="caret"></span>
 						<span class="sr-only">Toggle Dropdown</span>
 					</button>
 					<ul class="dropdown-menu">
-						<li><a href="#">编辑</a></li>
-						<li><a href="#">删除</a></li>
+						<li><a href="/deljob/{{ job.id }}">删除</a></li>
 					</ul>
 				</div>
 			</th> 
@@ -51,28 +54,27 @@
 <script>
 	$(function(){
 		
-		checkStatus(0)
+		getStatus()
+
+		{% for message in get_flashed_messages() %}
+			parent.layer.msg("{{message}}")
+		{% endfor %}
 
 		$(".runbtn").click(function(){
-			var jobid = this.id
 			$(this).html("正在运行..").attr("disabled","disabled")
 			$(".runbtn").attr("disabled","disabled")
 			$.ajax({
-				url:"/runjob/"+jobid,
+				url:"/runjob/"+this.id,
 				type:"post",
 				async:true,
 				error:function(request){
-					parent.layer.msg(request.status)
-					$(this).html("运行").removeAttr("disabled")
-					$(".runbtn").removeAttr("disabled")
+					console.log(request.status)
 				},
 				success:function(data){
 					if(!data.result){
 						parent.layer.msg(data.info)
 					}else{
-						parent.layer.msg("任务正在运行")
-						console.log(jobid)
-						checkStatus(jobid)
+						parent.layer.msg("正在运行")
 					}
 				}
 			})
@@ -83,30 +85,27 @@
 		})
 	})
 
-	function checkStatus(id){
-		var jobid = id
-		var interval = window.setInterval(function(){
-			$.get("/getStatus/"+jobid,function(data){
-				if(data){
-					jobid = data.jobid
-					if(data.status == 1){
-						parent.layer.msg("running")
-					}else if(data.status == 2){
-						parent.layer.msg("finished")
-						window.clearInterval(interval)
-						$(".runbtn").removeAttr("disabled")
-						$("#"+id).hide()
-						$("#viewreport_"+id).show()
-					}
+	function getStatus(){
+		var source = new EventSource("/getStatus");
+		source.onmessage = function(event){
+			var resp = JSON.parse(event.data);
+			if(resp.jobid){
+				if(resp.status == 1){
+					$("#"+resp.jobid).html("正在运行..").attr("disabled","disabled")
+					$(".runbtn").attr("disabled","disabled")
+				}else if(resp.status == 2){
+					$("#"+resp.jobid).hide()
+					$("#viewreport_"+resp.jobid).show()
+					$(".runbtn").removeAttr("disabled")
+					parent.layer.msg("运行完成")
 				}else{
-					console.log("no job running")
-					window.clearInterval(interval)
+
 				}
-			})
-		},3000);
+			}else{
+
+			}
+		}
 	}
-
-
 
 </script>
 

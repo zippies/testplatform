@@ -8,13 +8,15 @@
 	<script src="/static/js/layer.js"></script>
 	<style>
 		.list-group-item{
-			#background-color:green;
 			height:150px;
 			width:180px;
 		}
 		.testtype {
 			width:auto;
 			margin-left:10px;
+		}
+		.choiceditem{
+			border:1px solid green;
 		}
 	</style>
 </head>
@@ -111,7 +113,7 @@
 				四、选择测试设备
 			</div>
 		</div>
-		<div id="devicelistdiv" class="row">
+		<div id="devicelistdiv" class="row" style="padding:10px">
 		</div>
 	</div>
 </form>
@@ -126,6 +128,8 @@
 </body>
 <script>
 	$(function(){
+		interval = setInterval("resizeFrame()",50);
+
 		$.ajax({
 			url:"/getdevices",
 			type:"get",
@@ -134,7 +138,6 @@
 			},
 			success:function(data){
 				$("#devicelistdiv").append(data)
-				resizeFrame()
 			}
 		})
 
@@ -145,6 +148,7 @@
 		var requested = false
 
 		$(".testtype").click(function(){
+
 			if(this.id == 'functional'){
 				$("#testtype_head").removeClass("panel-danger").addClass("panel-default")
 				$("#choicecase").show()
@@ -168,10 +172,17 @@
 				$("#choicecase").hide()
 				$("#testtype_head").removeClass("panel-danger").addClass("panel-default")
 			}
-			resizeFrame()
 		})
 
 	})
+
+	function showchange(id){
+		if($("#thumbnail_"+id).hasClass("choiceditem")){
+			$("#thumbnail_"+id).removeClass("choiceditem")
+		}else{
+			$("#thumbnail_"+id).addClass("choiceditem")
+		}
+	}
 
 	function submitform(){
 		var checkpass = true

@@ -30,7 +30,12 @@
 
 <script>
 	$(function(){
+		
 		resizeFrame()
+
+		{% for message in get_flashed_messages() %}
+			parent.layer.msg("{{message}}")
+		{% endfor %}
 	})
 </script>
 </body>

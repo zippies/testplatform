@@ -1,12 +1,99 @@
 <!DOCTYPE html>
 <html>
 <head lang="en">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+	<link href="/static/codemirror/monokai.css" rel="stylesheet">
+	<link href="/static/codemirror/codemirror.css" rel="stylesheet">
+  	<script src="/static/jquery/jquery.min.js"></script>
+  	<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+	<script src="/static/codemirror/codemirror.js"></script>
+	<script src="/static/codemirror/placeholder.js"></script>
+	<script src="/static/codemirror/autorefresh.js"></script>
+	<script src="/static/codemirror/sublime.js"></script>
+	<script src="/static/codemirror/python.js"></script>
+  	<script src="/static/js/common.js"></script>
+  	<script src="/static/js/layer.js"></script>
 </head>
 <body>
-<ul>
-	{% for case in testcases %}
-		<div>{{case.caseName}} {{case.caseDesc}} <textarea width="1000px" height="400px">{{ case.caseContent }}</textarea></div>
-	{% endfor %}
-</ul>
+<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="false">
+{% for case in testcases %}
+	<div class="panel panel-default">
+		<div class="panel-heading" role="tab" id="heading_{{ case.id }}">
+			<h4 class="panel-title">
+				<table>
+					<thread>
+						<tr>
+							<th class="col-xs-1">{{ case.id }}</th>
+							<th class="col-xs-2">
+								<a role="button" class="showcase" id="{{ case.id }}" data-toggle="collapse" data-parent="#accordion" href="#collapse_{{case.id}}" aria-expanded="false" aria-controls="collapseOne">{{ case.caseName }}</a></th>
+							<th class="col-xs-9">用例描述：{{ case.caseDesc }}</th>
+							<th class="col-xs-1"><a href="javascript:;" id="delcase_{{ case.id }}" class="btn btn-danger delcase">删除</a></th>
+						</tr>
+					</thread>
+				</table>
+			</h4>
+		</div>
+		<div id="collapse_{{ case.id }}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading_{{case.id}}">
+			<div class="panel-body">
+				<div>
+					<form action="/editcase/{{case.id}}" method="post">
+						<div class="row" style="padding:10px">
+							<div style="float:left"><label>用例名称：</label></div>
+							<div style="float:left;margin-left:5px"><input name="casename" type="text" class="form-control" style="width:300px" value="{{case.caseName}}" required /></div>
+							<div style="float:left;margin-left:5px"><label>用例描述：</label></div>
+							<div style="float:left;margin-left:5px"><input name="casedesc" type="text" class="form-control" style="width:500px" value="{{case.caseDesc}}" required/></div>
+							<div style="float:left;margin-left:30px"><button type="submit" class="btn btn-success">保存</button></div>
+						</div>
+						<textarea id="casecontent_{{ case.id }}" name="casecontent" width="1000px" height="400px" required>{{ case.caseContent }}</textarea>
+						<script>
+							var mirror_{{ case.id }} = CodeMirror.fromTextArea(document.getElementById("casecontent_{{ case.id }}"), {
+								lineNumbers: true,
+								mode: "python",
+								theme: "monokai"
+							});
+							mirror_{{ case.id }}.setSize('100%',500);
+						</script>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endfor %}
+</div>
 </body>
+<script>
+	$(function(){
+		{% for message in get_flashed_messages() %}
+			parent.layer.msg("{{message}}")
+		{% endfor %}
+
+		interval = setInterval("resizeFrame()",50)
+
+		$(".showcase").click(function(){
+			mirror = eval("mirror_"+this.id)
+			setTimeout(function(){
+				mirror.refresh();
+			},200);
+			mirror.refresh();
+		})
+
+		$(".delcase").click(function(){
+			var id = this.id.substring(8,this.id.length)
+			parent.layer.confirm("确定删除吗？",{btn:['确定','取消']},function(){
+				$.get("/delcase/"+id,function(data){
+					if(data.result){
+						parent.layer.msg('删除成功', {icon: 6})
+						window.location.reload(true);
+					}else{
+						parent.layer.msg('删除失败:'+data.info, {icon: 5})
+					}
+				})
+				
+			},function(){
+				console.log('取消')
+			})
+		})
+
+	})
+</script>
 </html>

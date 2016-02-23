@@ -2,6 +2,7 @@ __pycache__
 logs
 snapshots
 tmp
-tmp.txt
+*.txt
 *.pyc
 *.apk
+data.sqlite

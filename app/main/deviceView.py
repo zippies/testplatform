@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
-from flask import render_template,redirect,url_for,request,jsonify
-from . import main
-from ..models import Device,db
+from flask import render_template,redirect,url_for,request,jsonify,Response,flash
 from flask.ext.login import login_required
+from subprocess import Popen,PIPE
+from ..models import Device,db
+from . import main
+import json
 
 
 @main.route("/newdevice",methods=["GET","POST"])
@@ -18,9 +20,8 @@ def newdevice():
 		)
 		db.session.add(device)
 		db.session.commit()
-		return redirect(url_for('.devices'))
-	else:
-		return render_template("newdevice.html")
+		flash("添加成功")
+	return render_template("newdevice.html")
 
 @main.route("/editdevice")
 def editdevice():
@@ -33,7 +34,6 @@ def editdevice():
 		device.platform = request.args.get("platform")
 		device.platformVersion = request.args.get("platformVersion")
 		device.resolution = request.args.get("resolution")
-		device.status = request.args.get("status")
 		db.session.add(device)
 		db.session.commit()
 	except Exception as e:
@@ -73,8 +73,8 @@ def devices():
 device_template = '''
 {% for device in devices %}
 <label id="deviceitem" class="col-sm-6 col-md-3">
-	<input type="checkbox" name="choicedDevice" value="{{ device.id }}" />
-	<div class="thumbnail">
+	<input type="checkbox" onclick="showchange({{ device.id }})" name="choicedDevice" value="{{ device.id }}" {% if device.status != 0 %}disabled{% endif %}/>
+	<div class="thumbnail" id="thumbnail_{{ device.id }}">
 		<img src="static/imgs/phone.png" alt="htc">
 		<table class="table table-bordered table-striped">
 			<tbody>
@@ -95,12 +95,12 @@ device_template = '''
 					<td><input class="deviceinfo_{{ device.id }}" name="resolution" type="text" value="{{ device.resolution }}" disabled="disabled"></td>
 				</tr>
 				<tr>
-					<th>status:</th>
-					<td><input class="deviceinfo_{{ device.id }}" name="status" type="text" value="{{ device.status }}" disabled="disabled"></td>
-				</tr>
-				<tr>
 					<th>deviceName:</th>
 					<td><input class="deviceinfo_{{ device.id }}" name="deviceName" type="text" value="{{ device.deviceName }}" disabled="disabled"></td>
+				</tr>
+				<tr>
+					<th>连接状态:</th>
+					<td>{% if device.status == 0%}<font color="green">连接正常</font>{%else%}<font color="red">连接异常</font>{% endif %}</td>
 				</tr>
 			</tbody>
 		</table>
@@ -109,12 +109,56 @@ device_template = '''
 {% endfor %}
 '''
 
+def updatedevicesinfo():
+	cmd = "adb devices"
+	connected_devices = {}
+	p = Popen(cmd,stdout=PIPE,shell=True)
+	for info in p.stdout.readlines():
+		info = info.decode()
+		if 'List' in info or len(info)<5:
+			continue
+
+		name,state = [n.strip() for n in info.split('\t') if n.strip()]
+		if 'offline' in info:
+			connected_devices[name] = -1
+		elif 'unauthorized' in info:
+			connected_devices[name] = -2
+		elif 'device' in info:
+			connected_devices[name] = 0
+		else:
+			continue
+	
+	p.kill()   
+
+	devices = Device.query.all()
+	for device in devices:
+		if device.deviceName not in connected_devices.keys():
+			device.status = -3
+		else:
+			device.status = connected_devices[device.deviceName]
+
+		db.session.add(device)
+		db.session.commit()
+
 @main.route("/getdevices")
 def getdevices():
 	from jinja2 import Template
 	global device_template
+	updatedevicesinfo()
 	devices = Device.query.all()
 	deviceinfo = Template(device_template).render(
 		devices=devices
 	)
 	return deviceinfo
+
+@main.route("/getDeviceStatus")
+def getdevicestatus():
+	updatedevicesinfo()
+
+	devices = Device.query.all()
+	status = {}
+	for device in devices:
+		status[str(device.id)] = str(device.status)
+	status = json.dumps(status)
+
+	return Response("data:"+status+"\n\n",mimetype="text/event-stream")
