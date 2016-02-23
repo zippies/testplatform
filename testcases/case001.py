@@ -2,7 +2,7 @@
 import sys
 sys.path.append("C:/Users/Administrator/Desktop/selftest/testplatform/app/main/defender/main")
 from android.basecase import AndroidDevice
-
+from time import sleep;import requests;
 
 class TestCase(AndroidDevice):
     desc = "测试"
