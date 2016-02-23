@@ -84,7 +84,7 @@ def conflictdata():
 		{
 		"id": testdata.id,
 		"name":testdata.name,
-		"value":"<input id='value_%s' type='text' class='form-control' value='%s'/>" %(testdata.id,testdata.value),
+		"value":"<input id='value_%s' type='text' class='form-control' value='%s'/>" %(testdata.id,json.dumps(testdata.value)),
 		"operate":"<button class='btn btn-default' onclick='saveeditconflictdata(%s)'>保存</button> <button class='btn btn-danger' onclick='delconflictdata(%s)'>删除</button>" %(testdata.id,testdata.id)
 		} for testdata in conflictdatas
 	]
@@ -94,10 +94,11 @@ def conflictdata():
 def saveeditconflictdata(id):
 	try:
 		conflictdata = Conflictdata.query.filter_by(id=id).first()
-		value = request.args.get("value")
+		value = eval(request.args.get("value"))
 		conflictdata.value = value
 		db.session.add(conflictdata)
 		db.session.commit()
+		print(conflictdata.value)
 	except Exception as e:
 		return "保存失败:%s" %str(e)
 	return "保存成功"

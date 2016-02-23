@@ -14,11 +14,10 @@
 <div>
 	<div class="row">
 			<form id="newconflictdataform">
-				<div style="float:left;margin-left:20px"><label>添加冲突测试数据:</label></div>
-				<div style="float:left;margin-left:10px"><input id="newname" type="text" name="name" class="form-control" placeholder="name"  /></div>
+				<div style="float:left;margin-left:20px"><input id="newname" type="text" name="name" class="form-control" placeholder="name"  /></div>
 				<div style="float:left;margin-left:10px"><input id="newvalue" type="text" name="value" class="form-control" placeholder="value" /></div>
 			</form>
-			<div style="float:left;margin-left:10px"><button id="newbtn" class="btn btn-default">添加</button></div>
+			<div style="float:left;margin-left:10px"><button id="newbtn" class="btn btn-default">添加互斥数据</button></div>
 	</div>
 	<div style="margin-top:10px">
 		<table id="table">
@@ -28,8 +27,6 @@
 
 <script>
 	$(function(){
-
-		interval = setInterval("resizeFrame()",50)
 
 		$("#newbtn").click(function(){
 			if($("#newname").val() && $("#newvalue").val()){
@@ -67,7 +64,7 @@
 				}
 			})
 		}else{
-			parent.layer.msg("不允许为空")
+			parent.layer.msg("name/value 不允许为空")
 		}
 
 	}

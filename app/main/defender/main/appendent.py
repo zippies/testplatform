@@ -29,7 +29,7 @@ class TestData(object):
 	def get(self,name,special_index=0):
 		if hasattr(self,name):
 			values = getattr(self,name)
-			if isinstance(values, str):
+			if isinstance(values, str) or isinstance(values,int):
 				return values
 			elif isinstance(values, list):
 				if special_index > len(values):

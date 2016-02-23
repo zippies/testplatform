@@ -261,6 +261,7 @@ class AndroidDevice(webdriver.Remote):
 					ele.click()
 
 	def testdatas(self,name):
+		print(1111,dir(self.test_datas))
 		data = self.test_datas.get(name)
 		if data:
 			return data

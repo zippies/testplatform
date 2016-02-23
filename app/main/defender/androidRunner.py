@@ -86,7 +86,7 @@ class AndroidRunner(Process):
 				os.makedirs(case_screenshot)
 				setattr(case,'screenshotdir',case_screenshot)
 
-	def _parseConflictData(conflict_datas):
+	def _parseConflictData(self,conflict_datas):
 		datas = {}
 		for data in conflict_datas:
 			datas[data.name] = data.value

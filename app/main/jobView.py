@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from flask import render_template,request,jsonify,redirect,url_for,send_file,Response,session,flash
-from ..models import db,Testjob,Appelement,Testcase,Device,Report
+from ..models import db,Testjob,Appelement,Testcase,Device,Report,Testdata,Conflictdata
 from flask.ext.login import login_required
 from werkzeug.utils import secure_filename
 from multiprocessing import Process

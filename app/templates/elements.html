@@ -12,12 +12,11 @@
 <div>
 	<div class="row">
 			<form id="newform">
-				<div style="float:left;margin-left:20px"><label>添加元素：</label></div>
-				<div style="float:left;margin-left:10px"><input id="newname" type="text" name="name" class="form-control" placeholder="name"  /></div>
+				<div style="float:left;margin-left:20px"><input id="newname" type="text" name="name" class="form-control" placeholder="name"  /></div>
 				<div style="float:left;margin-left:10px"><input id="newfindby" type="text" name="findby" class="form-control" placeholder="findby" /></div>
 				<div style="float:left;margin-left:10px"><input id="newvalue" type="text" name="value" class="form-control" placeholder="value" /></div>
 			</form>
-			<div style="float:left;margin-left:10px"><button id="newbtn" class="btn btn-default">添加</button></div>
+			<div style="float:left;margin-left:10px"><button id="newbtn" class="btn btn-default">添加元素</button></div>
 	</div>
 	<div style="margin-top:10px">
 		<table id="table">
@@ -64,7 +63,7 @@
 				}
 			})
 		}else{
-			layer.msg("不允许为空")
+			parent.layer.msg("name/findby/value 不允许为空")
 		}
 
 	}
