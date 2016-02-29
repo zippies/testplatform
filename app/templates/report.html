@@ -83,8 +83,8 @@
 					<div>
 						<table class="table table-striped">
 							<tr style="width:100%">
-								<th style="width:15%">case_device</th>
-								<th class="needcenter" style="width:25%">desc</th>
+								<th style="width:15%">{% if jobtype==3 %}case_device{% else %}device{% endif %}</th>
+								<th class="needcenter" style="width:25%">{% if jobtype==3 %}desc{% elif jobtype==2 %}actionCount{% else %}desc{% endif %}</th>
 								<th class="needcenter" style="width:10%">runtime</th>
 								<th class="needcenter" style="width:25%">errorMsg</th>
 								<th class="needcenter" style="width:15%">viewLog</th>
@@ -92,25 +92,40 @@
 							</tr>
 							{% for case in failedCases %}
 								<tr>
-									<td>{{ case.casename }}</td>
-									<td class="needcenter" >{{ case.casedesc }}</td>
+									<td>{% if jobtype==3 %}{{ case.casename }}{% else %} {{ case.device.deviceName }} {% endif %}</td>
+									<td class="needcenter" >{% if jobtype == 3%}{{ case.casedesc }}{% elif jobtype == 2%}{{ case.actionCount }}{% else %}安装/卸载/调起 测试{% endif %}</td>
 									<td class="needcenter">{{ case.runtime }}</td>
 									<td>{{ case.errorMsg }}</td>
 									<td class="needcenter">
-										<a href="javascript:;" onclick="viewAppiumlog('{{ case.casename }}')"  data-toggle="modal" data-target="#reportmodal">Appium</a>
-										<a href="javascript:;" onclick="viewCaselog('{{ case.casename }}')"  data-toggle="modal" data-target="#reportmodal">Case</a>
+										{% if jobtype == 3 %}
+											<a href="javascript:;" onclick="viewAppiumlog('{{ case.casename }}')"  data-toggle="modal" data-target="#reportmodal">Appium</a>
+											<a href="javascript:;" onclick="viewCaselog('{{ case.casename }}')"  data-toggle="modal" data-target="#reportmodal">Case</a>
+										{% elif jobtype == 2 %}
+											<a href="javascript:;" onclick="viewMonkeylog('{{ case.device.deviceName }}')"  data-toggle="modal" data-target="#reportmodal">Case</a>
+										{% else %}
+											<a href="javascript:;" onclick="viewLog('{{ case.device.deviceName }}')"  data-toggle="modal" data-target="#reportmodal">Case</a>
+										{% endif %}
 									</td>
 									<td class="needcenter">
 										{% if case.screenshotimgs %}
-											<a href="javascript:;" onclick="viewScreenshots('{{ case.casename }}')" data-toggle="modal" data-target="#screenshotmodal">查看</a>
+											{% if jobtype == 3 %}
+												<a href="javascript:;" onclick="viewScreenshots('{{ case.casename }}')" data-toggle="modal" data-target="#screenshotmodal">查看</a>
+											{% else %}
+												<a href="javascript:;" onclick="viewScreenshots('{{ case.device.deviceName }}')" data-toggle="modal" data-target="#screenshotmodal">查看</a>
+											{% endif %}
 										{% else %}
 											没有截图
 										{% endif %}
 									</td>
 									<script>
-										datas["{{ case.casename }}_appiumlog"] = {{ case.appiumlogcontent|safe }}
-										datas["{{ case.casename }}_caselog"] = {{ case.caselogcontent|safe }}
-										datas["{{ case.casename }}_screenshots"] = {{ case.screenshotimgs|safe }}
+										{% if jobtype==3 %}
+											datas["{{ case.casename }}_appiumlog"] = {{ case.appiumlogcontent|safe }}
+											datas["{{ case.casename }}_caselog"] = {{ case.caselogcontent|safe }}
+											datas["{{ case.casename }}_screenshots"] = {{ case.screenshotimgs|safe }}
+										{% else %}
+											datas["{{ case.device.deviceName }}_logcontents"] = {{ case.logcontents|safe }}
+											datas["{{ case.device.deviceName }}_screenshots"] = {{ case.screenshotimgs|safe }}
+										{% endif %}
 									</script>
 								</tr>
 							{% endfor %}
@@ -124,32 +139,47 @@
 					<div>
 						<table class="table table-striped">
 							<tr>
-								<th style="width:20%">case_device</th>
-								<th class="needcenter" style="width:30%">desc</th>
+								<th style="width:20%">{% if jobtype==3 %}case_device{% else %}device{% endif %}</th>
+								<th class="needcenter" style="width:30%">{% if jobtype==3 %}desc{% elif jobtype==2 %}actionCount{% else %}desc{% endif %}</th>
 								<th class="needcenter" style="width:15%">runtime</th>
 								<th class="needcenter" style="width:20%">viewLog</th>
 								<th class="needcenter" style="width:15%">viewscreenshots</th>
 							</tr>
 							{% for case in successCases %}
 								<tr>
-									<td>{{ case.casename }}</td>
-									<td class="needcenter">{{ case.casedesc }}</td>
+									<td>{% if jobtype==3 %}{{ case.casename }}{% else %} {{ case.device.deviceName }} {% endif %}</td>
+									<td class="needcenter">{% if jobtype == 3%}{{ case.casedesc }}{% elif jobtype == 2%}{{ case.actionCount }}{% else %}安装/卸载/调起 测试{% endif %}</td>
 									<td class="needcenter">{{ case.runtime }}</td>
 									<td class="needcenter">
-										<a href="javascript:;" onclick="viewAppiumlog('{{ case.casename }}')" data-toggle="modal" data-target="#reportmodal">Appium</a>
-										<a href="javascript:;" onclick="viewCaselog('{{ case.casename }}')" data-toggle="modal" data-target="#reportmodal">Case</a>
+										{% if jobtype == 3 %}
+											<a href="javascript:;" onclick="viewAppiumlog('{{ case.casename }}')"  data-toggle="modal" data-target="#reportmodal">Appium</a>
+											<a href="javascript:;" onclick="viewCaselog('{{ case.casename }}')"  data-toggle="modal" data-target="#reportmodal">Case</a>
+										{% elif jobtype == 2 %}
+											<a href="javascript:;" onclick="viewMonkeylog('{{ case.device.deviceName }}')"  data-toggle="modal" data-target="#reportmodal">MonkeyLog</a>
+										{% else %}
+											<a href="javascript:;" onclick="viewLog('{{ case.device.deviceName }}')"  data-toggle="modal" data-target="#reportmodal">Log</a>
+										{% endif %}
 									</td>
 									<td class="needcenter">
 										{% if case.screenshotimgs %}
-											<a href="javascript:;" onclick="viewScreenshots('{{ case.casename }}')" data-toggle="modal" data-target="#screenshotmodal">查看</a>
+											{% if jobtype == 3 %}
+												<a href="javascript:;" onclick="viewScreenshots('{{ case.casename }}')" data-toggle="modal" data-target="#screenshotmodal">查看</a>
+											{% else %}
+												<a href="javascript:;" onclick="viewScreenshots('{{ case.device.deviceName }}')" data-toggle="modal" data-target="#screenshotmodal">查看</a>
+											{% endif %}
 										{% else %}
 											没有截图
 										{% endif %}
 									</td>
 									<script>
-										datas["{{ case.casename }}_appiumlog"] = {{ case.appiumlogcontent|safe }}
-										datas["{{ case.casename }}_caselog"] = {{ case.caselogcontent|safe }}
-										datas["{{ case.casename }}_screenshots"] = {{ case.screenshotimgs|safe }}
+										{% if jobtype==3 %}
+											datas["{{ case.casename }}_appiumlog"] = {{ case.appiumlogcontent|safe }}
+											datas["{{ case.casename }}_caselog"] = {{ case.caselogcontent|safe }}
+											datas["{{ case.casename }}_screenshots"] = {{ case.screenshotimgs|safe }}
+										{% else %}
+											datas["{{ case.device.deviceName }}_logcontents"] = {{ case.logcontents|safe }}
+											datas["{{ case.device.deviceName }}_screenshots"] = {{ case.screenshotimgs|safe }}
+										{% endif %}
 									</script>
 								</tr>
 							{% endfor %}

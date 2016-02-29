@@ -15,7 +15,7 @@ class Config:
     UPLOAD_FOLDER = "C:/Users/Administrator/Desktop/selftest/testplatform/app/static/uploads"
     CASE_FOLDER = "C:/Users/Administrator/Desktop/selftest/testplatform/testcases"
     SQLALCHEMY_TRACK_MODIFICATIONS = True
-
+    APPIUM_LOG_LEVEL = "info"
     SHAIRED_CAPABILITIES = {
         "newCommandTimeout" : 120,
         "noSign" : True,
@@ -33,10 +33,7 @@ class Config:
     log_path = "C:/Users/Administrator/Desktop/selftest/testplatform/logs"
     snapshot_path = "C:/Users/Administrator/Desktop/selftest/testplatform/snapshots"
 
-    conflict_datas = \
-    '''
-    登录帐号    |   [ ('11266661001','111111'), ('11266661002','111111'), ('11266661004','111111'),('11266661005','111111'),('11266661007','111111'),('11266661008','111111')]
-    '''
+    monkey_action_count = 5000
 
     case_template = \
 '''

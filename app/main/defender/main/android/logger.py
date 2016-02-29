@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-import logging,os
-from threading import Thread
+import logging
 
 class Logger(object):
 	def __init__(self,name):
@@ -13,8 +12,9 @@ class Logger(object):
 				filename = 'tmp',
 				filemode = 'w'
 		)
-		
+		print(name)
 		infohandler = logging.FileHandler('%s_info.log' %name)
+
 		infohandler.setLevel(logging.INFO)
 		infohandler.setFormatter(fm)
 		self.infologger = logging.getLogger('%sinfologger' %name)

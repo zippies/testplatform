@@ -5,7 +5,7 @@ from flask.ext.login import login_required
 from werkzeug.utils import secure_filename
 from multiprocessing import Process
 from subprocess import Popen,PIPE
-from . import main,AndroidRunner
+from . import main,AndroidRunner,MonkeyRunner,CompatibleRunner
 from jinja2 import Template
 from .. import Config
 import os,sys,json,time,pickle
@@ -131,9 +131,9 @@ def runjob(id):
 		jobtype = job.jobType
 		try:
 			if jobtype == 1:
-				pass
+				runCompatibilityTest(job)
 			elif jobtype == 2:
-				pass
+				runStabilityTest(job)
 			elif jobtype == 3:
 				runFunctionalTest(job)
 			else:
@@ -145,6 +145,31 @@ def runjob(id):
 		resp["result"] = False
 		resp["info"] = "任务不存在"
 	return jsonify(resp)
+
+def runCompatibilityTest(job):
+	choiceddevices = []
+	for deviceid in job.relateDevices:
+		device = Device.query.filter_by(id=deviceid).first()
+		if device.status == 0:
+			choiceddevices.append(device)
+	runner = CompatibleRunner(job.id,choiceddevices,job.testapk,job.appPackage,job.appActivity,Config.log_path,Config.snapshot_path)
+	runner.start()
+	job.status = 1
+	db.session.add(job)
+	db.session.commit()
+
+def runStabilityTest(job):
+	choiceddevices = []
+	for deviceid in job.relateDevices:
+		device = Device.query.filter_by(id=deviceid).first()
+		if device.status == 0:
+			choiceddevices.append(device)
+
+	runner = MonkeyRunner(job.id,choiceddevices,job.appPackage,job.testapk,Config.monkey_action_count,300,Config.log_path,Config.snapshot_path)
+	runner.start()
+	job.status = 1
+	db.session.add(job)
+	db.session.commit()
 
 def runFunctionalTest(job):
 	testcases = {}
@@ -206,7 +231,7 @@ def runFunctionalTest(job):
 							appiums,
 							Config.log_path,
 							Config.snapshot_path,
-							"info",
+							Config.APPIUM_LOG_LEVEL,
 							Config.system_alerts,
 							appelements,
 							testdatas,
@@ -223,15 +248,42 @@ def viewreport(id):
 	if job:
 		report = Report.query.filter_by(id=job.reportID).first()
 		if report:
-			return render_template("report.html",
-									casecount=len(job.relateCases),
-									devicecount=len(job.relateDevices),
-									totalcount=len(job.relateCases)*len(job.relateDevices),
-									successCases=report.successCases,
-									failedCases=report.failedCases,
-									success=len(report.successCases),
-									failed=len(report.failedCases)
-			)
+			if job.jobType == 3:
+				return render_template("report.html",
+										jobtype=3,
+										casecount=len(job.relateCases),
+										devicecount=len(job.relateDevices),
+										totalcount=len(job.relateCases)*len(job.relateDevices),
+										successCases=report.successCases,
+										failedCases=report.failedCases,
+										success=len(report.successCases),
+										failed=len(report.failedCases)
+				)
+			elif job.jobType == 2:
+				return render_template("report.html",
+										jobtype=2,
+										casecount=0,
+										devicecount=len(job.relateDevices),
+										totalcount=len(job.relateDevices),
+										successCases=report.successCases,
+										failedCases=report.failedCases,
+										success=len(report.successCases),
+										failed=len(report.failedCases)
+				)
+			elif job.jobType == 1:
+				print(report.successCases)
+				return render_template("report.html",
+										jobtype=1,
+										casecount=0,
+										devicecount=len(job.relateDevices),
+										totalcount=len(job.relateDevices),
+										successCases=report.successCases,
+										failedCases=report.failedCases,
+										success=len(report.successCases),
+										failed=len(report.failedCases)
+				)
+			else:
+				pass
 		else:
 			pass
 	else:

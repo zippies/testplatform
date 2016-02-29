@@ -32,3 +32,29 @@ function viewScreenshots(casename) {
 		$("#screenshot_body").append(img)
 	})
 }
+
+function viewMonkeylog(deviceName) {
+	$("#report_header").html('<span style="font-weight:bold">'+deviceName+'.log</span>');
+	var logcontent = ""
+	datas[deviceName+"_logcontents"].forEach(function(e){
+		logcontent += e+"\r\n"
+	})
+
+	logviewer.getDoc().setValue(logcontent)
+	setTimeout(function(){
+		logviewer.refresh();
+	},200);
+}
+
+function viewLog(deviceName) {
+	$("#report_header").html('<span style="font-weight:bold">'+deviceName+'.log</span>');
+	var logcontent = ""
+	datas[deviceName+"_logcontents"].forEach(function(e){
+		logcontent += e+"\r\n"
+	})
+	console.log(logcontent)
+	logviewer.getDoc().setValue(logcontent)
+	setTimeout(function(){
+		logviewer.refresh();
+	},200);
+}

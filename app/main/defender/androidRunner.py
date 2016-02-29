@@ -10,7 +10,7 @@ class CaseObject(object):
 	def __init__(self,case):
 		self.casename = case.casename
 		self.casedesc = case.desc
-		self.runtime = case.result['runtime']
+		self.runtime = round(case.result['runtime'],2)
 		self.errorMsg = case.result['errorMsg']
 		self._processSelf(case)
 

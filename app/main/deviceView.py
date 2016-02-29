@@ -76,7 +76,7 @@ device_template = '''
 	<input type="checkbox" onclick="showchange({{ device.id }})" name="choicedDevice" value="{{ device.id }}" {% if device.status != 0 %}disabled{% endif %}/>
 	<div class="thumbnail" id="thumbnail_{{ device.id }}">
 		<img src="static/imgs/phone.png" alt="htc">
-		<table class="table table-bordered table-striped">
+		<table class="table table-bordered table-striped" id="deviceinfotable">
 			<tbody>
 				<tr>
 					<th>phoneModel:</th>
