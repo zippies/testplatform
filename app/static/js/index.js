@@ -54,14 +54,17 @@ function openmirror(){
 }
 
 function viewreport(id){
+	width = $(parent.document).width() + "px"
+	position_y = $(parent.document).height()/3
+
 	layer.open({
 		type: 2,
 		title: 'TestReport',
 		shadeClose: true,
 		shade: false,
 		maxmin: true, //开启最大化最小化按钮
-		offset: ['50px', '500px'],
-		area: ['1200px','800px'],
+		offset: [position_y+"px", '0px'],
+		area: ["100%",position_y*2+"px"],
 		content: '/viewreport/'+id
 	});
 }
