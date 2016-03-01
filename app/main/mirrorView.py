@@ -475,7 +475,6 @@ def getScreen():
 
 @main.route('/mirror')
 def mirror():
-	print(123123)
 	global nodeDatas,deviceStatus,packageName,main_activity
 	
 	devices = getDeviceState()

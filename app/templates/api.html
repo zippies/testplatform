@@ -7,10 +7,21 @@
 	<script src="/static/js/layer.js"></script>
 </head>
 <body>
-	<ul>
-		<li>data = self.testdatas(testdata_name)</li>
-		<li>username,password = self.conflictdatas('登录帐号')</li>
-	</ul>
-
+<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="false">
+{% for api in apis %}
+	<div class="panel panel-default">
+		<div class="panel-heading" role="tab" id="heading_{{ api[0] }}">
+			<h4 class="panel-title">
+				<a role="button" id="{{ api[0] }}" data-toggle="collapse" data-parent="#accordion" href="#collapse_{{ api[0] }}" aria-expanded="false" aria-controls="collapseOne">{{ api[0] }}</a>
+			</h4>
+		</div>
+		<div id="collapse_{{ api[0] }}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading_{{ api[0] }}">
+			<div class="panel-body">
+				<label>{{ api[1]|safe }}</label>
+			</div>
+		</div>
+	</div>
+{% endfor %}
+</div>
 </body>
 </html>

@@ -30,13 +30,15 @@ function initNavBar() {
 }
 
 function showapi(){
+	width = $(parent.document).width()/4
 	layer.open({
 		type: 2,
 		title: 'API文档',
 		shadeClose: true,
 		shade: false,
 		maxmin: true, //开启最大化最小化按钮
-		offset: ['350px','10px'],
+		offset: ['0px',width*3+"px"],
+		area: [width+"px","100%"],
 		content: '/showapi'
 	});
 }
@@ -54,7 +56,6 @@ function openmirror(){
 }
 
 function viewreport(id){
-	width = $(parent.document).width() + "px"
 	position_y = $(parent.document).height()/3
 
 	layer.open({

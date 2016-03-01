@@ -65,13 +65,38 @@ class AndroidDevice(webdriver.Remote):
 		return "<TestCase>:"+self.casename
 #=============================================自定义方法  BEGIN ==============================================================
 	def log(self,info):
+		'''
+			向日志中写入内容
+			用法：
+				self.log("hello,chris")
+		'''
 		self.logger.log("[log]%s" %info)
 
 	def sleep(self,seconds):
+		'''
+			睡眠几秒
+			参数：
+				seconds：睡眠时间，单位秒
+			用法：
+				self.sleep(10)
+		'''
 		self.logger.log("[action]sleep(seconds='%s')" %seconds)
 		time.sleep(seconds)
 
 	def find(self,by,value,nocheck=False):
+		'''
+			查找一个元素
+			参数：
+				by：定位元素的方式/id/name/xpath/class_name等
+				value：定位元素的id/name/xpath/class_name等的值
+				nocheck：如果该值为True,则元素找不到时忽略错误继续执行
+			用法：
+				element = self.find('id','element_id')
+				element = self.find('name','element_name')
+				element = self.find('class_name','element_class_name')
+				element = self.find('xpath','element_xpath')
+				...
+		'''
 		if by not in ['id','accessibility_id','class_name','css_selector','name','link_text','partial_link_text','tag_name','xpath','ios_uiautomation','android_uiautomator']:
 			raise CaseError("'find' function doesn't support such type:'%s'" %by)
 
@@ -85,6 +110,19 @@ class AndroidDevice(webdriver.Remote):
 				return None
 		
 	def finds(self,by,value,nocheck=False):
+		'''
+			查找多个元素
+			参数：
+				by：定位元素的方式/id/name/xpath/class_name等
+				value：定位元素的id/name/xpath/class_name等的值
+				nocheck：如果该值为True,则元素找不到时忽略错误继续执行
+			用法：
+				elements = self.finds('id','element_id')
+				elements = self.finds('name','element_name')
+				elements = self.finds('class_name','element_class_name')
+				elements = self.finds('xpath','element_xpath')
+				...
+		'''
 		if by not in ['id','accessibility_id','class_name','css_selector','name','link_text','partial_link_text','xpath','ios_uiautomation','android_uiautomator']:
 			raise CaseError("'find' function doesn't support such type:'%s'" %by)
 
@@ -98,6 +136,20 @@ class AndroidDevice(webdriver.Remote):
 				return []
 
 	def click(self,by,value,desc="",nocheck=False):
+		'''
+			点击一个元素
+			参数：
+				by：定位元素的方式/id/name/xpath/class_name等
+				value：定位元素的id/name/xpath/class_name等的值
+				desc：描述元素的文本信息，便于在日志中区别
+				nocheck：如果该值为True,则元素找不到时忽略错误继续执行
+			用法：
+				self.click('id','element_id')
+				self.click('name','element_name')
+				self.click('class_name','element_class_name')
+				self.click('xpath','element_xpath')
+				...
+		'''
 		self.logger.log("[action]click(by='%s',value='%s',nocheck=%s) '%s'" %(by,value,nocheck,desc))
 		if not isinstance(value, str):
 			raise CaseError("'click' function required a str type on 'value' parameter")
@@ -110,6 +162,16 @@ class AndroidDevice(webdriver.Remote):
 			ele.click()
 
 	def save_screen(self,filename=None,immediate=False):
+		'''
+			保存屏幕截图
+			参数：
+				filename: 截图存储的文件名,若不提供则默认从1开始为截图命名
+				immediate：如果该值为False 则会等待两秒后再截图
+			用法：
+				self.save_screen()
+				self.save_screen('filename')
+				self.save_screen('filename',immediate=True)
+		'''
 		time_str = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 		screen = None
 		if filename:
@@ -123,6 +185,21 @@ class AndroidDevice(webdriver.Remote):
 		self.get_screenshot_as_file(screen)
 
 	def input(self,by,value,text,desc="",nocheck=False):
+		'''
+			向一个元素内输入内容
+			参数：
+				by：定位元素的方式/id/name/xpath/class_name等
+				value：定位元素的id/name/xpath/class_name等的值
+				test：输入的文本内容
+				desc：描述元素的文本信息，便于在日志中区别
+				nocheck：如果该值为True,则元素找不到时忽略错误继续执行
+			用法：
+				self.input('id','element_id',"文本内容")
+				self.input('name','element_name',"文本内容")
+				self.input('class_name','element_class_name',"文本内容")
+				self.input('xpath','element_xpath',"文本内容")
+				...
+		'''
 		self.logger.log("[action]input(by='%s',value='%s',text='%s',nocheck=%s) '%s'" %(by,value,text,nocheck,desc))
 		ele = self.find(by,value,nocheck)
 		if not ele and nocheck:
@@ -131,6 +208,20 @@ class AndroidDevice(webdriver.Remote):
 			ele.send_keys(text)
 
 	def gettext(self,by,value,desc="",nocheck=False):
+		'''
+			向一个元素内输入内容
+			参数：
+				by：定位元素的方式/id/name/xpath/class_name等
+				value：定位元素的id/name/xpath/class_name等的值
+				desc：描述元素的文本信息，便于在日志中区别
+				nocheck：如果该值为True,则元素找不到时忽略错误继续执行
+			用法：
+				text = self.gettext('id','element_id',"描述元素内容")
+				text = self.gettext('name','element_name',"描述元素内容")
+				text = self.gettext('class_name','element_class_name',"描述元素内容")
+				text = self.gettext('xpath','element_xpath',"描述元素内容")
+				...
+		'''
 		self.logger.log("[action]gettext(by='%s',value='%s',nocheck=%s) '%s'" %(by,value,nocheck,desc))
 		ele = self.find(by,value,nocheck)
 
@@ -140,6 +231,20 @@ class AndroidDevice(webdriver.Remote):
 			return ele.text
 
 	def waitfor(self,by,value,desc="",timeout=10):
+		'''
+			向一个元素内输入内容
+			参数：
+				by：定位元素的方式/id/name/xpath/class_name等
+				value：定位元素的id/name/xpath/class_name等的值
+				desc：描述元素的文本信息，便于在日志中区别
+				timeout：等待超时时间，单位秒
+			用法：
+				self.waitfor('id','element_id',"描述元素内容")
+				self.waitfor('name','element_name',"描述元素内容")
+				self.waitfor('class_name','element_class_name',"描述元素内容")
+				self.waitfor('xpath','element_xpath',"描述元素内容")
+				...
+		'''
 		self.logger.log("[action]waitfor(by='%s',value='%s',timeout=%s) '%s'" %(by,value,timeout,desc))
 		try:
 			WebDriverWait(self,timeout,1).until(
@@ -150,15 +255,14 @@ class AndroidDevice(webdriver.Remote):
 			raise ActionTimeOut("'%s:%s' element not shown after %s seconds '%s'" %(by,value,timeout,desc))
 
 	def swipe(self,begin,end,duration=None):
-		"""Swipe from one point to another point, for an optional duration.
-		:Args:
-		 - start_x - x-coordinate at which to start
-		 - start_y - y-coordinate at which to start
-		 - end_x - x-coordinate at which to stop
-		 - end_y - y-coordinate at which to stop
-		 - duration - (optional) time to take the swipe, in ms.
-		:Usage:
-			driver.swipe((100, 100), (100, 400))
+		"""
+		从一个点滑动到另一个点
+		参数:
+			begin：开始点的坐标，例：(100,100)
+			end：结束点的坐标，例：(100,400)
+			duration：滑动操作持续的时间
+		用法:
+			self.swipe((100, 100), (100, 400))
 		"""
 		# `swipe` is something like press-wait-move_to-release, which the server
 		# will translate into the correct action
@@ -178,7 +282,11 @@ class AndroidDevice(webdriver.Remote):
 
 	def swipe_up(self,duration=None):
 		'''
-			swipe up full screen height
+			从屏幕底端向上划整个屏幕高度
+			参数：
+				duration：滑动操作持续的时间
+			用法：
+				self.swipe_up()
 		'''
 		start = (self.device_width/2,self.device_height-10)
 		end = (self.device_width/2,10)
@@ -186,7 +294,11 @@ class AndroidDevice(webdriver.Remote):
 
 	def swipe_down(self,duration=None):
 		'''
-			swipe down full screen height
+			从屏幕顶端向下划整个屏幕高度
+			参数：
+				duration：滑动操作持续的时间
+			用法：
+				self.swipe_down()
 		'''
 		start = (self.device_width/2,10)
 		end = (self.device_width/2,self.device_height-10)
@@ -194,7 +306,11 @@ class AndroidDevice(webdriver.Remote):
 
 	def swipe_left(self,duration=None):
 		'''
-			swipe left full screen width
+			从屏幕右端向左划整个屏幕宽度
+			参数：
+				duration：滑动操作持续的时间
+			用法：
+				self.swipe_left()
 		'''
 		start = (self.device_width-10,self.device_height/2)
 		end = (10,self.device_height/2)
@@ -202,7 +318,11 @@ class AndroidDevice(webdriver.Remote):
 
 	def swipe_right(self,duration=None):
 		'''
-			swipe right full screen width
+			从屏幕左端向右划整个屏幕宽度
+			参数：
+				duration：滑动操作持续的时间
+			用法：
+				self.swipe_right()
 		'''
 		start = (10,self.device_height/2)
 		end = (self.device_width-10,self.device_height/2)
@@ -232,6 +352,9 @@ class AndroidDevice(webdriver.Remote):
 		return self
 
 	def equals(self,a,b,strip=False):
+		'''
+			判断两个对象是否相等
+		'''
 		self.logger.log("[check]equals(a='%s',b='%s')" %(a,b))
 		if type(a) != type(b):
 			raise CheckError("'%s'(%s) is not the same type as '%s'(%s)" %(a,type(a),b,type(b)))
@@ -245,6 +368,9 @@ class AndroidDevice(webdriver.Remote):
 			raise CheckError("'%s' does not equals '%s'" %(a,b))
 
 	def allow_alert(self,nocheck=True):
+		'''
+			允许系统授权弹框
+		'''
 		self.logger.log("[action]allow_alert(nocheck='%s')" %nocheck)
 		pageSource = self.page_source
 		for id in self.system_alert_ids:
@@ -254,6 +380,9 @@ class AndroidDevice(webdriver.Remote):
 					ele.click()
 
 	def reject_alert(self,nocheck=True):
+		'''
+			拒绝系统授权弹框
+		'''
 		self.logger.log("[action]reject_alert(nocheck='%s')" %nocheck)
 		pageSource = self.page_source
 		for id in self.system_alert_ids:
@@ -263,6 +392,13 @@ class AndroidDevice(webdriver.Remote):
 					ele.click()
 
 	def testdatas(self,name):
+		'''
+			通用测试数据
+			参数：
+				name：数据名称
+			用法：
+				self.testdatas("系统内已有的数据名称")
+		'''
 		data = self.test_datas.get(name)
 		if data:
 			return data
@@ -270,6 +406,13 @@ class AndroidDevice(webdriver.Remote):
 			raise CaseError("testdata '%s' undefined,please add first." %name)
 
 	def conflictdatas(self,name):
+		'''
+			互斥测试数据
+			参数：
+				name：数据名称
+			用法：
+				self.conflictdatas("系统内已有的数据名称")
+		'''
 		if name in self.conflict_datas.keys():
 			try:
 				data = self.conflict_datas[name].pop()
@@ -280,6 +423,15 @@ class AndroidDevice(webdriver.Remote):
 			raise CaseError("conflictdata '%s' undefined,please add first." %name)
 
 	def click_point(self,x,y,duration=None):
+		'''
+			点击屏幕坐标
+			参数：
+				x：屏幕x坐标
+				y：屏幕y坐标
+				duration：点击操作持续时长，单位毫秒
+			用法：
+				self.click_point(100,100)
+		'''
 		self.logger.log("[action]click_point(x=%s,y=%s,duration=%s)" %(x,y,duration))
 		action = TouchAction(self)
 		if duration:
@@ -290,14 +442,23 @@ class AndroidDevice(webdriver.Remote):
 		return self
 
 	def goback(self):
+		'''
+			按返回按钮
+		'''
 		self.press_keycode(4)
 		return self
 
 	def gohome(self):
+		'''
+			按Home按钮
+		'''
 		self.press_keycode(3)
 		return self
 
 	def parseGestures(self,location,size):
+		'''
+			解析手势密码
+		'''
 		start_x,start_y = location['x'],location['y']
 		space_x,space_y = size["width"]/3,size["height"]/3
 		points = {}
@@ -313,6 +474,9 @@ class AndroidDevice(webdriver.Remote):
 		return points
 
 	def deal_gestures_password(self,case_element_name,gestures,nocheck=False):
+		'''
+			处理手势密码
+		'''
 		elem = self.super_find(case_element_name,nocheck=nocheck)
 		points = self.parseGestures(elem.location,elem.size)
 		action = TouchAction(self)
@@ -327,6 +491,14 @@ class AndroidDevice(webdriver.Remote):
 		return self
 
 	def super_click(self,case_element_name,nocheck=False):
+		'''
+			点击系统内已添加的某个元素
+			参数：
+				case_element_name：系统内已添加的元素名称
+				nocheck：该值为True时，找不到元素会忽略错误继续执行
+			用法：
+				self.super_click("登录按钮")
+		'''
 		by,value = self.case_elements.get(case_element_name)
 		if by and value:
 			self.click(by,value,desc=case_element_name,nocheck=nocheck)
@@ -335,16 +507,39 @@ class AndroidDevice(webdriver.Remote):
 			raise CaseError(error)
 
 	def super_clicks(self,case_element_names,nocheck=False):
+		'''
+			点击系统内已添加的多个元素
+			参数：
+				case_element_names：系统内已添加的元素名称列表
+				nocheck：该值为True时，找不到元素会忽略错误继续执行
+			用法：
+				self.super_clicks(["同意授权按钮",登录按钮"])
+		'''
 		for name in case_element_names:
 			self.super_click(name,nocheck=nocheck)
 
 	def super_exists(self,case_element_name):
+		'''
+			判断是否能找到系统内已添加的某个元素
+			参数：
+				case_element_name：系统内已添加的元素名称
+			用法：
+				isexists = self.super_exists("登录按钮")
+		'''
 		if self.super_find(case_element_name,nocheck=True):
 			return True
 		else:
 			return False
 
 	def super_find(self,case_element_name,nocheck=False):
+		'''
+			查找系统内已添加的某个元素
+			参数：
+				case_element_name：系统内已添加的元素名称
+				nocheck：该值为True时，找不到元素会忽略错误继续执行
+			用法：
+				self.super_find("登录按钮")
+		'''
 		by,value = self.case_elements.get(case_element_name)
 		if by and value:
 			return self.find(by,value,nocheck=nocheck)
@@ -353,6 +548,14 @@ class AndroidDevice(webdriver.Remote):
 			raise CaseError(error)
 
 	def super_finds(self,case_element_name,nocheck=False):
+		'''
+			查找系统内已添加的多个元素
+			参数：
+				case_element_names：系统内已添加的元素名称列表
+				nocheck：该值为True时，找不到元素会忽略错误继续执行
+			用法：
+				self.super_finds(["用户名输入框","登录按钮"])
+		'''
 		by,value = self.case_elements.get(case_element_name)
 		if by and value:
 			return self.finds(by,value,nocheck=nocheck)
@@ -361,6 +564,15 @@ class AndroidDevice(webdriver.Remote):
 			raise CaseError(error)
 
 	def super_input(self,case_element_name,text,nocheck=False):
+		'''
+			向系统内已添加的某个元素输入内容
+			参数：
+				case_element_name：系统内已添加的元素名称
+				text：需要输入的文字内容
+				nocheck：该值为True时，找不到元素会忽略错误继续执行
+			用法：
+				self.super_input("用户名输入框","chao.chen")
+		'''
 		by,value = self.case_elements.get(case_element_name)
 		if by and value:
 			self.input(by,value,text,desc=case_element_name,nocheck=nocheck)
@@ -369,10 +581,27 @@ class AndroidDevice(webdriver.Remote):
 			raise CaseError(error)
 
 	def super_inputs(self,case_element_names,text,nocheck=False):
+		'''
+			向系统内已添加的多个元素输入内容
+			参数：
+				case_element_names：系统内已添加的元素名称列表
+				text：需要输入的文字内容
+				nocheck：该值为True时，找不到元素会忽略错误继续执行
+			用法：
+				self.super_inputs(["用户名输入框","密码输入框"],"chao.chen")
+		'''
 		for name in case_element_names:
 			self.super_input(name,text,nocheck=nocheck)
 
 	def super_gettext(self,case_element_name,nocheck=False):
+		'''
+			获取某个元素的文本内容
+			参数：
+				case_element_name：系统内已添加的元素名称
+				nocheck：该值为True时，找不到元素会忽略错误继续执行
+			用法：
+				text = self.super_gettext("登录按钮")
+		'''
 		by,value = self.case_elements.get(case_element_name)
 		if by and value:
 			return self.gettext(by,value,desc=case_element_name,nocheck=nocheck)
@@ -381,6 +610,14 @@ class AndroidDevice(webdriver.Remote):
 			raise CaseError(error)
 
 	def super_waitfor(self,case_element_name,timeout=10):
+		'''
+			等待某个元素出现
+			参数：
+				case_element_name：系统内已添加的元素名称
+				timeout：超时时间
+			用法：
+				self.super_waitfor("登录按钮")
+		'''
 		by,value = self.case_elements.get(case_element_name)
 		if by and value:
 			return self.waitfor(by,value,desc=case_element_name,timeout=timeout)

@@ -5,7 +5,7 @@ from flask.ext.login import login_required
 from werkzeug.utils import secure_filename
 from multiprocessing import Process
 from subprocess import Popen,PIPE
-from . import main,AndroidRunner,MonkeyRunner,CompatibleRunner
+from . import main,AndroidRunner,MonkeyRunner,CompatibleRunner,API
 from jinja2 import Template
 from .. import Config
 import os,sys,json,time,pickle,platform
@@ -344,4 +344,17 @@ def getscreenshot():
 
 @main.route("/showapi")
 def showapi():
-	return render_template("api.html")
+	from pprint import pprint
+	funcs = dir(API)
+	funcs.sort()
+	apis = []
+	for func in funcs:
+		if not func.startswith("_"):
+			doc = eval("API.%s" %func).__doc__
+			if doc:
+				doc = doc.replace("\n","<p>")
+				doc = doc.replace("\t","&nbsp&nbsp&nbsp&nbsp")
+				doc = doc.replace("driver","self")
+			apis.append([func,doc])
+
+	return render_template("api.html",apis=apis)
