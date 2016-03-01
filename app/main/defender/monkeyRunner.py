@@ -29,29 +29,29 @@ class Monkey(object):
 	def runTest(self):
 		logfile = os.path.join(self.logpath,"%s.log" %self.device.deviceName)
 
-		self.logcontents.append("[action]Try to uninstall old apk:%s" %self.packageName)
-		uninstall_history_pkg = "adb -s {deviceName} uninstall {packageName}".format(deviceName=self.device.deviceName,packageName=self.packageName)
-		infos = os.popen(uninstall_history_pkg).readlines()
-		for info in infos:
-			if info.strip():
-				if info.strip()== "Success":
-					self.logcontents.append("[status]uninstall old apk success")
-				else:
-					self.logcontents.append("[status]apk not installed,continue...")
+		# self.logcontents.append("[action]Try to uninstall old apk:%s" %self.packageName)
+		# uninstall_history_pkg = "adb -s {deviceName} uninstall {packageName}".format(deviceName=self.device.deviceName,packageName=self.packageName)
+		# infos = os.popen(uninstall_history_pkg).readlines()
+		# for info in infos:
+		# 	if info.strip():
+		# 		if info.strip()== "Success":
+		# 			self.logcontents.append("[status]uninstall old apk success")
+		# 		else:
+		# 			self.logcontents.append("[status]apk not installed,continue...")
 		
-		self.save_screen("before_install_apk")
+		# self.save_screen("before_install_apk")
 
-		self.logcontents.append("[action]Try to install new apk:%s" %self.apk)
-		install_pkg = "adb -s {deviceName} install {apk}".format(deviceName=self.device.deviceName,apk=self.apk)
-		infos = os.popen(install_pkg).readlines()
-		for info in infos:
-			if info.strip():
-				if "Failure" in info.strip() or "Error" in info.strip() or "Missing" in info.strip():
-					self.errorMsg = "install apk failed!"
-				else:
-					self.logcontents.append("[status]installing apk:%s" %info.strip())
+		# self.logcontents.append("[action]Try to install new apk:%s" %self.apk)
+		# install_pkg = "adb -s {deviceName} install {apk}".format(deviceName=self.device.deviceName,apk=self.apk)
+		# infos = os.popen(install_pkg).readlines()
+		# for info in infos:
+		# 	if info.strip():
+		# 		if "Failure" in info.strip() or "Error" in info.strip() or "Missing" in info.strip():
+		# 			self.errorMsg = "install apk failed!"
+		# 		else:
+		# 			self.logcontents.append("[status]installing apk:%s" %info.strip())
 
-		self.save_screen("after_install_apk")
+		# self.save_screen("after_install_apk")
 
 		cmd = "adb -s {deviceName} shell monkey -s {seed} -p {packageName} -v --throttle {actionDelay} {actionCount} > {logfile}".format(
 			deviceName=self.device.deviceName,
@@ -87,9 +87,9 @@ class Monkey(object):
 				if "aborted" in line or "Error" in line or "Failure" in line:
 					self.errorMsg = line
 
-class MonkeyRunner(Process):
+class MonkeyRunner(Thread):
 	def __init__(self,id,devices,packageName,apk,actionCount,actionDelay,logpath,snapshotpath):
-		Process.__init__(self)
+		Thread.__init__(self)
 		self.id = id
 		self.logtime = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 		self.logpath = os.path.join(logpath,self.logtime)
@@ -124,8 +124,10 @@ class MonkeyRunner(Process):
 		'''
 			初始化(如果不存在则创建)日志文件夹路径和截图文件夹路径
 		'''
-		os.makedirs(self.logpath)
-		os.makedirs(self.snapshotpath)
+		if not os.path.isdir(self.logpath):
+			os.makedirs(self.logpath)
+		if not os.path.isdir(self.snapshotpath):
+			os.makedirs(self.snapshotpath)
 
 	def run(self):
 		threads = []
@@ -153,8 +155,9 @@ class MonkeyRunner(Process):
 
 		tasks = {str(self.id):{"status":"2","result":self.result}}
 
-		with open("tasks.pkl","wb") as f:
+		with open("data/tasks.pkl","wb") as f:
 			pickle.dump(tasks,f)
+
 
 if __name__ == "__main__":
 	devices = [Device(1,"M3LDU15424001636")]

@@ -33,7 +33,7 @@ class Config:
     log_path = "C:/Users/Administrator/Desktop/selftest/testplatform/logs"
     snapshot_path = "C:/Users/Administrator/Desktop/selftest/testplatform/snapshots"
 
-    monkey_action_count = 5000
+    monkey_action_count = 1000
 
     case_template = \
 '''
@@ -64,6 +64,10 @@ class TestCase(AndroidDevice):
 
     def run(self):
         self.implicitly_wait(10)
+
+        self.allow_alert(nocheck=True)
+
+        self.allow_alert(nocheck=True)
 {% for action in actions %}
         {{ action }}
 {% endfor %}

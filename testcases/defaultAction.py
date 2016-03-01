@@ -5,7 +5,7 @@ from android.basecase import AndroidDevice
 
 
 class TestCase(AndroidDevice):
-    desc = "登录注册"
+    desc = "登录用例"
 
     def __init__(self,ce,dc):
         self.dc = dc
@@ -26,6 +26,22 @@ class TestCase(AndroidDevice):
     def run(self):
         self.implicitly_wait(10)
 
-        self.super_click("登录注册按钮")
+        self.allow_alert(nocheck=True)
+
+        self.allow_alert(nocheck=True)
+
+        username,password = self.conflictdatas("登录账号")
+
+        self.log("username:%s password:%s" %(username,password))
+
+        self.super_click("注册登录按钮")
+
+        self.super_input("手机号输入框",username)
+
+        self.super_click("手机号下一步按钮")
+
+        self.super_input("密码输入框",password)
+
+        self.super_click("密码下一步按钮")
 
         self.save_screen("login")

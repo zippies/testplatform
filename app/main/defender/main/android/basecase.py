@@ -245,6 +245,7 @@ class AndroidDevice(webdriver.Remote):
 			raise CheckError("'%s' does not equals '%s'" %(a,b))
 
 	def allow_alert(self,nocheck=True):
+		self.logger.log("[action]allow_alert(nocheck='%s')" %nocheck)
 		pageSource = self.page_source
 		for id in self.system_alert_ids:
 			if id[0] in pageSource:
@@ -253,6 +254,7 @@ class AndroidDevice(webdriver.Remote):
 					ele.click()
 
 	def reject_alert(self,nocheck=True):
+		self.logger.log("[action]reject_alert(nocheck='%s')" %nocheck)
 		pageSource = self.page_source
 		for id in self.system_alert_ids:
 			if id[1] in pageSource:

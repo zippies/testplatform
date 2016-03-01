@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import logging
+import logging,os
 
 class Logger(object):
 	def __init__(self,name):
@@ -9,10 +9,10 @@ class Logger(object):
 				level = logging.DEBUG,
 				format = self.format,
 				datefmt = '%Y_%m_%d %H:%M:%S',
-				filename = 'tmp',
+				filename = "%s.tmp" %name,
 				filemode = 'w'
 		)
-		print(name)
+
 		infohandler = logging.FileHandler('%s_info.log' %name)
 
 		infohandler.setLevel(logging.INFO)

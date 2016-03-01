@@ -8,7 +8,7 @@ from subprocess import Popen,PIPE
 from . import main,AndroidRunner,MonkeyRunner,CompatibleRunner
 from jinja2 import Template
 from .. import Config
-import os,sys,json,time,pickle
+import os,sys,json,time,pickle,platform
 sys.path.append(Config.CASE_FOLDER)
 
 tasks = {}
@@ -19,7 +19,7 @@ def index():
 	'''
 		首页导航
 	'''
-	pickle.dump(tasks,open("tasks.pkl",'wb'))
+	pickle.dump(tasks,open("data/tasks.pkl",'wb'))
 	devices = Device.query.all()
 	testcases = Testcase.query.all()
 	return render_template("index.html",
@@ -32,7 +32,7 @@ def index():
 def getStatus():
 	task = {}
 	try:
-		task = pickle.load(open("tasks.pkl",'rb'))
+		task = pickle.load(open("data/tasks.pkl",'rb'))
 	except:
 		pass
 	job = Testjob.query.filter_by(status=1).first()
@@ -57,7 +57,7 @@ def getStatus():
 				db.session.add(job)
 				db.session.commit()
 				data["status"] = "2"
-				pickle.dump({},open("tasks.pkl",'wb'))
+				pickle.dump({},open("data/tasks.pkl",'wb'))
 			else:
 				data["status"] = "1"
 	else:
@@ -80,6 +80,7 @@ def jobs():
 
 @main.route("/newjob",methods=["POST","GET"])
 def newjob():
+	system = platform.system()
 	if request.method == 'POST':
 		try:
 			choiceddevices = dict(request.form).get('choicedDevice')
@@ -90,8 +91,8 @@ def newjob():
 			fname = secure_filename(f.filename)
 			apk = os.path.join(Config.UPLOAD_FOLDER,fname)
 			f.save(apk)
-			cmd_activity = "aapt d badging %s|findstr launchable-activity" %apk
-			cmd_package = "aapt d badging %s|findstr package" %apk
+			cmd_activity = "aapt d badging %s|%s launchable-activity" %(apk,"findstr" if system == "Windows" else "grep")
+			cmd_package = "aapt d badging %s|%s package" %(apk,"findstr" if system == "Windows" else "grep")
 			activity = Popen(cmd_activity,stdout=PIPE,shell=True)
 			package = Popen(cmd_package,stdout=PIPE,shell=True)
 			main_activity = activity.stdout.read().decode().split("name='")[1].split("'")[0]
@@ -158,15 +159,62 @@ def runCompatibilityTest(job):
 	db.session.add(job)
 	db.session.commit()
 
+class FakeDevice(object):
+	def __init__(self,deviceName,platform,platformVersion):
+		self.deviceName = deviceName
+		self.platform = platform
+		self.platformVersion = platformVersion
+
+	def __repr__(self):
+		return "<fakedevice:%s>" % self.deviceName
+
 def runStabilityTest(job):
 	choiceddevices = []
 	for deviceid in job.relateDevices:
 		device = Device.query.filter_by(id=deviceid).first()
 		if device.status == 0:
-			choiceddevices.append(device)
+			choiceddevices.append(FakeDevice(device.deviceName,device.platform,device.platformVersion))
 
-	runner = MonkeyRunner(job.id,choiceddevices,job.appPackage,job.testapk,Config.monkey_action_count,300,Config.log_path,Config.snapshot_path)
-	runner.start()
+	assert len(choiceddevices) > 0,"没有可用的设备"
+
+	appelements = Appelement.query.all()
+	testdatas = Testdata.query.all()
+	conflict_datas = Conflictdata.query.all()
+
+	capabilities = []
+	for c_device in choiceddevices:
+		capabilities.append({"deviceName":c_device.deviceName,"platformName":c_device.platform,"platformVersion":c_device.platformVersion})
+	appiums = []
+	testcases = {}
+	under_testcase = []
+	for index,device in enumerate(capabilities):
+		for key,value in Config.SHAIRED_CAPABILITIES.items():
+			device[key] = value
+		device["app"] = job.testapk
+		device["appPackage"] = job.appPackage
+		device["appActivity"] = job.appActivity
+		device['automationName'] = 'Appium' if float(device['platformVersion']) > 4.2 else 'Selendroid'
+		device["newCommandTimeout"] = 60*60*24
+		port = str(16230 + index)
+		bootstrap_port = str(17230 + index)
+		selendroid_port = str(15230 + index)
+		appiums.append({"port":port,"bootstrap_port":bootstrap_port,"url":"http://localhost:%s/wd/hub" %port})
+		under_testcase.append(__import__("defaultAction").TestCase(appiums[index],device))
+	testcases["defaultAction"] = under_testcase
+	androidRunner = AndroidRunner(
+							job.id,
+							testcases,
+							appiums,
+							Config.log_path,
+							Config.snapshot_path,
+							Config.APPIUM_LOG_LEVEL,
+							Config.system_alerts,
+							appelements,
+							testdatas,
+							conflict_datas,
+							MonkeyRunner(job.id,choiceddevices,job.appPackage,job.testapk,Config.monkey_action_count,300,Config.log_path,Config.snapshot_path)
+	)
+	androidRunner.start()
 	job.status = 1
 	db.session.add(job)
 	db.session.commit()
@@ -227,7 +275,6 @@ def runFunctionalTest(job):
 	runner = AndroidRunner(
 							job.id,
 							testcases,
-							capabilities,
 							appiums,
 							Config.log_path,
 							Config.snapshot_path,
@@ -271,7 +318,6 @@ def viewreport(id):
 										failed=len(report.failedCases)
 				)
 			elif job.jobType == 1:
-				print(report.successCases)
 				return render_template("report.html",
 										jobtype=1,
 										casecount=0,

@@ -31,11 +31,10 @@ class CaseObject(object):
 	def __repr__(self):
 		return "<CaseObject:%s>" %self.casename 
 
-class AndroidRunner(Process):
+class AndroidRunner(Thread):
 	def __init__(self,
 				id,
 				cases,
-				capabilities,
 				appiums,
 				logpath,
 				snapshotpath,
@@ -43,11 +42,12 @@ class AndroidRunner(Process):
 				system_alert_ids,
 				case_elements,
 				test_datas,
-				conflict_datas):
-		Process.__init__(self)
+				conflict_datas,
+				callback=None
+				):
+		Thread.__init__(self)
 		self.id = id
 		self.cases = cases
-		self.capabilities = capabilities
 		self.reachable_devices = None
 		self.appium_log_level = appium_log_level
 		self.snapshotpath = snapshotpath
@@ -60,6 +60,7 @@ class AndroidRunner(Process):
 		self.logtime = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 		self.appiums = appiums
 		self.logdir = os.path.join(logpath,self.logtime)
+		self.callback = callback
 		self.result = {
 				"success":[],
 				"failed":[],
@@ -76,7 +77,8 @@ class AndroidRunner(Process):
 		'''
 			初始化(如果不存在则创建)日志文件夹路径和截图文件夹路径
 		'''
-		os.makedirs(self.logdir)
+		if not os.path.isdir(self.logdir):
+			os.makedirs(self.logdir)
 
 		for cases in self.cases.values():
 			self.result['casecount'] += 1
@@ -120,8 +122,9 @@ class AndroidRunner(Process):
 					 -g %s \
 					 --log-timestamp \
 					 --log-level %s \
+					 --full-reset \
 					 -U %s \
-					 --log-no-colors > %s.txt" %(case.appium_port,case.bootstrap_port,appiumlog,self.appium_log_level,case.device_name,case.appium_port)
+					 --log-no-colors > %s.txt" %(case.appium_port,case.bootstrap_port,appiumlog,self.appium_log_level,case.device_name,os.path.join(self.logdir,case.appium_port))
 			p = Process(target=os.system,args=(cmd,))
 			p.daemon = True
 			appium_process_list.append(p)
@@ -175,11 +178,19 @@ class AndroidRunner(Process):
 		except Exception as e:
 			print("error occured while running 'runMultiTest':",str(e))
 		finally:
-			time.sleep(1)
-			self.stopAppium()
-			tasks = {str(self.id):{"status":"2","result":self.result}}
-			with open("tasks.pkl","wb") as f:
-				pickle.dump(tasks,f)
+			if not self.callback:
+				time.sleep(1)
+				self.stopAppium()
+				tasks = {str(self.id):{"status":"2","result":self.result}}
+				with open("data/tasks.pkl","wb") as f:
+					pickle.dump(tasks,f)
+			else:
+				self.callback.start()
+				self.callback.join()
+				for cases in self.cases.values():
+					for case in cases:
+						case.close_app()
+				self.stopAppium()
 
 	def runTest(self,case,conflict_datas):
 		print("[action]Initializing case %s" %case.casename)
@@ -219,5 +230,6 @@ class AndroidRunner(Process):
 				self.result['failed'].append(CaseObject(case))
 			print("end test:",case.casename)
 			if initsuccess:
-				case.close_app()
-				case.quit()
+				if not self.callback:
+					case.close_app()
+

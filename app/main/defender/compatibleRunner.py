@@ -62,6 +62,7 @@ class Compatibler(object):
 					self.errorMsg = "call up apk failed!"
 				else:
 					self.logcontents.append("[status]%s" %info.strip())
+					self.logcontents.append("[status]Success")
 
 		time.sleep(2)
 		self.save_screen("call_up_app")
@@ -154,7 +155,7 @@ class CompatibleRunner(Process):
 
 		tasks = {str(self.id):{"status":"2","result":self.result}}
 
-		with open("tasks.pkl","wb") as f:
+		with open("data/tasks.pkl","wb") as f:
 			pickle.dump(tasks,f)
 
 if __name__ == "__main__":
