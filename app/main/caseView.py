@@ -89,7 +89,7 @@ def delcase(id):
 
 @main.route("/uploadcase",methods=["POST"])
 def uploadcase():
-	return "112"
+	return "该功能尚未支持"
 
 @main.route("/testcases")
 def testcases():

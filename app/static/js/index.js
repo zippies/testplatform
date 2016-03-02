@@ -37,7 +37,7 @@ function showapi(){
 		shadeClose: true,
 		shade: false,
 		maxmin: true, //开启最大化最小化按钮
-		offset: ['0px',width*3+"px"],
+		offset: ['0px',width*3-5+"px"],
 		area: [width+"px","100%"],
 		content: '/showapi'
 	});

@@ -66,36 +66,39 @@ class AndroidDevice(webdriver.Remote):
 #=============================================自定义方法  BEGIN ==============================================================
 	def log(self,info):
 		'''
-			向日志中写入内容
-			用法：
-				self.log("hello,chris")
+log(info)
+向日志中写入内容
+用法：
+	self.log("hello,chris")
 		'''
 		self.logger.log("[log]%s" %info)
 
 	def sleep(self,seconds):
 		'''
-			睡眠几秒
-			参数：
-				seconds：睡眠时间，单位秒
-			用法：
-				self.sleep(10)
+sleep(seconds)
+睡眠几秒
+参数：
+	seconds：睡眠时间，单位秒
+用法：
+	self.sleep(10)
 		'''
 		self.logger.log("[action]sleep(seconds='%s')" %seconds)
 		time.sleep(seconds)
 
 	def find(self,by,value,nocheck=False):
 		'''
-			查找一个元素
-			参数：
-				by：定位元素的方式/id/name/xpath/class_name等
-				value：定位元素的id/name/xpath/class_name等的值
-				nocheck：如果该值为True,则元素找不到时忽略错误继续执行
-			用法：
-				element = self.find('id','element_id')
-				element = self.find('name','element_name')
-				element = self.find('class_name','element_class_name')
-				element = self.find('xpath','element_xpath')
-				...
+find(by,value,nocheck=False)
+查找一个元素
+参数：
+	by：定位元素的方式/id/name/xpath/class_name等
+	value：定位元素的id/name/xpath/class_name等的值
+	nocheck：如果该值为True,则元素找不到时忽略错误继续执行
+用法：
+	element = self.find('id','element_id')
+	element = self.find('name','element_name')
+	element = self.find('class_name','element_class_name')
+	element = self.find('xpath','element_xpath')
+	...
 		'''
 		if by not in ['id','accessibility_id','class_name','css_selector','name','link_text','partial_link_text','tag_name','xpath','ios_uiautomation','android_uiautomator']:
 			raise CaseError("'find' function doesn't support such type:'%s'" %by)
@@ -111,17 +114,18 @@ class AndroidDevice(webdriver.Remote):
 		
 	def finds(self,by,value,nocheck=False):
 		'''
-			查找多个元素
-			参数：
-				by：定位元素的方式/id/name/xpath/class_name等
-				value：定位元素的id/name/xpath/class_name等的值
-				nocheck：如果该值为True,则元素找不到时忽略错误继续执行
-			用法：
-				elements = self.finds('id','element_id')
-				elements = self.finds('name','element_name')
-				elements = self.finds('class_name','element_class_name')
-				elements = self.finds('xpath','element_xpath')
-				...
+finds(by,value,nocheck=False)
+查找多个元素
+参数：
+	by：定位元素的方式/id/name/xpath/class_name等
+	value：定位元素的id/name/xpath/class_name等的值
+	nocheck：如果该值为True,则元素找不到时忽略错误继续执行
+用法：
+	elements = self.finds('id','element_id')
+	elements = self.finds('name','element_name')
+	elements = self.finds('class_name','element_class_name')
+	elements = self.finds('xpath','element_xpath')
+	...
 		'''
 		if by not in ['id','accessibility_id','class_name','css_selector','name','link_text','partial_link_text','xpath','ios_uiautomation','android_uiautomator']:
 			raise CaseError("'find' function doesn't support such type:'%s'" %by)
@@ -137,18 +141,19 @@ class AndroidDevice(webdriver.Remote):
 
 	def click(self,by,value,desc="",nocheck=False):
 		'''
-			点击一个元素
-			参数：
-				by：定位元素的方式/id/name/xpath/class_name等
-				value：定位元素的id/name/xpath/class_name等的值
-				desc：描述元素的文本信息，便于在日志中区别
-				nocheck：如果该值为True,则元素找不到时忽略错误继续执行
-			用法：
-				self.click('id','element_id')
-				self.click('name','element_name')
-				self.click('class_name','element_class_name')
-				self.click('xpath','element_xpath')
-				...
+click(by,value,desc="",nocheck=False)
+点击一个元素
+参数：
+	by：定位元素的方式/id/name/xpath/class_name等
+	value：定位元素的id/name/xpath/class_name等的值
+	desc：描述元素的文本信息，便于在日志中区别
+	nocheck：如果该值为True,则元素找不到时忽略错误继续执行
+用法：
+	self.click('id','element_id')
+	self.click('name','element_name')
+	self.click('class_name','element_class_name')
+	self.click('xpath','element_xpath')
+	...
 		'''
 		self.logger.log("[action]click(by='%s',value='%s',nocheck=%s) '%s'" %(by,value,nocheck,desc))
 		if not isinstance(value, str):
@@ -163,14 +168,15 @@ class AndroidDevice(webdriver.Remote):
 
 	def save_screen(self,filename=None,immediate=False):
 		'''
-			保存屏幕截图
-			参数：
-				filename: 截图存储的文件名,若不提供则默认从1开始为截图命名
-				immediate：如果该值为False 则会等待两秒后再截图
-			用法：
-				self.save_screen()
-				self.save_screen('filename')
-				self.save_screen('filename',immediate=True)
+save_screen(filename=None,immediate=False)
+保存屏幕截图
+参数：
+	filename: 截图存储的文件名,若不提供则默认从1开始为截图命名
+	immediate：如果该值为False 则会等待两秒后再截图
+用法：
+	self.save_screen()
+	self.save_screen('filename')
+	self.save_screen('filename',immediate=True)
 		'''
 		time_str = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 		screen = None
@@ -186,19 +192,20 @@ class AndroidDevice(webdriver.Remote):
 
 	def input(self,by,value,text,desc="",nocheck=False):
 		'''
-			向一个元素内输入内容
-			参数：
-				by：定位元素的方式/id/name/xpath/class_name等
-				value：定位元素的id/name/xpath/class_name等的值
-				test：输入的文本内容
-				desc：描述元素的文本信息，便于在日志中区别
-				nocheck：如果该值为True,则元素找不到时忽略错误继续执行
-			用法：
-				self.input('id','element_id',"文本内容")
-				self.input('name','element_name',"文本内容")
-				self.input('class_name','element_class_name',"文本内容")
-				self.input('xpath','element_xpath',"文本内容")
-				...
+input(by,value,text,desc="",nocheck=False)
+向一个元素内输入内容
+参数：
+	by：定位元素的方式/id/name/xpath/class_name等
+	value：定位元素的id/name/xpath/class_name等的值
+	test：输入的文本内容
+	desc：描述元素的文本信息，便于在日志中区别
+	nocheck：如果该值为True,则元素找不到时忽略错误继续执行
+用法：
+	self.input('id','element_id',"文本内容")
+	self.input('name','element_name',"文本内容")
+	self.input('class_name','element_class_name',"文本内容")
+	self.input('xpath','element_xpath',"文本内容")
+	...
 		'''
 		self.logger.log("[action]input(by='%s',value='%s',text='%s',nocheck=%s) '%s'" %(by,value,text,nocheck,desc))
 		ele = self.find(by,value,nocheck)
@@ -209,18 +216,19 @@ class AndroidDevice(webdriver.Remote):
 
 	def gettext(self,by,value,desc="",nocheck=False):
 		'''
-			向一个元素内输入内容
-			参数：
-				by：定位元素的方式/id/name/xpath/class_name等
-				value：定位元素的id/name/xpath/class_name等的值
-				desc：描述元素的文本信息，便于在日志中区别
-				nocheck：如果该值为True,则元素找不到时忽略错误继续执行
-			用法：
-				text = self.gettext('id','element_id',"描述元素内容")
-				text = self.gettext('name','element_name',"描述元素内容")
-				text = self.gettext('class_name','element_class_name',"描述元素内容")
-				text = self.gettext('xpath','element_xpath',"描述元素内容")
-				...
+gettext(by,value,desc="",nocheck=False)
+向一个元素内输入内容
+参数：
+	by：定位元素的方式/id/name/xpath/class_name等
+	value：定位元素的id/name/xpath/class_name等的值
+	desc：描述元素的文本信息，便于在日志中区别
+	nocheck：如果该值为True,则元素找不到时忽略错误继续执行
+用法：
+	text = self.gettext('id','element_id',"描述元素内容")
+	text = self.gettext('name','element_name',"描述元素内容")
+	text = self.gettext('class_name','element_class_name',"描述元素内容")
+	text = self.gettext('xpath','element_xpath',"描述元素内容")
+	...
 		'''
 		self.logger.log("[action]gettext(by='%s',value='%s',nocheck=%s) '%s'" %(by,value,nocheck,desc))
 		ele = self.find(by,value,nocheck)
@@ -232,18 +240,19 @@ class AndroidDevice(webdriver.Remote):
 
 	def waitfor(self,by,value,desc="",timeout=10):
 		'''
-			向一个元素内输入内容
-			参数：
-				by：定位元素的方式/id/name/xpath/class_name等
-				value：定位元素的id/name/xpath/class_name等的值
-				desc：描述元素的文本信息，便于在日志中区别
-				timeout：等待超时时间，单位秒
-			用法：
-				self.waitfor('id','element_id',"描述元素内容")
-				self.waitfor('name','element_name',"描述元素内容")
-				self.waitfor('class_name','element_class_name',"描述元素内容")
-				self.waitfor('xpath','element_xpath',"描述元素内容")
-				...
+waitfor(by,value,desc="",timeout=10)
+向一个元素内输入内容
+参数：
+	by：定位元素的方式/id/name/xpath/class_name等
+	value：定位元素的id/name/xpath/class_name等的值
+	desc：描述元素的文本信息，便于在日志中区别
+	timeout：等待超时时间，单位秒
+用法：
+	self.waitfor('id','element_id',"描述元素内容")
+	self.waitfor('name','element_name',"描述元素内容")
+	self.waitfor('class_name','element_class_name',"描述元素内容")
+	self.waitfor('xpath','element_xpath',"描述元素内容")
+	...
 		'''
 		self.logger.log("[action]waitfor(by='%s',value='%s',timeout=%s) '%s'" %(by,value,timeout,desc))
 		try:
@@ -256,13 +265,14 @@ class AndroidDevice(webdriver.Remote):
 
 	def swipe(self,begin,end,duration=None):
 		"""
-		从一个点滑动到另一个点
-		参数:
-			begin：开始点的坐标，例：(100,100)
-			end：结束点的坐标，例：(100,400)
-			duration：滑动操作持续的时间
-		用法:
-			self.swipe((100, 100), (100, 400))
+swipe(begin,end,duration=None)
+从一个点滑动到另一个点
+参数:
+	begin：开始点的坐标，例：(100,100)
+	end：结束点的坐标，例：(100,400)
+	duration：滑动操作持续的时间
+用法:
+	self.swipe((100, 100), (100, 400))
 		"""
 		# `swipe` is something like press-wait-move_to-release, which the server
 		# will translate into the correct action
@@ -282,11 +292,12 @@ class AndroidDevice(webdriver.Remote):
 
 	def swipe_up(self,duration=None):
 		'''
-			从屏幕底端向上划整个屏幕高度
-			参数：
-				duration：滑动操作持续的时间
-			用法：
-				self.swipe_up()
+swipe_up(duration=None)
+从屏幕底端向上划整个屏幕高度
+参数：
+	duration：滑动操作持续的时间
+用法：
+	self.swipe_up()
 		'''
 		start = (self.device_width/2,self.device_height-10)
 		end = (self.device_width/2,10)
@@ -294,11 +305,12 @@ class AndroidDevice(webdriver.Remote):
 
 	def swipe_down(self,duration=None):
 		'''
-			从屏幕顶端向下划整个屏幕高度
-			参数：
-				duration：滑动操作持续的时间
-			用法：
-				self.swipe_down()
+swipe_down(duration=None)
+从屏幕顶端向下划整个屏幕高度
+参数：
+	duration：滑动操作持续的时间
+用法：
+	self.swipe_down()
 		'''
 		start = (self.device_width/2,10)
 		end = (self.device_width/2,self.device_height-10)
@@ -306,11 +318,12 @@ class AndroidDevice(webdriver.Remote):
 
 	def swipe_left(self,duration=None):
 		'''
-			从屏幕右端向左划整个屏幕宽度
-			参数：
-				duration：滑动操作持续的时间
-			用法：
-				self.swipe_left()
+swipe_left(duration=None)
+从屏幕右端向左划整个屏幕宽度
+参数：
+	duration：滑动操作持续的时间
+用法：
+	self.swipe_left()
 		'''
 		start = (self.device_width-10,self.device_height/2)
 		end = (10,self.device_height/2)
@@ -318,25 +331,28 @@ class AndroidDevice(webdriver.Remote):
 
 	def swipe_right(self,duration=None):
 		'''
-			从屏幕左端向右划整个屏幕宽度
-			参数：
-				duration：滑动操作持续的时间
-			用法：
-				self.swipe_right()
+swipe_right(duration=None)
+从屏幕左端向右划整个屏幕宽度
+参数：
+	duration：滑动操作持续的时间
+用法：
+	self.swipe_right()
 		'''
 		start = (10,self.device_height/2)
 		end = (self.device_width-10,self.device_height/2)
 		self.swipe(start,end,duration)
 
 	def flick(self, begin, end):
-		"""Flick from one point to another point.
-		:Args:
-		 - start_x - x-coordinate at which to start
-		 - start_y - y-coordinate at which to start
-		 - end_x - x-coordinate at which to stop
-		 - end_y - y-coordinate at which to stop
-		:Usage:
-			driver.flick(100, 100, 100, 400)
+		"""
+flick(begin, end)
+Flick from one point to another point.
+Args:
+	start_x	x-coordinate at which to start
+	start_y	y-coordinate at which to start
+	end_x	x-coordinate at which to stop
+	end_y	y-coordinate at which to stop
+:Usage:
+	driver.flick(100, 100, 100, 400)
 		"""
 		if self.autoAcceptAlert:
 			self.allow_alert()
@@ -353,7 +369,10 @@ class AndroidDevice(webdriver.Remote):
 
 	def equals(self,a,b,strip=False):
 		'''
-			判断两个对象是否相等
+equals(a,b,strip=False)
+判断两个对象a,b是否相等
+参数：
+	strip：如果是字符串对象是否需要进行strip后对比
 		'''
 		self.logger.log("[check]equals(a='%s',b='%s')" %(a,b))
 		if type(a) != type(b):
@@ -369,7 +388,10 @@ class AndroidDevice(webdriver.Remote):
 
 	def allow_alert(self,nocheck=True):
 		'''
-			允许系统授权弹框
+allow_alert(nocheck=True)
+允许系统授权弹框
+参数：
+	nocheck：如果该值为True,则没有弹框时忽略错误继续执行
 		'''
 		self.logger.log("[action]allow_alert(nocheck='%s')" %nocheck)
 		pageSource = self.page_source
@@ -381,7 +403,10 @@ class AndroidDevice(webdriver.Remote):
 
 	def reject_alert(self,nocheck=True):
 		'''
-			拒绝系统授权弹框
+reject_alert(nocheck=True)
+拒绝系统授权弹框
+参数：
+	nocheck：如果该值为True,则没有弹框时忽略错误继续执行
 		'''
 		self.logger.log("[action]reject_alert(nocheck='%s')" %nocheck)
 		pageSource = self.page_source
@@ -393,11 +418,12 @@ class AndroidDevice(webdriver.Remote):
 
 	def testdatas(self,name):
 		'''
-			通用测试数据
-			参数：
-				name：数据名称
-			用法：
-				self.testdatas("系统内已有的数据名称")
+testdatas(name)
+通用测试数据
+参数：
+	name：数据名称
+用法：
+	self.testdatas("系统内已有的数据名称")
 		'''
 		data = self.test_datas.get(name)
 		if data:
@@ -407,11 +433,12 @@ class AndroidDevice(webdriver.Remote):
 
 	def conflictdatas(self,name):
 		'''
-			互斥测试数据
-			参数：
-				name：数据名称
-			用法：
-				self.conflictdatas("系统内已有的数据名称")
+conflictdatas(name)
+互斥测试数据
+参数：
+	name：数据名称
+用法：
+	self.conflictdatas("系统内已有的数据名称")
 		'''
 		if name in self.conflict_datas.keys():
 			try:
@@ -424,13 +451,14 @@ class AndroidDevice(webdriver.Remote):
 
 	def click_point(self,x,y,duration=None):
 		'''
-			点击屏幕坐标
-			参数：
-				x：屏幕x坐标
-				y：屏幕y坐标
-				duration：点击操作持续时长，单位毫秒
-			用法：
-				self.click_point(100,100)
+click_point(x,y,duration=None)
+点击屏幕坐标
+参数：
+	x：屏幕x坐标
+	y：屏幕y坐标
+	duration：点击操作持续时长，单位毫秒
+用法：
+	self.click_point(100,100)
 		'''
 		self.logger.log("[action]click_point(x=%s,y=%s,duration=%s)" %(x,y,duration))
 		action = TouchAction(self)
@@ -443,7 +471,9 @@ class AndroidDevice(webdriver.Remote):
 
 	def goback(self):
 		'''
-			按返回按钮
+按返回按钮
+用法：
+	self.goback()
 		'''
 		self.press_keycode(4)
 		return self
@@ -451,13 +481,21 @@ class AndroidDevice(webdriver.Remote):
 	def gohome(self):
 		'''
 			按Home按钮
+			用法：
+				self.gohome()
 		'''
 		self.press_keycode(3)
 		return self
 
 	def parseGestures(self,location,size):
 		'''
-			解析手势密码
+parseGestures(location,size)
+解析手势密码
+参数：
+	location：元素的位置信息
+	size：元素的大小
+返回：
+	返回解析后生成的9个坐标点，分别对应九宫格上的点
 		'''
 		start_x,start_y = location['x'],location['y']
 		space_x,space_y = size["width"]/3,size["height"]/3
@@ -473,31 +511,40 @@ class AndroidDevice(webdriver.Remote):
 
 		return points
 
-	def deal_gestures_password(self,case_element_name,gestures,nocheck=False):
+	def gestures_password(self,case_element_name,gestures,nocheck=False):
 		'''
-			处理手势密码
+gestures_password(case_element_name,gestures,nocheck=False)
+处理手势密码
+参数：
+	case_element_name：系统内已有元素的名称
+	gestures：手势密码需要划过的点代表的数字组成的列表(九宫格每个点代表的数字按照从上至下从左往右的顺序用1-9标记)
+	nocheck：如果该值为True,找不到元素时忽略错误继续执行
+用法：
+	self.deal_gestures_password("手势密码九宫格",[1,2,3,5,7,8,9])  -- 写了一个Z字的手势密码
 		'''
 		elem = self.super_find(case_element_name,nocheck=nocheck)
-		points = self.parseGestures(elem.location,elem.size)
-		action = TouchAction(self)
-		for index,ges in enumerate(gestures):
-			x,y = points[ges]
-			if index == 0:
-				action = action.long_press(x=x,y=y)
-			else:
-				action = action.move_to(x=x,y=y)
+		if elem:
+			points = self.parseGestures(elem.location,elem.size)
+			action = TouchAction(self)
+			for index,ges in enumerate(gestures):
+				x,y = points[ges]
+				if index == 0:
+					action = action.long_press(x=x,y=y)
+				else:
+					action = action.move_to(x=x,y=y)
 
-		action.release().perform()
-		return self
+			action.release().perform()
+			return self
 
 	def super_click(self,case_element_name,nocheck=False):
 		'''
-			点击系统内已添加的某个元素
-			参数：
-				case_element_name：系统内已添加的元素名称
-				nocheck：该值为True时，找不到元素会忽略错误继续执行
-			用法：
-				self.super_click("登录按钮")
+super_click(case_element_name,nocheck=False)
+点击系统内已添加的某个元素
+参数：
+	case_element_name：系统内已添加的元素名称
+	nocheck：该值为True时，找不到元素会忽略错误继续执行
+用法：
+	self.super_click("登录按钮")
 		'''
 		by,value = self.case_elements.get(case_element_name)
 		if by and value:
@@ -508,23 +555,25 @@ class AndroidDevice(webdriver.Remote):
 
 	def super_clicks(self,case_element_names,nocheck=False):
 		'''
-			点击系统内已添加的多个元素
-			参数：
-				case_element_names：系统内已添加的元素名称列表
-				nocheck：该值为True时，找不到元素会忽略错误继续执行
-			用法：
-				self.super_clicks(["同意授权按钮",登录按钮"])
+super_clicks(case_element_names,nocheck=False)
+点击系统内已添加的多个元素
+参数：
+	case_element_names：系统内已添加的元素名称列表
+	nocheck：该值为True时，找不到元素会忽略错误继续执行
+用法：
+	self.super_clicks(["同意授权按钮",登录按钮"])
 		'''
 		for name in case_element_names:
 			self.super_click(name,nocheck=nocheck)
 
 	def super_exists(self,case_element_name):
 		'''
-			判断是否能找到系统内已添加的某个元素
-			参数：
-				case_element_name：系统内已添加的元素名称
-			用法：
-				isexists = self.super_exists("登录按钮")
+super_exists(case_element_name)
+判断是否能找到系统内已添加的某个元素
+参数：
+	case_element_name：系统内已添加的元素名称
+用法：
+	isexists = self.super_exists("登录按钮")
 		'''
 		if self.super_find(case_element_name,nocheck=True):
 			return True
@@ -533,12 +582,13 @@ class AndroidDevice(webdriver.Remote):
 
 	def super_find(self,case_element_name,nocheck=False):
 		'''
-			查找系统内已添加的某个元素
-			参数：
-				case_element_name：系统内已添加的元素名称
-				nocheck：该值为True时，找不到元素会忽略错误继续执行
-			用法：
-				self.super_find("登录按钮")
+super_find(case_element_name,nocheck=False)
+查找系统内已添加的某个元素
+参数：
+	case_element_name：系统内已添加的元素名称
+	nocheck：该值为True时，找不到元素会忽略错误继续执行
+用法：
+	self.super_find("登录按钮")
 		'''
 		by,value = self.case_elements.get(case_element_name)
 		if by and value:
@@ -549,12 +599,13 @@ class AndroidDevice(webdriver.Remote):
 
 	def super_finds(self,case_element_name,nocheck=False):
 		'''
-			查找系统内已添加的多个元素
-			参数：
-				case_element_names：系统内已添加的元素名称列表
-				nocheck：该值为True时，找不到元素会忽略错误继续执行
-			用法：
-				self.super_finds(["用户名输入框","登录按钮"])
+super_finds(case_element_name,nocheck=False)
+查找系统内已添加的多个元素
+参数：
+	case_element_names：系统内已添加的元素名称列表
+	nocheck：该值为True时，找不到元素会忽略错误继续执行
+用法：
+	self.super_finds(["用户名输入框","登录按钮"])
 		'''
 		by,value = self.case_elements.get(case_element_name)
 		if by and value:
@@ -565,13 +616,14 @@ class AndroidDevice(webdriver.Remote):
 
 	def super_input(self,case_element_name,text,nocheck=False):
 		'''
-			向系统内已添加的某个元素输入内容
-			参数：
-				case_element_name：系统内已添加的元素名称
-				text：需要输入的文字内容
-				nocheck：该值为True时，找不到元素会忽略错误继续执行
-			用法：
-				self.super_input("用户名输入框","chao.chen")
+super_input(case_element_name,text,nocheck=False)
+向系统内已添加的某个元素输入内容
+参数：
+	case_element_name：系统内已添加的元素名称
+	text：需要输入的文字内容
+	nocheck：该值为True时，找不到元素会忽略错误继续执行
+用法：
+	self.super_input("用户名输入框","chao.chen")
 		'''
 		by,value = self.case_elements.get(case_element_name)
 		if by and value:
@@ -582,25 +634,27 @@ class AndroidDevice(webdriver.Remote):
 
 	def super_inputs(self,case_element_names,text,nocheck=False):
 		'''
-			向系统内已添加的多个元素输入内容
-			参数：
-				case_element_names：系统内已添加的元素名称列表
-				text：需要输入的文字内容
-				nocheck：该值为True时，找不到元素会忽略错误继续执行
-			用法：
-				self.super_inputs(["用户名输入框","密码输入框"],"chao.chen")
+super_inputs(case_element_names,text,nocheck=False)
+向系统内已添加的多个元素输入内容
+参数：
+	case_element_names：系统内已添加的元素名称列表
+	text：需要输入的文字内容
+	nocheck：该值为True时，找不到元素会忽略错误继续执行
+用法：
+	self.super_inputs(["用户名输入框","密码输入框"],"chao.chen")
 		'''
 		for name in case_element_names:
 			self.super_input(name,text,nocheck=nocheck)
 
 	def super_gettext(self,case_element_name,nocheck=False):
 		'''
-			获取某个元素的文本内容
-			参数：
-				case_element_name：系统内已添加的元素名称
-				nocheck：该值为True时，找不到元素会忽略错误继续执行
-			用法：
-				text = self.super_gettext("登录按钮")
+super_gettext(case_element_name,nocheck=False)
+获取某个元素的文本内容
+参数：
+	case_element_name：系统内已添加的元素名称
+	nocheck：该值为True时，找不到元素会忽略错误继续执行
+用法：
+	text = self.super_gettext("登录按钮")
 		'''
 		by,value = self.case_elements.get(case_element_name)
 		if by and value:
@@ -611,12 +665,13 @@ class AndroidDevice(webdriver.Remote):
 
 	def super_waitfor(self,case_element_name,timeout=10):
 		'''
-			等待某个元素出现
-			参数：
-				case_element_name：系统内已添加的元素名称
-				timeout：超时时间
-			用法：
-				self.super_waitfor("登录按钮")
+super_waitfor(case_element_name,timeout=10)
+等待某个元素出现
+参数：
+	case_element_name：系统内已添加的元素名称
+	timeout：超时时间
+用法：
+	self.super_waitfor("登录按钮")
 		'''
 		by,value = self.case_elements.get(case_element_name)
 		if by and value:
@@ -630,102 +685,117 @@ class AndroidDevice(webdriver.Remote):
 	@property
 	def contexts(self):
 		"""
-		Returns the contexts within the current session.
-		:Usage:
-			driver.contexts
+Returns the contexts within the current session.
+:Usage:
+	driver.contexts
 		"""
 		return self.execute(Command.CONTEXTS)['value']
 
 	@property
 	def current_context(self):
 		"""
-		Returns the current context of the current session.
-		:Usage:
-			driver.current_context
+Returns the current context of the current session.
+:Usage:
+	driver.current_context
 		"""
 		return self.execute(Command.GET_CURRENT_CONTEXT)['value']
 
 	@property
 	def context(self):
 		"""
-		Returns the current context of the current session.
-		:Usage:
-			driver.context
+Returns the current context of the current session.
+:Usage:
+	driver.context
 		"""
 		return self.current_context
 
 	def find_element_by_ios_uiautomation(self, uia_string):
-		"""Finds an element by uiautomation in iOS.
-		:Args:
-		 - uia_string - The element name in the iOS UIAutomation library
-		:Usage:
-			driver.find_element_by_ios_uiautomation('.elements()[1].cells()[2]')
+		"""
+find_element_by_ios_uiautomation(uia_string)
+Finds an element by uiautomation in iOS.
+Args:
+	uia_string	The element name in the iOS UIAutomation library
+:Usage:
+	driver.find_element_by_ios_uiautomation('.elements()[1].cells()[2]')
 		"""
 		return self.find_element(by=By.IOS_UIAUTOMATION, value=uia_string)
 
 	def find_elements_by_ios_uiautomation(self, uia_string):
-		"""Finds elements by uiautomation in iOS.
-		:Args:
-		 - uia_string - The element name in the iOS UIAutomation library
-		:Usage:
-			driver.find_elements_by_ios_uiautomation('.elements()[1].cells()[2]')
+		"""
+find_elements_by_ios_uiautomation(uia_string)
+Finds elements by uiautomation in iOS.
+Args:
+	uia_string	The element name in the iOS UIAutomation library
+:Usage:
+	driver.find_elements_by_ios_uiautomation('.elements()[1].cells()[2]')
 		"""
 		return self.find_elements(by=By.IOS_UIAUTOMATION, value=uia_string)
 
 	def find_element_by_android_uiautomator(self, uia_string):
-		"""Finds element by uiautomator in Android.
-		:Args:
-		 - uia_string - The element name in the Android UIAutomator library
-		:Usage:
-			driver.find_element_by_android_uiautomator('.elements()[1].cells()[2]')
+		"""
+find_element_by_android_uiautomator(uia_string)
+Finds element by uiautomator in Android.
+Args:
+	uia_string	The element name in the Android UIAutomator library
+:Usage:
+	driver.find_element_by_android_uiautomator('.elements()[1].cells()[2]')
 		"""
 		return self.find_element(by=By.ANDROID_UIAUTOMATOR, value=uia_string)
 
 	def find_elements_by_android_uiautomator(self, uia_string):
-		"""Finds elements by uiautomator in Android.
-		:Args:
-		 - uia_string - The element name in the Android UIAutomator library
-		:Usage:
-			driver.find_elements_by_android_uiautomator('.elements()[1].cells()[2]')
+		"""
+find_elements_by_android_uiautomator(uia_string)
+Finds elements by uiautomator in Android.
+Args:
+	uia_string	The element name in the Android UIAutomator library
+:Usage:
+	driver.find_elements_by_android_uiautomator('.elements()[1].cells()[2]')
 		"""
 		return self.find_elements(by=By.ANDROID_UIAUTOMATOR, value=uia_string)
 
 	def find_element_by_accessibility_id(self, id):
-		"""Finds an element by accessibility id.
-		:Args:
-		 - id - a string corresponding to a recursive element search using the
-		 Id/Name that the native Accessibility options utilize
-		:Usage:
-			driver.find_element_by_accessibility_id()
+		"""
+find_element_by_accessibility_id(id)
+Finds an element by accessibility id.
+Args:
+	id	a string corresponding to a recursive element search using the
+ Id/Name that the native Accessibility options utilize
+:Usage:
+	driver.find_element_by_accessibility_id()
 		"""
 		return self.find_element(by=By.ACCESSIBILITY_ID, value=id)
 
 	def find_elements_by_accessibility_id(self, id):
-		"""Finds elements by accessibility id.
-		:Args:
-		 - id - a string corresponding to a recursive element search using the
-		 Id/Name that the native Accessibility options utilize
-		:Usage:
-			driver.find_elements_by_accessibility_id()
+		"""
+find_elements_by_accessibility_id(id)
+Finds elements by accessibility id.
+Args:
+	id	a string corresponding to a recursive element search using the
+ Id/Name that the native Accessibility options utilize
+:Usage:
+	driver.find_elements_by_accessibility_id()
 		"""
 		return self.find_elements(by=By.ACCESSIBILITY_ID, value=id)
 
 	def create_web_element(self, element_id):
 		"""
-		Creates a web element with the specified element_id.
-		Overrides method in Selenium WebDriver in order to always give them
-		Appium WebElement
+create_web_element(element_id)
+Creates a web element with the specified element_id.
+Overrides method in Selenium WebDriver in order to always give them
+Appium WebElement
 		"""
 		#self.logger.log("[action]create_web_element(element_id='%s')" %element_id)
 		return MobileWebElement(self, element_id)
 
 	def scroll(self, origin_el, destination_el):
-		"""Scrolls from one element to another
-		:Args:
-		 - originalEl - the element from which to being scrolling
-		 - destinationEl - the element to scroll to
-		:Usage:
-			driver.scroll(el1, el2)
+		"""
+scroll(origin_el, destination_el)
+Scrolls from one element to another
+Args:
+	originalEl	the element from which to being scrolling
+	destinationEl	the element to scroll to
+:Usage:
+	driver.scroll(el1, el2)
 		"""
 		self.logger.log("[action]scroll(origin_el='%s',destination_el='%s')" %(origin_el,destination_el))
 		action = TouchAction(self)
@@ -734,10 +804,12 @@ class AndroidDevice(webdriver.Remote):
 
 	# convenience method added to Appium (NOT Selenium 3)
 	def drag_and_drop(self, origin_el, destination_el):
-		"""Drag the origin element to the destination element
-		:Args:
-		 - originEl - the element to drag
-		 - destinationEl - the element to drag to
+		"""
+drag_and_drop(origin_el, destination_el)
+Drag the origin element to the destination element
+Args:
+	originEl	the element to drag
+	destinationEl	the element to drag to
 		"""
 		self.logger.log("[action]drag_and_drop(origin_el='%s',destination_el='%s')" %(origin_el,destination_el))
 		action = TouchAction(self)
@@ -746,14 +818,16 @@ class AndroidDevice(webdriver.Remote):
 
 	# convenience method added to Appium (NOT Selenium 3)
 	def tap(self, positions, duration=None):
-		"""Taps on an particular place with up to five fingers, holding for a
-		certain time
-		:Args:
-		 - positions - an array of tuples representing the x/y coordinates of
-		 the fingers to tap. Length can be up to five.
-		 - duration - (optional) length of time to tap, in ms
-		:Usage:
-			driver.tap([(100, 20), (100, 60), (100, 100)], 500)
+		"""
+tap(positions, duration=None)
+Taps on an particular place with up to five fingers, holding for a
+certain time
+Args:
+	positions	an array of tuples representing the x/y coordinates of
+ the fingers to tap. Length can be up to five.
+	duration	(optional) length of time to tap, in ms
+:Usage:
+	driver.tap([(100, 20), (100, 60), (100, 100)], 500)
 		"""
 		self.logger.log("[action]tap(positions=%s,destination_el=%s)" %(positions,duration))
 		if len(positions) == 1:
@@ -782,13 +856,15 @@ class AndroidDevice(webdriver.Remote):
 
 	# convenience method added to Appium (NOT Selenium 3)
 	def pinch(self, element=None, percent=200, steps=50):
-		"""Pinch on an element a certain amount
-		:Args:
-		 - element - the element to pinch
-		 - percent - (optional) amount to pinch. Defaults to 200%
-		 - steps - (optional) number of steps in the pinch action
-		:Usage:
-			driver.pinch(element)
+		"""
+pinch(element=None, percent=200, steps=50)
+Pinch on an element a certain amount
+Args:
+	element	the element to pinch
+	percent	(optional) amount to pinch. Defaults to 200%
+	steps	(optional) number of steps in the pinch action
+:Usage:
+	driver.pinch(element)
 		"""
 		self.logger.log("[action]pinck(element='%s',percent=%s,steps=%s)" %(element,percent,steps))
 		if element:
@@ -804,13 +880,15 @@ class AndroidDevice(webdriver.Remote):
 
 	# convenience method added to Appium (NOT Selenium 3)
 	def zoom(self, element=None, percent=200, steps=50):
-		"""Zooms in on an element a certain amount
-		:Args:
-		 - element - the element to zoom
-		 - percent - (optional) amount to zoom. Defaults to 200%
-		 - steps - (optional) number of steps in the zoom action
-		:Usage:
-			driver.zoom(element)
+		"""
+zoom(element=None, percent=200, steps=50)
+Zooms in on an element a certain amount
+Args:
+	element	the element to zoom
+	percent	(optional) amount to zoom. Defaults to 200%
+	steps	(optional) number of steps in the zoom action
+:Usage:
+	driver.zoom(element)
 		"""
 		self.logger.log("[action]zoom(element='%s',percent=%s,steps=%s)" %(element,percent,steps))
 		if element:
@@ -825,11 +903,13 @@ class AndroidDevice(webdriver.Remote):
 		return self
 
 	def app_strings(self, language=None, string_file=None):
-		"""Returns the application strings from the device for the specified
-		language.
-		:Args:
-		 - language - strings language code
-		 - string_file - the name of the string file to query
+		"""
+app_strings(language=None, string_file=None)
+Returns the application strings from the device for the specified
+language.
+Args:
+	language	strings language code
+	string_file	the name of the string file to query
 		"""
 		data = {}
 		if language != None:
@@ -839,18 +919,24 @@ class AndroidDevice(webdriver.Remote):
 		return self.execute(Command.GET_APP_STRINGS, data)['value']
 
 	def reset(self):
-		"""Resets the current application on the device.
+		"""
+reset()
+Resets the current application on the device.
+Usage:
+	self.reset()
 		"""
 		self.logger.log("[action]reset()")
 		self.execute(Command.RESET)
 		return self
 
 	def hide_keyboard(self, key_name=None, key=None, strategy=None):
-		"""Hides the software keyboard on the device. In iOS, use `key_name` to press
-		a particular key, or `strategy`. In Android, no parameters are used.
-		:Args:
-		 - key_name - key to press
-		 - strategy - strategy for closing the keyboard (e.g., `tapOutside`)
+		"""
+hide_keyboard(key_name=None, key=None, strategy=None)
+Hides the software keyboard on the device. In iOS, use `key_name` to press
+a particular key, or `strategy`. In Android, no parameters are used.
+Args:
+	key_name	key to press
+	strategy	strategy for closing the keyboard (e.g., `tapOutside`)
 		"""
 		self.logger.log("[action]hide_keyboard(key_name='%s',key='%s',strategy='%s')" %(key_name,key,strategy))
 		data = {}
@@ -867,11 +953,13 @@ class AndroidDevice(webdriver.Remote):
 
 	# Needed for Selendroid
 	def keyevent(self, keycode, metastate=None):
-		"""Sends a keycode to the device. Android only. Possible keycodes can be
-		found in http://developer.android.com/reference/android/view/KeyEvent.html.
-		:Args:
-		 - keycode - the keycode to be sent to the device
-		 - metastate - meta information about the keycode being sent
+		"""
+keyevent(keycode, metastate=None)
+Sends a keycode to the device. Android only. Possible keycodes can be
+found in http://developer.android.com/reference/android/view/KeyEvent.html.
+Args:
+	keycode	the keycode to be sent to the device
+	metastate	meta information about the keycode being sent
 		"""
 		self.logger.log("[action]keyevent(keycode='%s',metastate='%s')" %(keycode,metastate))
 		data = {
@@ -883,11 +971,13 @@ class AndroidDevice(webdriver.Remote):
 		return self
 
 	def press_keycode(self, keycode, metastate=None):
-		"""Sends a keycode to the device. Android only. Possible keycodes can be
-		found in http://developer.android.com/reference/android/view/KeyEvent.html.
-		:Args:
-		 - keycode - the keycode to be sent to the device
-		 - metastate - meta information about the keycode being sent
+		"""
+press_keycode(keycode, metastate=None)
+Sends a keycode to the device. Android only. Possible keycodes can be
+found in http://developer.android.com/reference/android/view/KeyEvent.html.
+Args:
+	keycode	the keycode to be sent to the device
+	metastate	meta information about the keycode being sent
 		"""
 		self.logger.log("[action]press_keycode(keycode='%s',metastate='%s')" %(keycode,metastate))
 		data = {
@@ -899,11 +989,13 @@ class AndroidDevice(webdriver.Remote):
 		return self
 
 	def long_press_keycode(self, keycode, metastate=None):
-		"""Sends a long press of keycode to the device. Android only. Possible keycodes can be
-		found in http://developer.android.com/reference/android/view/KeyEvent.html.
-		:Args:
-		 - keycode - the keycode to be sent to the device
-		 - metastate - meta information about the keycode being sent
+		"""
+long_press_keycode(keycode, metastate=None)
+Sends a long press of keycode to the device. Android only. Possible keycodes can be
+found in http://developer.android.com/reference/android/view/KeyEvent.html.
+Args:
+	keycode	the keycode to be sent to the device
+	metastate	meta information about the keycode being sent
 		"""
 		self.logger.log("[action]long_press_keycode(keycode='%s',metastate='%s')" %(keycode,metastate))
 		data = {
@@ -916,18 +1008,24 @@ class AndroidDevice(webdriver.Remote):
 
 	@property
 	def current_activity(self):
-		"""Retrieves the current activity on the device.
+		"""
+current_activity()
+Retrieves the current activity on the device.
+Usage:
+	self.current_activity()
 		"""
 		return self.execute(Command.GET_CURRENT_ACTIVITY)['value']
 
 	def wait_activity(self, activity, timeout, interval=1):
-		"""Wait for an activity: block until target activity presents
-		or time out.
-		This is an Android-only method.
-		:Agrs:
-		 - activity - target activity
-		 - timeout - max wait time, in seconds
-		 - interval - sleep interval between retries, in seconds
+		"""
+wait_activity(activity, timeout, interval=1)
+Wait for an activity: block until target activity presents
+or time out.
+This is an Android-only method.
+:Agrs:
+	activity	target activity
+	timeout	max wait time, in seconds
+	interval	sleep interval between retries, in seconds
 		"""
 		self.logger.log("[action]wait_activity(activity='%s',timeout='%s',interval='%s')" %(activity,timeout,interval))
 		try:
@@ -938,10 +1036,12 @@ class AndroidDevice(webdriver.Remote):
 			return False
 
 	def set_value(self, element, value):
-		"""Set the value on an element in the application.
-		:Args:
-		 - element - the element whose value will be set
-		 - Value - the value to set on the element
+		"""
+set_value(element, value)
+Set the value on an element in the application.
+Args:
+	element	the element whose value will be set
+	Value	the value to set on the element
 		"""
 		self.logger.log("[action]set_value(element='%s',value='%s')" %(element,value))
 		data = {
@@ -952,10 +1052,12 @@ class AndroidDevice(webdriver.Remote):
 		return self
 
 	def pull_file(self, path):
-		"""Retrieves the file at `path`. Returns the file's content encoded as
-		Base64.
-		:Args:
-		 - path - the path to the file on the device
+		"""
+pull_file(path)
+Retrieves the file at `path`. Returns the file's content encoded as
+Base64.
+Args:
+	path	the path to the file on the device
 		"""
 		self.logger.log("[action]pull_file(path='%s')" %path)
 		data = {
@@ -964,10 +1066,12 @@ class AndroidDevice(webdriver.Remote):
 		return self.execute(Command.PULL_FILE, data)['value']
 
 	def pull_folder(self, path):
-		"""Retrieves a folder at `path`. Returns the folder's contents zipped
-		and encoded as Base64.
-		:Args:
-		 - path - the path to the folder on the device
+		"""
+pull_folder(path)
+Retrieves a folder at `path`. Returns the folder's contents zipped
+and encoded as Base64.
+Args:
+	path	the path to the folder on the device
 		"""
 		self.logger.log("[action]pull_folder(path='%s')" %path)
 		data = {
@@ -976,10 +1080,12 @@ class AndroidDevice(webdriver.Remote):
 		return self.execute(Command.PULL_FOLDER, data)['value']
 
 	def push_file(self, path, base64data):
-		"""Puts the data, encoded as Base64, in the file specified as `path`.
-		:Args:
-		 - path - the path on the device
-		 - base64data - data, encoded as Base64, to be written to the file
+		"""
+push_file(path, base64data)
+Puts the data, encoded as Base64, in the file specified as `path`.
+Args:
+	path	the path on the device
+	base64data	data, encoded as Base64, to be written to the file
 		"""
 		self.logger.log("[action]push_file(path='%s',base64data='%s')" %(path,base64data))
 		data = {
@@ -990,10 +1096,12 @@ class AndroidDevice(webdriver.Remote):
 		return self
 
 	def background_app(self, seconds):
-		"""Puts the application in the background on the device for a certain
-		duration.
-		:Args:
-		 - seconds - the duration for the application to remain in the background
+		"""
+background_app(seconds)
+Puts the application in the background on the device for a certain
+duration.
+Args:
+	seconds	the duration for the application to remain in the background
 		"""
 		self.logger.log("[action]background_app(seconds=%s)" %seconds)
 		data = {
@@ -1003,10 +1111,12 @@ class AndroidDevice(webdriver.Remote):
 		return self
 
 	def is_app_installed(self, bundle_id):
-		"""Checks whether the application specified by `bundle_id` is installed
-		on the device.
-		:Args:
-		 - bundle_id - the id of the application to query
+		"""
+is_app_installed(bundle_id)
+Checks whether the application specified by `bundle_id` is installed
+on the device.
+Args:
+	bundle_id	the id of the application to query
 		"""
 		data = {
 			'bundleId': bundle_id,
@@ -1014,9 +1124,11 @@ class AndroidDevice(webdriver.Remote):
 		return self.execute(Command.IS_APP_INSTALLED, data)['value']
 
 	def install_app(self, app_path):
-		"""Install the application found at `app_path` on the device.
-		:Args:
-		 - app_path - the local or remote path to the application to install
+		"""
+install_app(app_path)
+Install the application found at `app_path` on the device.
+Args:
+	app_path	the local or remote path to the application to install
 		"""
 		self.logger.log("[action]install_app(app_path='%s')" %app_path)
 		data = {
@@ -1026,9 +1138,11 @@ class AndroidDevice(webdriver.Remote):
 		return self
 
 	def remove_app(self, app_id):
-		"""Remove the specified application from the device.
-		:Args:
-		 - app_id - the application id to be removed
+		"""
+remove_app(app_packageName)
+Remove the specified application from the device.
+Args:
+	app_packageName	the application id to be removed
 		"""
 		self.logger.log("[action]remove_app(appid='%s')" %app_id)
 		data = {
@@ -1038,34 +1152,40 @@ class AndroidDevice(webdriver.Remote):
 		return self
 
 	def launch_app(self):
-		"""Start on the device the application specified in the desired capabilities.
+		"""
+launch_app()
+Start on the device the application specified in the desired capabilities.
 		"""
 		self.logger.log("[action]launch_app()")
 		self.execute(Command.LAUNCH_APP)
 		return self
 
 	def close_app(self):
-		"""Stop the running application, specified in the desired capabilities, on
-		the device.
+		"""
+close_app()
+Stop the running application, specified in the desired capabilities, on
+the device.
 		"""
 		self.logger.log("[action]close_app()")
 		self.execute(Command.CLOSE_APP)
 		return self
 
 	def start_activity(self, app_package, app_activity, **opts):
-		"""Opens an arbitrary activity during a test. If the activity belongs to
-		another application, that application is started and the activity is opened.
-		This is an Android-only method.
-		:Args:
-		- app_package - The package containing the activity to start.
-		- app_activity - The activity to start.
-		- app_wait_package - Begin automation after this package starts (optional).
-		- app_wait_activity - Begin automation after this activity starts (optional).
-		- intent_action - Intent to start (optional).
-		- intent_category - Intent category to start (optional).
-		- intent_flags - Flags to send to the intent (optional).
-		- optional_intent_arguments - Optional arguments to the intent (optional).
-		- stop_app_on_reset - Should the app be stopped on reset (optional)?
+		"""
+start_activity(app_package, app_activity, **opts)
+Opens an arbitrary activity during a test. If the activity belongs to
+another application, that application is started and the activity is opened.
+This is an Android-only method.
+Args:
+- app_package	The package containing the activity to start.
+- app_activity	The activity to start.
+- app_wait_package	Begin automation after this package starts (optional).
+- app_wait_activity	Begin automation after this activity starts (optional).
+- intent_action	Intent to start (optional).
+- intent_category	Intent category to start (optional).
+- intent_flags	Flags to send to the intent (optional).
+- optional_intent_arguments	Optional arguments to the intent (optional).
+- stop_app_on_reset	Should the app be stopped on reset (optional)?
 		"""
 		self.logger.log("[action]start_activity(app_package='%s',app_activity='%s',others=%s)" %(app_package,app_activity,opts))
 		data = {
@@ -1088,14 +1208,16 @@ class AndroidDevice(webdriver.Remote):
 		return self
 
 	def end_test_coverage(self, intent, path):
-		self.logger.log("[action]end_test_coverage(intent='%s',path='%s')" %(intent,path))
-		"""Ends the coverage collection and pull the coverage.ec file from the device.
-		Android only.
-		See https://github.com/appium/appium/blob/master/docs/en/android_coverage.md
-		:Args:
-		 - intent - description of operation to be performed
-		 - path - path to coverage.ec file to be pulled from the device
 		"""
+end_test_coverage(intent, path)
+Ends the coverage collection and pull the coverage.ec file from the device.
+Android only.
+See https://github.com/appium/appium/blob/master/docs/en/android_coverage.md
+Args:
+	intent	description of operation to be performed
+	path	path to coverage.ec file to be pulled from the device
+		"""
+		self.logger.log("[action]end_test_coverage(intent='%s',path='%s')" %(intent,path))
 		data = {
 			'intent': intent,
 			'path': path,
@@ -1103,9 +1225,11 @@ class AndroidDevice(webdriver.Remote):
 		return self.execute(Command.END_TEST_COVERAGE, data)['value']
 
 	def lock(self, seconds):
-		"""Lock the device for a certain period of time. iOS only.
-		:Args:
-		 - the duration to lock the device, in seconds
+		"""
+lock(seconds)
+Lock the device for a certain period of time. iOS only.
+Args:
+	the duration to lock the device, in seconds
 		"""
 		self.logger.log("[action]lock(seconds=%s)" %seconds)
 		data = {
@@ -1115,14 +1239,18 @@ class AndroidDevice(webdriver.Remote):
 		return self
 
 	def shake(self):
-		"""Shake the device.
+		"""
+shake()
+Shake the device.
 		"""
 		self.logger.log("[action]lock()")
 		self.execute(Command.SHAKE)
 		return self
 
 	def open_notifications(self):
-		"""Open notification shade in Android (API Level 18 and above)
+		"""
+open_notifications()
+Open notification shade in Android (API Level 18 and above)
 		"""
 		self.logger.log("[action]open_notifications()")
 		self.execute(Command.OPEN_NOTIFICATIONS, {})
@@ -1130,25 +1258,28 @@ class AndroidDevice(webdriver.Remote):
 
 	@property
 	def network_connection(self):
-		"""Returns an integer bitmask specifying the network connection type.
-		Android only.
-		Possible values are available through the enumeration `appium.webdriver.ConnectionType`
+		"""
+Returns an integer bitmask specifying the network connection type.
+Android only.
+Possible values are available through the enumeration `appium.webdriver.ConnectionType`
 		"""
 		return self.execute(Command.GET_NETWORK_CONNECTION, {})['value']
 
 	def set_network_connection(self, connectionType):
-		"""Sets the network connection type. Android only.
-		Possible values:
-			Value (Alias)	  | Data | Wifi | Airplane Mode
-			-------------------------------------------------
-			0 (None)		   | 0	| 0	| 0
-			1 (Airplane Mode)  | 0	| 0	| 1
-			2 (Wifi only)	  | 0	| 1	| 0
-			4 (Data only)	  | 1	| 0	| 0
-			6 (All network on) | 1	| 1	| 0
-		These are available through the enumeration `appium.webdriver.ConnectionType`
-		:Args:
-		 - connectionType - a member of the enum appium.webdriver.ConnectionType
+		"""
+set_network_connection(connectionType)
+Sets the network connection type. Android only.
+Possible values:
+	Value (Alias)	  | Data | Wifi | Airplane Mode
+	-------------------------------------------------
+	0 (None)		   | 0	| 0	| 0
+	1 (Airplane Mode)  | 0	| 0	| 1
+	2 (Wifi only)	  | 0	| 1	| 0
+	4 (Data only)	  | 1	| 0	| 0
+	6 (All network on) | 1	| 1	| 0
+These are available through the enumeration `appium.webdriver.ConnectionType`
+Args:
+	connectionType	a member of the enum appium.webdriver.ConnectionType
 		"""
 		self.logger.log("[action]set_network_connection(connectionType='%s')" %connectionType)
 		data = {
@@ -1160,24 +1291,30 @@ class AndroidDevice(webdriver.Remote):
 
 	@property
 	def available_ime_engines(self):
-		"""Get the available input methods for an Android device. Package and
-		activity are returned (e.g., ['com.android.inputmethod.latin/.LatinIME'])
-		Android only.
+		"""
+available_ime_engines -property
+Get the available input methods for an Android device. Package and
+activity are returned (e.g., ['com.android.inputmethod.latin/.LatinIME'])
+Android only.
 		"""
 		return self.execute(Command.GET_AVAILABLE_IME_ENGINES, {})['value']
 
 	def is_ime_active(self):
-		"""Checks whether the device has IME service active. Returns True/False.
-		Android only.
+		"""
+is_ime_active()
+Checks whether the device has IME service active. Returns True/False.
+Android only.
 		"""
 		return self.execute(Command.IS_IME_ACTIVE, {})['value']
 
 	def activate_ime_engine(self, engine):
-		"""Activates the given IME engine on the device.
-		Android only.
-		:Args:
-		 - engine - the package and activity of the IME engine to activate (e.g.,
-			'com.android.inputmethod.latin/.LatinIME')
+		"""
+activate_ime_engine(engine)
+Activates the given IME engine on the device.
+Android only.
+Args:
+	engine	the package and activity of the IME engine to activate (e.g.,
+	'com.android.inputmethod.latin/.LatinIME')
 		"""
 		self.logger.log("[action]activate_ime_engine(engine='%s')" %engine)
 		data = {
@@ -1187,8 +1324,10 @@ class AndroidDevice(webdriver.Remote):
 		return self
 
 	def deactivate_ime_engine(self):
-		"""Deactivates the currently active IME engine on the device.
-		Android only.
+		"""
+deactivate_ime_engine()
+Deactivates the currently active IME engine on the device.
+Android only.
 		"""
 		self.logger.log("[action]deactivate_ime_engine()")
 		self.execute(Command.DEACTIVATE_IME_ENGINE, {})
@@ -1196,25 +1335,31 @@ class AndroidDevice(webdriver.Remote):
 
 	@property
 	def active_ime_engine(self):
-		"""Returns the activity and package of the currently active IME engine (e.g.,
-		'com.android.inputmethod.latin/.LatinIME').
-		Android only.
+		"""
+active_ime_engine  -property
+Returns the activity and package of the currently active IME engine (e.g.,
+'com.android.inputmethod.latin/.LatinIME').
+Android only.
 		"""
 		return self.execute(Command.GET_ACTIVE_IME_ENGINE, {})['value']
 
 	def get_settings(self):
-		"""Returns the appium server Settings for the current session.
-		Do not get Settings confused with Desired Capabilities, they are
-		separate concepts. See https://github.com/appium/appium/blob/master/docs/en/advanced-concepts/settings.md
+		"""
+get_settings()
+Returns the appium server Settings for the current session.
+Do not get Settings confused with Desired Capabilities, they are
+separate concepts. See https://github.com/appium/appium/blob/master/docs/en/advanced-concepts/settings.md
 		"""
 		self.logger.log("[action]get_settings()")
 		return self.execute(Command.GET_SETTINGS, {})['value']
 
 	def update_settings(self, settings):
-		"""Set settings for the current session.
-		For more on settings, see: https://github.com/appium/appium/blob/master/docs/en/advanced-concepts/settings.md
-		:Args:
-		 - settings - dictionary of settings to apply to the current test session
+		"""
+update_settings(settings)
+Set settings for the current session.
+For more on settings, see: https://github.com/appium/appium/blob/master/docs/en/advanced-concepts/settings.md
+Args:
+	settings	dictionary of settings to apply to the current test session
 		"""
 		self.logger.log("[action]update_settings(settings=%s)" %settings)
 		data = {"settings": settings}
@@ -1223,18 +1368,22 @@ class AndroidDevice(webdriver.Remote):
 		return self
 
 	def toggle_location_services(self):
-		"""Toggle the location services on the device. Android only.
+		"""
+toggle_location_services()
+Toggle the location services on the device. Android only.
 		"""
 		self.logger.log("[action]toggle_location_services()")
 		self.execute(Command.TOGGLE_LOCATION_SERVICES, {})
 		return self
 
 	def set_location(self, latitude, longitude, altitude):
-		"""Set the location of the device
-		:Args:
-		 - latitude - String or numeric value between -90.0 and 90.00
-		 - longitude - String or numeric value between -180.0 and 180.0
-		 - altitude - String or numeric value
+		"""
+set_location(latitude, longitude, altitude)
+Set the location of the device
+Args:
+	latitude	String or numeric value between -90.0 and 90.00
+	longitude	String or numeric value between -180.0 and 180.0
+	altitude	String or numeric value
 		"""
 		self.logger.log("[action]set_location(latitude=%s,longitude=%s,altitude=%s)" %(latitude,longitude,altitude))
 		data = {
