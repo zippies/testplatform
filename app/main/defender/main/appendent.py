@@ -24,7 +24,11 @@ class TestData(object):
 	def _parseDatas(self,testdatas):
 		for testdata in testdatas:
 			name , value = testdata.name , testdata.value
-			setattr(self,name,eval(value))
+			try:
+				value = eval(value)
+			except:
+				pass
+			setattr(self,name,value)
 
 	def get(self,name,special_index=0):
 		if hasattr(self,name):
