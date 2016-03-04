@@ -236,7 +236,6 @@ def runFunctionalTest(job):
 	appelements = Appelement.query.all()
 	testdatas = Testdata.query.all()
 	conflict_datas = Conflictdata.query.all()
-
 	capabilities = []
 	for c_device in choiceddevices:
 		capabilities.append({"deviceName":c_device.deviceName,"platformName":c_device.platform,"platformVersion":c_device.platformVersion})
@@ -253,7 +252,6 @@ def runFunctionalTest(job):
 		bootstrap_port = str(17230 + index)
 		selendroid_port = str(15230 + index)
 		appiums.append({"port":port,"bootstrap_port":bootstrap_port,"url":"http://localhost:%s/wd/hub" %port})
-
 	for case in cases:
 		with open(os.path.join(Config.CASE_FOLDER,"%s.py" %case.caseName),'wb') as f:
 			libs,actions = [],[]
@@ -267,11 +265,11 @@ def runFunctionalTest(job):
 				actions = actions
 			)
 			f.write(str(content).encode('utf-8'))
-
 		undertest_cases = []
 		for index,device in enumerate(capabilities):
 			undertest_cases.append(__import__(case.caseName).TestCase(appiums[index],device))
 		testcases[case.caseName] = undertest_cases
+
 	runner = AndroidRunner(
 							job.id,
 							testcases,
@@ -284,7 +282,9 @@ def runFunctionalTest(job):
 							testdatas,
 							conflict_datas	
 	)
+
 	runner.start()
+
 	job.status = 1
 	db.session.add(job)
 	db.session.commit()

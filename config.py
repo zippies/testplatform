@@ -12,8 +12,8 @@ class Config:
     )
     CODEMIRROR_THEME = 'mbo'
     WTF_CSRF_SECRET_KEY = "whatever"
-    UPLOAD_FOLDER = "C:/Users/Administrator/Desktop/selftest/testplatform/app/static/uploads"
-    CASE_FOLDER = "C:/Users/Administrator/Desktop/selftest/testplatform/testcases"
+    UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__),"app/static/uploads")
+    CASE_FOLDER = os.path.join(os.path.dirname(__file__),"testcases")
     SQLALCHEMY_TRACK_MODIFICATIONS = True
     APPIUM_LOG_LEVEL = "info"
     SHAIRED_CAPABILITIES = {
@@ -30,8 +30,8 @@ class Config:
         ('flyme:id/accept','flyme:id/reject')
     ]
 
-    log_path = "C:/Users/Administrator/Desktop/selftest/testplatform/logs"
-    snapshot_path = "C:/Users/Administrator/Desktop/selftest/testplatform/snapshots"
+    log_path = os.path.join(os.path.dirname(__file__),"logs")
+    snapshot_path = os.path.join(os.path.dirname(__file__),"snapshots")
 
     monkey_action_count = 1000
 
@@ -39,7 +39,7 @@ class Config:
 '''
 # -*- coding: utf-8 -*-
 import sys
-sys.path.append("C:/Users/Administrator/Desktop/selftest/testplatform/app/main/defender/main")
+sys.path.append("app/main/defender/main")
 from android.basecase import AndroidDevice
 {% for lib in libs %}{{lib}};{% endfor %}
 
@@ -77,3 +77,7 @@ class TestCase(AndroidDevice):
     @staticmethod
     def init_app(app):
         pass
+
+
+if __name__ == '__main__':
+    print(os.path.dirname(__file__))
