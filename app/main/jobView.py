@@ -19,6 +19,8 @@ def index():
 	'''
 		首页导航
 	'''
+	if not os.path.isdir("data"):
+		os.makedirs("data")
 	pickle.dump(tasks,open("data/tasks.pkl",'wb'))
 	devices = Device.query.all()
 	testcases = Testcase.query.all()
@@ -90,6 +92,8 @@ def newjob():
 			f = request.files['file']
 			fname = secure_filename(f.filename)
 			apk = os.path.join(Config.UPLOAD_FOLDER,fname)
+			if not os.path.isdir(Config.UPLOAD_FOLDER):
+				os.makedirs(Config.UPLOAD_FOLDER)
 			f.save(apk)
 			cmd_activity = "aapt d badging %s|%s launchable-activity" %(apk,"findstr" if system == "Windows" else "grep")
 			cmd_package = "aapt d badging %s|%s package" %(apk,"findstr" if system == "Windows" else "grep")
