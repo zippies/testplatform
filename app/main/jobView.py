@@ -6,8 +6,7 @@ from subprocess import Popen,PIPE
 from collections import namedtuple
 from . import main,AndroidRunner,MonkeyRunner,CompatibleRunner,API
 from .. import Config
-import os,sys,json,time,pickle,platform
-import subprocess
+import os,sys,json,time,pickle,platform,importlib,subprocess
 sys.path.append(Config.CASE_FOLDER)
 
 system = platform.system()
@@ -206,6 +205,7 @@ def runStabilityTest(job):
 	appiums = []
 	testcases = {}
 	under_testcase = []
+	defaultAction = importlib.reload(importlib.import_module("defaultAction"))
 	for index,device in enumerate(capabilities):
 		for key,value in Config.SHAIRED_CAPABILITIES.items():
 			device[key] = value
@@ -218,7 +218,7 @@ def runStabilityTest(job):
 		bootstrap_port = str(17230 + index)
 		selendroid_port = str(15230 + index)
 		appiums.append({"port":port,"bootstrap_port":bootstrap_port,"url":"http://localhost:%s/wd/hub" %port})
-		under_testcase.append(__import__("defaultAction").TestCase(appiums[index],device))
+		under_testcase.append(defaultAction.TestCase(appiums[index],device))
 	testcases["defaultAction"] = under_testcase
 	androidRunner = AndroidRunner(
 							job.id,
@@ -273,10 +273,16 @@ def runFunctionalTest(job):
 		bootstrap_port = str(17230 + index)
 		selendroid_port = str(15230 + index)
 		appiums.append({"port":port,"bootstrap_port":bootstrap_port,"url":"http://localhost:%s/wd/hub" %port})
+
+	reloaded = []
 	for case in cases:
+		module = importlib.import_module(case.caseName)
+		if case.caseName not in reloaded:
+			module = importlib.reload(importlib.import_module(case.caseName))
+			reloaded.append(case.caseName)
 		undertest_cases = []
 		for index,device in enumerate(capabilities):
-			undertest_cases.append(__import__(case.caseName).TestCase(appiums[index],device))
+			undertest_cases.append(module.TestCase(appiums[index],device))
 		testcases[case.caseName] = undertest_cases
 
 	runner = AndroidRunner(

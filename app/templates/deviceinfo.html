@@ -48,7 +48,7 @@
 					</table>
 			</div>
 			<div class="col-md-4">
-				<div id="imgarea" class="row" style="text-align:center">
+				<div class="row" style="text-align:center;">
 					<span class="col-xs-2"></span>
 					<span class="col-xs-2"><a href="javascript:;" id="goback">Back</a></span>
 					<span class="col-xs-2"><a href="javascript:;" id="gohome">Home</a></span>
@@ -56,6 +56,7 @@
 					<span class="col-xs-2"><a href="javascript:;" id="fresh">fresh</a></span>
 					<span class="col-xs-2"></span>
 				</div>
+				<div id="imgarea" style="text-align:center;height:768px"></div>
 				<div style="margin-top:10px;">
 					<div class="input-group" style="margin-left:100px;width:400px">
 						<span class="input-group-addon" id="basic-addon1">当前activity</span>
@@ -130,14 +131,17 @@ $(function() {
 });
 
 	function initSelectableTree() {
+		layer.load(2);
 		$("#screenshot").remove()
 		$.ajax({
 			url:"/mirror/isconnect",
 			async:true,
 			error:function(request){
+				layer.closeAll('loading');
 				$(window.parent.document).find("#connect-info").append(request.statusText + " " + request.status)
 			},
 			success:function(data){
+				layer.closeAll('loading');
 				if(data.status){
 					$("#imgarea").append('<img id="screenshot" alt="img" width="432" height="768" src="/static/uploads/current.png?temp='+Math.random()+'" >')
 				}else{
@@ -337,7 +341,15 @@ $(function() {
 								data:{"resourceid":resourceid,"text":text,"xpath":xpath},
 								success:function(data){
 									if(data.exist){
-										layer.msg("元素名称："+data.name)
+										layer.open({
+											type: 1,
+											skin: 'layui-layer-demo', //样式类名
+											closeBtn: 0, //不显示关闭按钮
+											title:"元素名称",
+											shift: 0,
+											shadeClose: true, //开启遮罩关闭
+											content: "<div style='padding:5px'><input class='form-control' value='"+data.name+"'/></div>"
+										});
 									}else{
 										layer.msg("该元素未保存")
 									}

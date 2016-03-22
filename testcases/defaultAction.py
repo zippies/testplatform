@@ -31,10 +31,10 @@ class TestCase(AndroidDevice):
         self.allow_alert(nocheck=True)
 
         username,password = self.conflictdatas("登录账号")
-
-        self.log("username:%s password:%s" %(username,password))
-
-        self.super_click("登录按钮")
+        #
+        # self.log("username:%s password:%s" %(username,password))
+        #
+        # self.super_click("登录按钮")
 
         self.super_input("手机号输入框",username)
 

@@ -2,7 +2,7 @@
 import os
 
 class Config:
-    DEBUG = True
+    DEBUG = False
     #SQLALCHEMY_DATABASE_URI = 'mysql+mysqlconnector://root@localhost:3306/websnail'
     SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(os.path.abspath(os.path.dirname(__file__)),'data.sqlite')
     SECRET_KEY = 'what does the fox say?'
@@ -10,7 +10,7 @@ class Config:
     UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__),"app/static/uploads")
     CASE_FOLDER = os.path.join(os.path.dirname(__file__),"testcases")
     SQLALCHEMY_TRACK_MODIFICATIONS = True
-    APPIUM_LOG_LEVEL = "info"
+    APPIUM_LOG_LEVEL = "debug"
     SHAIRED_CAPABILITIES = {
         "newCommandTimeout" : 120,
         "noSign" : True,
@@ -35,7 +35,8 @@ class Config:
 '''
 # -*- coding: utf-8 -*-
 import sys
-sys.path.append("app/main/defender/main")
+if "app/main/defender/main" not in sys.path:
+    sys.path.append("app/main/defender/main")
 from android.basecase import AndroidDevice
 {% for lib in libs %}{{lib}};{% endfor %}
 

@@ -7,13 +7,11 @@ from appium.webdriver.webelement import WebElement as MobileWebElement
 from appium.webdriver.common.mobileby import MobileBy
 from appium.webdriver.common.touch_action import TouchAction
 from appium.webdriver.common.multi_action import MultiAction
-
 from selenium.webdriver.common.by import By
-from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import TimeoutException
 from datetime import datetime
-import os,time
+import os,time,random
 
 
 class ActionTimeOut(Exception):
@@ -64,6 +62,18 @@ class AndroidDevice(webdriver.Remote):
 	def __repr__(self):
 		return "<TestCase>:"+self.casename
 #=============================================自定义方法  BEGIN ==============================================================
+	def randomInt(self,length=8):
+		a = eval("1" + "0" * (length - 1))
+		b = eval("1" + "0" * length) - 1
+		return random.randint(a, b)
+
+	def randomPhoneNum(self):
+		phonepres = [134, 135, 136, 137, 138, 139, 150, 151, 152, 157, 158, 159, 182, 183, 184, 187, 188, 178, 147, 130,
+					 131, 132, 155, 156, 185, 186, 176, 145, 133, 153, 180, 181, 189, 177]
+		pre = random.sample(phonepres, 1)[0]
+		after = self.randomInt(8)
+		return "%s%s" % (pre, after)
+
 	def log(self,info):
 		'''[方法]
 log(info)

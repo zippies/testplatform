@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from flask import render_template,request,jsonify,redirect,url_for
 from werkzeug.utils import secure_filename
-from multiprocessing import Process
 from threading import Thread
 from xml.dom import minidom
 from datetime import datetime
@@ -9,7 +8,7 @@ from subprocess import Popen,PIPE
 from .. import Config
 from .mirror.basecase import AndroidDevice
 from . import main
-import os,json,re,platform,requests,copy
+import os,re,platform,requests,copy
 
 _id = 0
 apk = None
@@ -216,7 +215,7 @@ def connectDevice(devicename):
 		for device in deviceStatus.keys():
 			deviceStatus[device] = False
 		stopAppium()
-	#p.daemon = True
+
 	p.setDaemon(True)
 	p.start()
 	info = "Starting Appium on port : %s bootstrap_port: %s for device %s" %(appium_port,bootstrap_port,devicename)
@@ -352,7 +351,8 @@ def fresh():
 	resp = {"status":True,"info":None}
 	try:
 		freshScreen(0)
-	except:
+	except Exception as e:
+		print(1111111111111,e)
 		resp["status"] = False
 		resp["info"] = "长时间无操作,appium已断开连接,请重新启动"
 
@@ -459,8 +459,8 @@ def getScreen():
 				"appActivity":main_activity,
 				"newCommandTimeout":86400,
 				"noSign":True,
-				"unicodeKeyboard":True,
-				"resetKeyboard":True,
+				#"unicodeKeyboard":True,
+				#"resetKeyboard":True,
 				"deviceName":devicename,
 				"platformName":"Android",
 				"platformVersion":"4.4"

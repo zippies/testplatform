@@ -150,7 +150,7 @@ class Actionflow(db.Model):
 	id = db.Column(db.Integer,primary_key=True)
 	name = db.Column(db.String(64))
 	actions = db.Column(db.PickleType)
-	createdtime = db.Column(db.DateTime,default=datetime.now) 
+	createdtime = db.Column(db.DateTime,default=datetime.now)
 
 	def __init__(self,name,actions):
 		self.name = name.strip()

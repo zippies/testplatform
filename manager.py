@@ -8,7 +8,6 @@ from werkzeug.contrib.fixers import ProxyFix
 import pickle,os,sys
 
 app = createApp()
-app.debug = True
 app.wsgi_app = ProxyFix(app.wsgi_app)
 manager = Manager(app)
 migrate = Migrate(app,db)
