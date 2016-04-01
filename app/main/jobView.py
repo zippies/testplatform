@@ -11,7 +11,6 @@ import os,sys,json,time,pickle,platform
 sys.path.append(Config.CASE_FOLDER)
 
 system = platform.system()
-choiced = "newjobdiv"
 tasks = {}
 
 @main.route("/")
@@ -81,12 +80,11 @@ def getStatus():
 def jobs():
 	jobs = Testjob.query.all()
 	timenow = time.strftime("%Y-%m-%d %H:%M:%S")
-	return render_template("jobs.html",jobs=jobs[::-1],timenow=timenow,choiced=choiced)
+	return render_template("jobs.html",jobs=jobs[::-1],timenow=timenow)
 
 
 @main.route("/newjob",methods=["POST"])
 def newjob():
-	global choiced
 	choiceddevices = dict(request.form).get('choicedDevice')
 	choicedcases = dict(request.form).get("choicedCase")
 	jobname = request.form.get('jobName')
@@ -108,7 +106,6 @@ def newjob():
 	testjob = Testjob(jobname,testtype,choicedcases,choiceddevices,apk,packageName,main_activity)
 	db.session.add(testjob)
 	db.session.commit()
-	choiced="jobdiv"
 	return redirect(url_for(".jobs"))
 
 
@@ -282,12 +279,6 @@ def runFunctionalTest(job):
 	db.session.add(job)
 	db.session.commit()
 
-@main.route("/testjob/choice/<div>")
-def choicejob(div):
-	global choiced
-	choiced = div
-	return "ok"
-
 @main.route("/viewreport/<int:id>")
 def viewreport(id):
 	job = Testjob.query.filter_by(id=id).first()
@@ -376,6 +367,7 @@ def newjobfromjenkins():
 				choicedcases = eval(choicedcases[0])
 			except:
 				pass
+			print(choicedcases)
 			for caseid in choicedcases:
 				if not Testcase.query.filter_by(id=caseid).first():
 					assert 1==2,"id为'%s'的用例未创建或已被删除" %caseid

@@ -16,25 +16,25 @@
 </head>
 <body>
 <ul id="myTab" class="nav nav-tabs">
-	<li class="{% if choiced == 'writecasediv' %}active{% endif %}">
+	<li>
 		<a href="#writecasediv" onclick="choiced('writecasediv')" data-toggle="tab">写测试用例</a>
 	</li>
-	<li class="{% if choiced == 'casediv' %}active{% endif %}">
+	<li class="active">
 		<a href="#casediv" onclick="choiced('casediv')" data-toggle="tab">所有测试用例</a>
 	</li>
-	<li class="{% if choiced == 'elementdiv' %}active{% endif %}">
+	<li>
 		<a href="#elementdiv" onclick="choiced('elementdiv')" data-toggle="tab">所有元素</a>
 	</li>
-	<li class="{% if choiced == 'nomaldatadiv' %}active{% endif %}">
+	<li>
 		<a href="#nomaldatadiv" onclick="choiced('nomaldatadiv')" data-toggle="tab">通用测试数据</a>
 	</li>
-	<li class="{% if choiced == 'conflictdatadiv' %}active{% endif %}">
+	<li>
 		<a href="#conflictdatadiv" onclick="choiced('conflictdatadiv')" data-toggle="tab">冲突测试数据</a>
 	</li>
 </ul>
-
+<hr>
 <div id="myTabContent" class="tab-content">
-	<div class="tab-pane fade{% if choiced == 'writecasediv' %}in active{% endif %}" id="writecasediv">
+	<div class="tab-pane fade" id="writecasediv">
 		<div class="panel-body">
 			<form id="writecaseform">
 				<div class="row" style="padding:10px">
@@ -63,7 +63,7 @@
 		</div>
 	</div>
 
-	<div class="tab-pane fade {% if choiced == 'casediv' %}in active{% endif %}" id="casediv">
+	<div class="tab-pane fade in active" id="casediv">
 		<div class="panel-body">
 			{% if testcases%}
 			<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="false">
@@ -124,24 +124,13 @@
 		</div>
 	</div>
 
-	<div class="tab-pane fade {% if choiced == 'elementdiv' %}in active{% endif %}" id="elementdiv">
-		<div class="panel-body">
-			<iframe id="caseelements" src="/elements" frameborder="no" width="100%" height="1500px"></iframe>
-		</div>
+	<div class="tab-pane fade" id="elementdiv">
 	</div>
 
-
-	<div class="tab-pane fade {% if choiced == 'nomaldatadiv' %}in active{% endif %}" id="nomaldatadiv">
-		<div class="panel-body">
-			<iframe id="nomaltestdatas" src="/testdatas" frameborder="no" width="100%" height="1500px"></iframe>
-		</div>
+	<div class="tab-pane fade" id="nomaldatadiv">
 	</div>
 
-
-	<div class="tab-pane fade {% if choiced == 'conflictdatadiv' %}in active{% endif %}" id="conflictdatadiv">
-		<div class="panel-body">
-			<iframe id="conflicttestdatas" src="/conflictdatas" frameborder="no" width="100%" height="1500px"></iframe>
-		</div>
+	<div class="tab-pane fade" id="conflictdatadiv">
 	</div>
 </div>
 
@@ -152,7 +141,7 @@
 		{% for message in get_flashed_messages() %}
 			parent.layer.msg("{{message}}")
 		{% endfor %}
-
+		sessionStorage.tab_choiced = "";
 		interval = setInterval("resizeFrame()",50)
 
 		$(".showcase").click(function(){
@@ -243,14 +232,19 @@
 	})
 
 	function choiced(div) {
-		$.ajax({
-			url:"/testcase/choice/"+div,
-			type:"get",
-			synv:true,
-			success:function(data){
-				console.log("choiced:"+div)
-			}
-		})
+		$("#"+sessionStorage.tab_choiced).removeClass("active")
+		$("#"+div).addClass("active")
+		switch(div){
+			case "elementdiv":
+				$("#elementdiv").append('<div class="panel-body"><iframe id="caseelements" src="/elements" frameborder="no" width="100%" height="1500px"></iframe></div>');
+				break;
+			case "nomaldatadiv":
+				$("#nomaldatadiv").append('<div class="panel-body"><iframe id="nomaltestdatas" src="/testdatas" frameborder="no" width="100%" height="1500px"></iframe></div>');
+				break;
+			case "conflictdatadiv":
+				$("#conflictdatadiv").append('<div class="panel-body"><iframe id="conflicttestdatas" src="/conflictdatas" frameborder="no" width="100%" height="1500px"></iframe></div>');
+				break;
+		}
 	}
 </script>
 </html>

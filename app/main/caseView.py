@@ -15,7 +15,7 @@ caselist_template = '''
 </tr>
 {% endfor %}
 '''
-choiced = "casediv"
+#choiced = "casediv"
 
 
 @main.route("/getcases")
@@ -33,7 +33,7 @@ def getcases():
 
 @main.route("/writecase",methods=["POST"])
 def writecase():
-	global choiced
+	#global choiced
 	name = request.form.get('casename').strip()
 	desc = request.form.get('casedesc').strip()
 	content = request.form.get('casecontent')
@@ -45,7 +45,7 @@ def writecase():
 	db.session.add(case)
 	db.session.commit()
 	info = generateCase(case)
-	choiced = "casediv"
+	#choiced = "casediv"
 	return jsonify(info)
 
 def generateCase(case):
@@ -115,12 +115,12 @@ def uploadcase():
 @main.route("/testcases")
 def testcases():
 	testcases = Testcase.query.all()
-	return render_template("testcases.html",testcases=testcases[::-1],choiced=choiced)
+	return render_template("testcases.html",testcases=testcases[::-1])
 
-@main.route("/testcase/choice/<div>")
-def choicecase(div):
-	global choiced
-	choiced = div
-	return "ok"
+# @main.route("/testcase/choice/<div>")
+# def choicecase(div):
+# 	global choiced
+# 	choiced = div
+# 	return "ok"
 
 

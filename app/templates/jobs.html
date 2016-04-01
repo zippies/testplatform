@@ -25,16 +25,16 @@
 </head>
 <body>
 <ul id="myTab" class="nav nav-tabs">
-	<li class="{% if choiced == 'newjobdiv' %}active{% endif %}">
+	<li>
 		<a href="#newjobdiv" onclick="choiced('newjobdiv')" data-toggle="tab">新增测试任务</a>
 	</li>
-	<li class="{% if choiced == 'jobdiv' %}active{% endif %}">
+	<li class="active">
 		<a href="#jobdiv" onclick="choiced('jobdiv')" data-toggle="tab">历史测试任务</a>
 	</li>
 </ul>
 
 <div id="myTabContent" class="tab-content">
-	<div class="tab-pane fade {% if choiced == 'newjobdiv' %}in active{% endif %}" id="newjobdiv">
+	<div class="tab-pane fade" id="newjobdiv">
 		<div class="panel-body">
 			<form action="/newjob" id="newjobform" method="post" enctype="multipart/form-data">
 				<div style="padding:10px">
@@ -143,7 +143,7 @@
 		</div>
 	</div>
 
-	<div class="tab-pane fade {% if choiced == 'jobdiv' %}in active{% endif %}" id="jobdiv">
+	<div class="tab-pane fade in active" id="jobdiv">
 		<div class="panel-body">
 			<table class="table table-striped">
 				<thread>
@@ -204,6 +204,7 @@
 	$(function(){
 
 		interval = setInterval("resizeFrame()",50);
+		sessionStorage.tab_choiced = "";
 
 		$("#upload_apk").change(function(){
 			$("#uploadapk_head").removeClass("panel-danger").addClass("panel-default")
@@ -348,19 +349,8 @@
 	}
 
 	function choiced(div) {
-		$.ajax({
-			url:"/testjob/choice/"+div,
-			type:"get",
-			synv:true,
-			success:function(data){
-				console.log("choiced:"+div)
-			}
-		})
-
-		if(div == 'newjobdiv'){
-			$("#devicelistdiv").empty();
-			getdevices();
-		}
+		$("#"+sessionStorage.tab_choiced).removeClass("active")
+		$("#"+div).addClass("active")
 	}
 
 </script>
