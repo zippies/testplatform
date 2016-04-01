@@ -6,68 +6,252 @@
 	<script src="/static/bootstrap/js/bootstrap.min.js"></script>
 	<script src="/static/js/common.js"></script>
 	<script src="/static/js/layer.js"></script>
+	<style>
+		.list-group-item{
+			height:150px;
+			width:180px;
+		}
+		.testtype {
+			width:auto;
+			margin-left:10px;
+		}
+		.choiceditem{
+			border:1px solid green;
+		}
+		.center{
+			text-align:center;
+		}
+	</style>
 </head>
 <body>
-<table class="table">
-	<thread>
-		<tr>
-			<th>ID</th>
-			<th>NAME</th>
-			<th>Type</th>
-			<th>RelateCase</th>
-			<th>RelateDevice</th>
-			<th>Status</th>
-			<th>CreatedTime</th>
-			<th>Operation</th>
-		</tr>
-	</thread>
-	<tbody>
-	{% for job in jobs %}
-		<tr>
-			<th>{{ job.id }}</th>
-			<th>{{ job.jobName }}</th>
-			<th>{{ job.jobType }}</th>
-			<th>{{ job.relateCases }}</th>
-			<th>{{ job.relateDevices }}</th>
-			<th>{{ job.status }}</th>
-			<th>{{ job.createdtime }}</th>
-			<th>
-				<div class="btn-group">
-					{% if job.status != 2 %}
-						<button type="button" id="{{ job.id }}" class="btn btn-primary runbtn">运行</button>
-						<a id="viewreport_{{ job.id }}" name="{{ job.id }}" class="btn btn-info viewreport" style="display:none">查看报告</a>
-					{% else %}
-						<a id="viewreport_{{ job.id }}" name="{{ job.id }}" class="btn btn-info viewreport">查看报告</a>
-					{% endif %}
-					<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-						<span class="caret"></span>
-						<span class="sr-only">Toggle Dropdown</span>
-					</button>
-					<ul class="dropdown-menu">
-						<li><a href="/deljob/{{ job.id }}">删除</a></li>
-					</ul>
+<ul id="myTab" class="nav nav-tabs">
+	<li class="{% if choiced == 'newjobdiv' %}active{% endif %}">
+		<a href="#newjobdiv" onclick="choiced('newjobdiv')" data-toggle="tab">新增测试任务</a>
+	</li>
+	<li class="{% if choiced == 'jobdiv' %}active{% endif %}">
+		<a href="#jobdiv" onclick="choiced('jobdiv')" data-toggle="tab">历史测试任务</a>
+	</li>
+</ul>
+
+<div id="myTabContent" class="tab-content">
+	<div class="tab-pane fade {% if choiced == 'newjobdiv' %}in active{% endif %}" id="newjobdiv">
+		<div class="panel-body">
+			<form action="/newjob" id="newjobform" method="post" enctype="multipart/form-data">
+				<div style="padding:10px">
+					<div id="uploadapk_head" class="panel panel-default">
+						<div class="panel-heading">
+							一、上传APK文件
+						</div>
+					</div>
+					<input type="file" name="file" id="upload_apk" accept="apk" class="form-control" required />
 				</div>
-			</th> 
-		</tr>
-	{% endfor %}
-	</tbody>
-</table>
+
+				<div style="padding:10px">
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							二、任务信息
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-1" style="text-align: center;">
+							<label>任务名称：</label>
+						</div>
+						<div class="col-sm-3">
+							<input type="text" name="jobName" class="form-control" value="随米_APP自动化测试_{{ timenow }}" required/>
+						</div>
+					</div>
+					
+				</div>
+				<div style="padding:10px">
+					<div id="testtype_head" class="panel panel-default">
+						<div class="panel-heading">
+							三、选择测试类型
+						</div>
+					</div>
+					<label id="compatibility" class="testtype">
+						<li class="list-group-item">
+							<input type="radio" name="testType" value="1" style="align:left"><br>
+							兼容性测试
+							<ul>
+								<li>安装</li>
+								<li>卸载</li>
+								<li>调起</li>
+							</ul>
+						</li>
+					</label>
+					<label id="stabilization" class="testtype">
+						<li class="list-group-item">
+							<input type="radio" name="testType" value="2" style="align:left"><br>
+							稳定性测试
+							<ul>
+								<li>安装</li>
+								<li>卸载</li>
+								<li>monkey测试</li>
+							</ul>
+						</li>
+					</label>
+					<label id="functional" class="testtype">
+						<li class="list-group-item">
+							<input type="radio" name="testType" value="3" style="align:left"><br>
+							功能性测试
+							<ul>
+								<li>安装</li>
+								<li>卸载</li>
+								<li>自定义测试脚本</li>
+							</ul>
+						</li>
+					</label>
+					<div id="choicecase" style="display:none">
+						选择测试用例
+						<table class="table table-bordered table-striped">
+							<colgroup>
+								<col class="col-xs-1">
+								<col class="col-xs-3">
+								<col class="col-xs-8">
+							</colgroup>
+							<thread>
+								<tr>
+									<th>勾选</th>
+									<th>用例名</th>
+									<th>用例描述</th>
+								</tr>
+							</thread>
+							<tbody id="casebody">
+							</tbody>
+						</table>
+					</div>
+				</div>
+
+				<div style="padding:10px;">
+					<div id="choiceddevice_head" class="panel panel-default">
+						<div class="panel-heading">
+							四、选择测试设备
+						</div>
+					</div>
+					<div id="devicelistdiv" class="row" style="padding:10px">
+					</div>
+				</div>
+			</form>
+			<div style="padding:10px">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						五、保存
+					</div>
+				</div>
+				<button class="btn btn-primary" onclick="submitform()">保存</button>
+			</div>
+		</div>
+	</div>
+
+	<div class="tab-pane fade {% if choiced == 'jobdiv' %}in active{% endif %}" id="jobdiv">
+		<div class="panel-body">
+			<table class="table table-striped">
+				<thread>
+					<tr>
+						<th class="center">ID</th>
+						<th>Name</th>
+						<th class="center">Type</th>
+						<th class="center">RelateCase</th>
+						<th class="center">RelateDevice</th>
+						<th class="center">Result</th>
+						<th class="center">CreatedTime</th>
+						<th class="center">Operation</th>
+					</tr>
+				</thread>
+				<tbody>
+				{% set cnt = 0 %}
+				{% for job in jobs %}
+					{% set cnt = cnt + 1 %}
+					<tr id="joblist_{{ job.id }}" class="{% if job.status == 0 %}warning{% elif job.status == 1%}danger{% endif %}">
+						<td class="center">{{ cnt }}</td>
+						<td>{{ job.jobName }}</td>
+						<td class="center">{% if job.jobType == 1 %} 兼容性测试 {% elif job.jobType == 2%} monkey性能测试 {% else %} 功能测试 {% endif %}</td>
+						<td class="center">{% if job.relateCases %}{{ job.relateCases }}{% else %}空{% endif %}</td>
+						<td class="center">{{ job.relateDevices }}</td>
+						<td class="center" id="result_{{ job.id }}">{% if job.result == 0 %}<img src="static/imgs/block.png" />{% elif job.result == -1 %}<img src="static/imgs/fail.png" />{% elif job.result == 1 %}<img src="static/imgs/success.png" />{% endif %}</td>
+						<td class="center">{{ job.createdtime }}</td>
+						<td class="center">
+							<div class="btn-group">
+								{% if job.status == 0 %}
+									<button type="button" id="{{ job.id }}" class="btn btn-primary runbtn">立即运行</button>
+									<a id="viewreport_{{ job.id }}" name="{{ job.id }}" class="btn btn-info viewreport" style="display:none">查看报告</a>
+								{% elif job.status == 1 %}
+									<button type="button" id="{{ job.id }}" class="btn btn-primary runbtn" disabled="">正在运行</button>
+									<a id="viewreport_{{ job.id }}" name="{{ job.id }}" class="btn btn-info viewreport" style="display:none">查看报告</a>
+								{% else %}
+									<a id="viewreport_{{ job.id }}" name="{{ job.id }}" class="btn btn-info viewreport">查看报告</a>
+								{% endif %}
+								<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+									<span class="caret"></span>
+									<span class="sr-only">Toggle Dropdown</span>
+								</button>
+								<ul class="dropdown-menu">
+									<li><a href="/deljob/{{ job.id }}">删除</a></li>
+								</ul>
+							</div>
+						</td> 
+					</tr>
+				{% endfor %}
+				</tbody>
+			</table>
+
+		</div>
+	</div>
+
+</div>
+
 <script>
 	$(function(){
 
 		interval = setInterval("resizeFrame()",50);
 
-		getStatus()
+		$("#upload_apk").change(function(){
+			$("#uploadapk_head").removeClass("panel-danger").addClass("panel-default")
+		})
+
+		var requested = false
+
+		$(".testtype").click(function(){
+
+			if(this.id == 'functional'){
+				$("#testtype_head").removeClass("panel-danger").addClass("panel-default")
+				$("#choicecase").show()
+				if(requested){
+					console.log("requested")
+				}else{
+					$.ajax({
+						url:"/getcases",
+						type:"get",
+						async:false,
+						error:function(request){
+							console.log(request.status)
+						},
+						success:function(data){
+							$("#casebody").append(data)
+							requested = true
+						}
+					})
+				}
+			}else{
+				$("#choicecase").hide()
+				$("#testtype_head").removeClass("panel-danger").addClass("panel-default")
+			}
+		})
+
+		getdevices();
+
+		getStatus();
 
 		{% for message in get_flashed_messages() %}
 			parent.layer.msg("{{message}}")
 		{% endfor %}
 
 		$(".runbtn").click(function(){
+			jobid = this.id
 			$(this).html("正在运行..").attr("disabled","disabled")
 			$(".runbtn").attr("disabled","disabled")
 			$.ajax({
-				url:"/runjob/"+this.id,
+				url:"/runjob/"+jobid,
 				type:"post",
 				async:true,
 				error:function(request){
@@ -76,7 +260,9 @@
 				success:function(data){
 					if(!data.result){
 						parent.layer.msg(data.info)
+						$(".runbtn").removeAttr("disabled")
 					}else{
+						$("#joblist_"+jobid).removeClass("info").addClass("danger")
 						parent.layer.msg("正在运行")
 					}
 				}
@@ -87,6 +273,38 @@
 			parent.viewreport($(this).attr("name"));
 		})
 	})
+
+	function showchange(id){
+		if($("#thumbnail_"+id).hasClass("choiceditem")){
+			$("#thumbnail_"+id).removeClass("choiceditem")
+		}else{
+			$("#thumbnail_"+id).addClass("choiceditem")
+		}
+	}
+
+	function submitform(){
+		var checkpass = true
+		var testtype = $('input:radio[name="testType"]:checked').val();
+		var choiceddevice = $('input:checkbox[name="choicedDevice"]:checked').val()
+		if(!choiceddevice){
+			$("#choiceddevice_head").removeClass("panel-default").addClass("panel-danger")
+			layer.msg('请选择设备', {icon: 2})
+			checkpass = false
+		}
+		if(!testtype){
+			$("#testtype_head").removeClass("panel-default").addClass("panel-danger")
+			layer.msg('请选择测试类型', {icon: 2})
+			checkpass = false
+		}
+		if($.trim($("#upload_apk").val())==''){
+			$("#uploadapk_head").removeClass("panel-default").addClass("panel-danger")
+			layer.msg('请先上传apk', {icon: 2})
+			checkpass = false
+		}
+		if(checkpass){
+			$("#newjobform").submit()
+		}
+	}
 
 	function getStatus(){
 		var source = new EventSource("/getStatus");
@@ -100,6 +318,12 @@
 					$("#"+resp.jobid).hide()
 					$("#viewreport_"+resp.jobid).show()
 					$(".runbtn").removeAttr("disabled")
+					$("#joblist_"+resp.jobid).removeClass("danger").addClass("warning")
+					if(resp.result == -1){
+						$("#result_"+resp.jobid).empty().append("<img src='static/imgs/fail.png' />")
+					}else{
+						$("#result_"+resp.jobid).empty().append("<img src='static/imgs/success.png' />")
+					}
 					parent.layer.msg("运行完成")
 				}else{
 
@@ -107,6 +331,35 @@
 			}else{
 
 			}
+		}
+	}
+
+	function getdevices() {
+		$.ajax({
+			url:"/getdevices",
+			type:"get",
+			error:function(request){
+				console.log(request.status)
+			},
+			success:function(data){
+				$("#devicelistdiv").append(data)
+			}
+		})
+	}
+
+	function choiced(div) {
+		$.ajax({
+			url:"/testjob/choice/"+div,
+			type:"get",
+			synv:true,
+			success:function(data){
+				console.log("choiced:"+div)
+			}
+		})
+
+		if(div == 'newjobdiv'){
+			$("#devicelistdiv").empty();
+			getdevices();
 		}
 	}
 

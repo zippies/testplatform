@@ -6,11 +6,12 @@ from werkzeug.utils import secure_filename
 from multiprocessing import Process
 from subprocess import Popen,PIPE
 from . import main,AndroidRunner,MonkeyRunner,CompatibleRunner,API
-from jinja2 import Template
 from .. import Config
 import os,sys,json,time,pickle,platform
 sys.path.append(Config.CASE_FOLDER)
 
+system = platform.system()
+choiced = "newjobdiv"
 tasks = {}
 
 @main.route("/")
@@ -21,7 +22,7 @@ def index():
 	'''
 	if not os.path.isdir("data"):
 		os.makedirs("data")
-	pickle.dump(tasks,open("data/tasks.pkl",'wb'))
+
 	devices = Device.query.all()
 	testcases = Testcase.query.all()
 	return render_template("index.html",
@@ -38,7 +39,7 @@ def getStatus():
 	except:
 		pass
 	job = Testjob.query.filter_by(status=1).first()
-	data = {"jobid":None,"status":None}
+	data = {"jobid":None,"status":None,"result":0}
 	if job:
 		data["jobid"] = str(job.id)
 		if str(job.id) not in session:
@@ -55,10 +56,12 @@ def getStatus():
 				db.session.add(report)
 				db.session.commit()
 				job.status = 2
+				job.result = -1 if len(result["success"]) != result['totalcount'] else 1
 				job.reportID = report.id
 				db.session.add(job)
 				db.session.commit()
 				data["status"] = "2"
+				data["result"] = -1 if len(result["success"]) != result['totalcount'] else 1
 				pickle.dump({},open("data/tasks.pkl",'wb'))
 			else:
 				data["status"] = "1"
@@ -77,41 +80,37 @@ def getStatus():
 @main.route("/jobs")
 def jobs():
 	jobs = Testjob.query.all()
-	return render_template("jobs.html",jobs=jobs[::-1])
+	timenow = time.strftime("%Y-%m-%d %H:%M:%S")
+	return render_template("jobs.html",jobs=jobs[::-1],timenow=timenow,choiced=choiced)
 
 
-@main.route("/newjob",methods=["POST","GET"])
+@main.route("/newjob",methods=["POST"])
 def newjob():
-	system = platform.system()
-	if request.method == 'POST':
-		try:
-			choiceddevices = dict(request.form).get('choicedDevice')
-			choicedcases = dict(request.form).get("choicedCase")
-			jobname = request.form.get('jobName')
-			testtype = request.form.get('testType')
-			f = request.files['file']
-			fname = secure_filename(f.filename)
-			apk = os.path.join(Config.UPLOAD_FOLDER,fname)
-			if not os.path.isdir(Config.UPLOAD_FOLDER):
-				os.makedirs(Config.UPLOAD_FOLDER)
-			f.save(apk)
-			cmd_activity = "aapt d badging %s|%s launchable-activity" %(apk,"findstr" if system == "Windows" else "grep")
-			cmd_package = "aapt d badging %s|%s package" %(apk,"findstr" if system == "Windows" else "grep")
-			activity = Popen(cmd_activity,stdout=PIPE,shell=True)
-			package = Popen(cmd_package,stdout=PIPE,shell=True)
-			main_activity = activity.stdout.read().decode().split("name='")[1].split("'")[0]
-			packageName = package.stdout.read().decode().split("name='")[1].split("'")[0]
-			activity.kill()
-			package.kill()
-			testjob = Testjob(jobname,testtype,choicedcases,choiceddevices,apk,packageName,main_activity)
-			db.session.add(testjob)
-			db.session.commit()
-		except Exception as e:
-			pass
-		return redirect(url_for(".jobs"))
-	else:
-		pass
-	return render_template("newjob.html")
+	global choiced
+	choiceddevices = dict(request.form).get('choicedDevice')
+	choicedcases = dict(request.form).get("choicedCase")
+	jobname = request.form.get('jobName')
+	testtype = request.form.get('testType')
+	f = request.files['file']
+	fname = secure_filename(f.filename)
+	apk = os.path.join(Config.UPLOAD_FOLDER,fname)
+	if not os.path.isdir(Config.UPLOAD_FOLDER):
+		os.makedirs(Config.UPLOAD_FOLDER)
+	f.save(apk)
+	cmd_activity = "aapt d badging %s|%s launchable-activity" %(apk,"findstr" if system == "Windows" else "grep")
+	cmd_package = "aapt d badging %s|%s package" %(apk,"findstr" if system == "Windows" else "grep")
+	activity = Popen(cmd_activity,stdout=PIPE,shell=True)
+	package = Popen(cmd_package,stdout=PIPE,shell=True)
+	main_activity = activity.stdout.read().decode().split("name='")[1].split("'")[0]
+	packageName = package.stdout.read().decode().split("name='")[1].split("'")[0]
+	activity.kill()
+	package.kill()
+	testjob = Testjob(jobname,testtype,choicedcases,choiceddevices,apk,packageName,main_activity)
+	db.session.add(testjob)
+	db.session.commit()
+	choiced="jobdiv"
+	return redirect(url_for(".jobs"))
+
 
 @main.route("/deljob/<int:id>")
 def deljob(id):
@@ -173,6 +172,8 @@ class FakeDevice(object):
 		return "<fakedevice:%s>" % self.deviceName
 
 def runStabilityTest(job):
+	timestamp = job.createdtime.strftime("%y%m%d%H%M%S")
+
 	choiceddevices = []
 	for deviceid in job.relateDevices:
 		device = Device.query.filter_by(id=deviceid).first()
@@ -216,7 +217,7 @@ def runStabilityTest(job):
 							appelements,
 							testdatas,
 							conflict_datas,
-							MonkeyRunner(job.id,choiceddevices,job.appPackage,job.testapk,Config.monkey_action_count,300,Config.log_path,Config.snapshot_path)
+							MonkeyRunner(job.id,timestamp,choiceddevices,job.appPackage,job.testapk,Config.monkey_action_count,300,Config.log_path,Config.snapshot_path)
 	)
 	androidRunner.start()
 	job.status = 1
@@ -244,7 +245,7 @@ def runFunctionalTest(job):
 	for c_device in choiceddevices:
 		capabilities.append({"deviceName":c_device.deviceName,"platformName":c_device.platform,"platformVersion":c_device.platformVersion})
 	appiums = []
-	for index,device in enumerate(capabilities):
+	for index,device in enumerate(capabilities):		
 		for key,value in Config.SHAIRED_CAPABILITIES.items():
 			device[key] = value
 		device["app"] = job.testapk
@@ -257,18 +258,6 @@ def runFunctionalTest(job):
 		selendroid_port = str(15230 + index)
 		appiums.append({"port":port,"bootstrap_port":bootstrap_port,"url":"http://localhost:%s/wd/hub" %port})
 	for case in cases:
-		with open(os.path.join(Config.CASE_FOLDER,"%s.py" %case.caseName),'wb') as f:
-			libs,actions = [],[]
-			for c in case.caseContent.split("\r\n"):
-				if c:
-					libs.append(c) if c.startswith('from') or c.startswith("import") else actions.append(c)
-
-			content = Template(Config.case_template.strip()).render(
-				desc = case.caseDesc,
-				libs = libs,
-				actions = actions
-			)
-			f.write(str(content).encode('utf-8'))
 		undertest_cases = []
 		for index,device in enumerate(capabilities):
 			undertest_cases.append(__import__(case.caseName).TestCase(appiums[index],device))
@@ -292,6 +281,12 @@ def runFunctionalTest(job):
 	job.status = 1
 	db.session.add(job)
 	db.session.commit()
+
+@main.route("/testjob/choice/<div>")
+def choicejob(div):
+	global choiced
+	choiced = div
+	return "ok"
 
 @main.route("/viewreport/<int:id>")
 def viewreport(id):
@@ -348,7 +343,6 @@ def getscreenshot():
 
 @main.route("/showapi")
 def showapi():
-	from pprint import pprint
 	funcs = dir(API)
 	funcs.sort()
 	apis = []
@@ -362,3 +356,159 @@ def showapi():
 			apis.append([func,doc])
 
 	return render_template("api.html",apis=apis)
+
+@main.route("/newjobfromjenkins",methods=["POST"])
+def newjobfromjenkins():
+	info = {"result":True,"errorMsg":None}
+	try:
+		data = request.form
+		apk = data.get("app")
+		jobtype = data.get("type")
+		choicedcases = dict(data).get("cases")
+		print(choicedcases)
+		choiceddevices = dict(data).get("devices")
+		buildid = data.get("buildid")
+		jobname = "Suime_AutomationTest_Build_%s" %buildid
+		if "all" in choicedcases:
+			choicedcases = [case.id for case in Testcase.query.all()]
+		else:
+			try:
+				choicedcases = eval(choicedcases[0])
+			except:
+				pass
+			for caseid in choicedcases:
+				if not Testcase.query.filter_by(id=caseid).first():
+					assert 1==2,"id为'%s'的用例未创建或已被删除" %caseid
+
+		for index,deviceid in enumerate(choiceddevices):
+			device = Device.query.filter_by(id=deviceid).first()
+			if not device:
+				assert 1==2,"id为'%s'的设备未创建或已被删除" %deviceid
+
+		cmd_activity = "aapt d badging %s|%s launchable-activity" %(apk,"findstr" if system == "Windows" else "grep")
+		cmd_package = "aapt d badging %s|%s package" %(apk,"findstr" if system == "Windows" else "grep")
+		activity = Popen(cmd_activity,stdout=PIPE,shell=True)
+		package = Popen(cmd_package,stdout=PIPE,shell=True)
+		main_activity = activity.stdout.read().decode().split("name='")[1].split("'")[0]
+		packageName = package.stdout.read().decode().split("name='")[1].split("'")[0]
+		activity.kill()
+		package.kill()
+		testjob = Testjob(jobname,jobtype,choicedcases,choiceddevices,apk,packageName,main_activity,buildid=buildid)
+		db.session.add(testjob)
+		db.session.commit()
+	except Exception as e:
+		info = {"result":False,"errorMsg":str(e)}
+
+	return jsonify(info)
+
+@main.route("/runjobfromjenkins/<build_id>")
+def runjobfromjenkins(build_id):
+	info = None
+	job = Testjob.query.filter_by(buildid=build_id).first()
+	if job:
+		if job.status == 0:
+			info = runJenkinsTest(job)
+		else:
+			info = {"result":False,"errorMsg":"该任务已被运行,当前状态:%s" %job.status}
+	else:
+		info = {"result":False,"errorMsg":"该任务未创建或已被删除"}
+
+	return jsonify(info)
+
+def runJenkinsTest(job):
+	info = {"result":True,"errorMsg":None}
+	testcases = {}
+	cases = [Testcase.query.filter_by(id=caseid).first() for caseid in job.relateCases]
+
+	if not len(cases) > 0:
+		info = {"result":False,"errorMsg":"没有可用的测试用例"}
+		return info
+	choiceddevices = []
+	for deviceid in job.relateDevices:
+		device = Device.query.filter_by(id=deviceid).first()
+		if device.status == 0:
+			choiceddevices.append(device)
+
+	if not len(choiceddevices) > 0:
+		info = {"result":False,"errorMsg":"没有可用的设备"}
+		return info
+
+	appelements = Appelement.query.all()
+	testdatas = Testdata.query.all()
+	conflict_datas = Conflictdata.query.all()
+	capabilities = []
+	for c_device in choiceddevices:
+		capabilities.append({"deviceName":c_device.deviceName,"platformName":c_device.platform,"platformVersion":c_device.platformVersion})
+	appiums = []
+	for index,device in enumerate(capabilities):		
+		for key,value in Config.SHAIRED_CAPABILITIES.items():
+			device[key] = value
+		device["app"] = job.testapk
+		device["appPackage"] = job.appPackage
+		device["appActivity"] = job.appActivity
+		device['automationName'] = 'Appium' if float(device['platformVersion']) > 4.2 else 'Selendroid'
+		capabilities[index] = device
+		port = str(16230 + index)
+		bootstrap_port = str(17230 + index)
+		selendroid_port = str(15230 + index)
+		appiums.append({"port":port,"bootstrap_port":bootstrap_port,"url":"http://localhost:%s/wd/hub" %port})
+	for case in cases:
+		undertest_cases = []
+		for index,device in enumerate(capabilities):
+			undertest_cases.append(__import__(case.caseName).TestCase(appiums[index],device))
+		testcases[case.caseName] = undertest_cases
+
+	runner = AndroidRunner(
+							job.id,
+							testcases,
+							appiums,
+							Config.log_path,
+							Config.snapshot_path,
+							Config.APPIUM_LOG_LEVEL,
+							Config.system_alerts,
+							appelements,
+							testdatas,
+							conflict_datas	
+	)
+
+	runner.start()
+	job.status = 1
+	db.session.add(job)
+	db.session.commit()
+
+	return info
+
+@main.route("/getjobstatusfromjenkins/<buildid>")
+def getjobstatusfromjenkins(buildid):
+	info = {"result":True,"status":True,"errorMsg":None}
+	task = {}
+	try:
+		task = pickle.load(open("data/tasks.pkl",'rb'))
+	except:
+		pass
+	job = Testjob.query.filter_by(buildid=buildid).first()
+	if job:
+		if task.values():
+			result = task[str(job.id)]["result"]
+			info["status"] = False if len(result["success"]) != result['totalcount'] else True
+			report = Report(
+				-1 if len(result["success"]) != result['totalcount'] else 0,
+				result["success"],
+				result["failed"],
+				result["duration"]
+			)
+			db.session.add(report)
+			db.session.commit()
+			job.status = 2
+			job.result = -1 if len(result["success"]) != result['totalcount'] else 1
+			job.reportID = report.id
+			db.session.add(job)
+			db.session.commit()
+			pickle.dump({},open("data/tasks.pkl",'wb'))
+		else:
+			info = {"result":False,"errorMsg":"job is running.."}
+	else:
+		info = {"result":False,"errorMsg":"job is not exists！"}
+
+	print(info)
+	return jsonify(info)

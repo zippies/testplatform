@@ -25,6 +25,7 @@ reverseframe = {}
 deviceStatus = {}
 packageName = ""
 main_activity = ""
+current_activity = ""
 
 def getChildNodes(node):
 	nodes = [n for n in node.childNodes if n.nodeName !='#text']
@@ -188,7 +189,11 @@ def stopAppium():
 	'''
 	driver = None
 	if platform.system() == 'Windows':
-		os.system("taskkill /F /IM node.exe")
+		info = os.popen("netstat -ano|findstr %s" %appium_port).readline()
+		if "LISTENING" in info:
+			pid = info.split("LISTENING")[1].strip()
+			print("Stop pid:",pid)
+			os.system("ntsd -c q -p %s" %pid)
 	else:
 		os.system("killall node")
 
@@ -375,12 +380,13 @@ def getAppInfo():
 
 
 def freshScreen(seconds=2):
-	global _id,driver,nodeDatas,nodeinfos,frameinfos
+	global _id,driver,nodeDatas,nodeinfos,frameinfos,current_activity
 	_id = 0
 	nodeDatas,nodeinfos,frameinfos = [],{},{}
 	current = os.path.join(Config.UPLOAD_FOLDER,"current.png")
 	print(current)
 	driver.save_screen(current,seconds=seconds)
+	current_activity = driver.current_activity
 	page_source = driver.page_source
 	page_source = re.sub("[\x00-\x08\x0b-\x0c\x0e-\x1f]+",u"",page_source)
 	try:
@@ -410,11 +416,12 @@ def showCloser():
 
 @main.route("/mirror/getdata")
 def getdata():
-	global nodeDatas,nodeinfos,frameinfos
+	global nodeDatas,nodeinfos,frameinfos,current_activity
 	resp = {
 		"nodeDatas":nodeDatas,
 		"nodeinfos":nodeinfos,
-		"frameinfos":frameinfos
+		"frameinfos":frameinfos,
+		"current_activity":current_activity
 	}
 
 	return jsonify(resp)

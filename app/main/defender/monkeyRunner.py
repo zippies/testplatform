@@ -13,11 +13,12 @@ class Device(object):
 		return "<Device:%s>" %self.deviceName
 
 class Monkey(object):
-	def __init__(self,device,packageName,apk,actionCount,actionDelay,logpath,snapshotpath):
+	def __init__(self,device,packageName,apk,actionCount,actionDelay,timestamp,logpath,snapshotpath):
 		self.device = device
 		self.packageName = packageName
 		self.apk = apk
 		self.actionDelay = actionDelay
+		self.timestamp = timestamp
 		self.actionCount = actionCount
 		self.logpath = logpath
 		self.snapshotpath = snapshotpath
@@ -29,33 +30,9 @@ class Monkey(object):
 	def runTest(self):
 		logfile = os.path.join(self.logpath,"%s.log" %self.device.deviceName)
 
-		# self.logcontents.append("[action]Try to uninstall old apk:%s" %self.packageName)
-		# uninstall_history_pkg = "adb -s {deviceName} uninstall {packageName}".format(deviceName=self.device.deviceName,packageName=self.packageName)
-		# infos = os.popen(uninstall_history_pkg).readlines()
-		# for info in infos:
-		# 	if info.strip():
-		# 		if info.strip()== "Success":
-		# 			self.logcontents.append("[status]uninstall old apk success")
-		# 		else:
-		# 			self.logcontents.append("[status]apk not installed,continue...")
-		
-		# self.save_screen("before_install_apk")
-
-		# self.logcontents.append("[action]Try to install new apk:%s" %self.apk)
-		# install_pkg = "adb -s {deviceName} install {apk}".format(deviceName=self.device.deviceName,apk=self.apk)
-		# infos = os.popen(install_pkg).readlines()
-		# for info in infos:
-		# 	if info.strip():
-		# 		if "Failure" in info.strip() or "Error" in info.strip() or "Missing" in info.strip():
-		# 			self.errorMsg = "install apk failed!"
-		# 		else:
-		# 			self.logcontents.append("[status]installing apk:%s" %info.strip())
-
-		# self.save_screen("after_install_apk")
-
 		cmd = "adb -s {deviceName} shell monkey -s {seed} -p {packageName} -v --throttle {actionDelay} {actionCount} > {logfile}".format(
 			deviceName=self.device.deviceName,
-			seed=123,
+			seed=self.timestamp,
 			packageName=self.packageName,
 			actionDelay=self.actionDelay,
 			actionCount=self.actionCount,
@@ -88,14 +65,14 @@ class Monkey(object):
 					self.errorMsg = line
 
 class MonkeyRunner(Thread):
-	def __init__(self,id,devices,packageName,apk,actionCount,actionDelay,logpath,snapshotpath):
+	def __init__(self,id,timestamp,devices,packageName,apk,actionCount,actionDelay,logpath,snapshotpath):
 		Thread.__init__(self)
 		self.id = id
 		self.logtime = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 		self.logpath = os.path.join(logpath,self.logtime)
 		self.snapshotpath = os.path.join(snapshotpath,self.logtime)
 		self.devices = devices
-		self.monkeys = self._createMonkeys(packageName,apk,actionCount,actionDelay)
+		self.monkeys = self._createMonkeys(packageName,apk,actionCount,actionDelay,timestamp)
 
 		self.packageName = packageName
 		self.actionCount = actionCount
@@ -112,10 +89,10 @@ class MonkeyRunner(Thread):
 	def __repr__(self):
 		return "<MonkeyRunner>"
 
-	def _createMonkeys(self,packageName,apk,actionCount,actionDelay):
+	def _createMonkeys(self,packageName,apk,actionCount,actionDelay,timestamp):
 		monkeys = []
 		for device in self.devices:
-			monkey = Monkey(device,packageName,apk,actionCount,actionDelay,self.logpath,self.snapshotpath)
+			monkey = Monkey(device,packageName,apk,actionCount,actionDelay,timestamp,self.logpath,self.snapshotpath)
 			monkeys.append(monkey)
 
 		return monkeys

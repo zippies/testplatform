@@ -6,22 +6,25 @@ from ..models import Device,db
 from . import main
 import json
 
-
-@main.route("/newdevice",methods=["GET","POST"])
+@main.route("/newdevice",methods=["POST"])
 def newdevice():
-	if request.method == "POST":
+	info = {"result":True,"errorMsg":None}
+	try:
 		device = Device(
 			request.form.get("phoneModel"),
 			request.form.get("deviceName"),
 			request.form.get("manufacturer"),
 			request.form.get("platform"),
 			request.form.get("platformVersion"),
-			request.form.get("resolution")
+			""
 		)
 		db.session.add(device)
 		db.session.commit()
-		flash("添加成功")
-	return render_template("newdevice.html")
+	except Exception as e:
+		info = {"result":False,"errorMsg":str(e)}
+	finally:
+		flash(info)
+		return redirect(url_for(".devices"))
 
 @main.route("/editdevice")
 def editdevice():
@@ -56,19 +59,9 @@ def deldevice(id):
 @main.route("/devices")
 def devices():
 	devices = Device.query.all()
-	deviceinfos = {
-		"platform":["android","ios"],
-		"platformversion":["4.4.4","4.4.3","4.4.2","4.3","4.2"],
-		"resolution":["1920*800","1280*768"],
-		"	":["HUAWEI","APPLE","XIAOMI"],
-		"status":["可用","不可用"]
-	}
 	return render_template("devices.html",
-							deviceinfos=deviceinfos,
 							devices=devices
 	)
-
-
 
 device_template = '''
 {% for device in devices %}
@@ -90,10 +83,10 @@ device_template = '''
 					<th>paltformVersion:</th>
 					<td><input class="deviceinfo_{{ device.id }}" name="platformVersion" type="text" value="{{ device.platformVersion }}" disabled="disabled"></td>
 				</tr>
-				<tr>
+<!--				<tr>
 					<th>resolution:</th>
 					<td><input class="deviceinfo_{{ device.id }}" name="resolution" type="text" value="{{ device.resolution }}" disabled="disabled"></td>
-				</tr>
+				</tr>-->
 				<tr>
 					<th>deviceName:</th>
 					<td><input class="deviceinfo_{{ device.id }}" name="deviceName" type="text" value="{{ device.deviceName }}" disabled="disabled"></td>
@@ -163,3 +156,28 @@ def getdevicestatus():
 	status = json.dumps(status)
 
 	return Response("data:"+status+"\n\n",mimetype="text/event-stream")
+
+@main.route("/getdevicestatusfromjenkins")
+def getdevicestatusfromjenkins():
+	cmd = "adb devices"
+	devices = []
+	p = Popen(cmd,stdout=PIPE,shell=True)
+	for info in p.stdout.readlines():
+		info = info.decode()
+		if 'List' in info:
+			continue
+		elif 'offline' in info:
+			continue
+		elif 'unauthorized' in info:
+			continue
+		elif 'device' in info:
+			name = info.split('\t')[0].strip()
+			device = Device.query.filter_by(deviceName=name).first()
+			if device:
+				devices.append(device.id)
+		else:
+			continue
+
+	p.kill()
+
+	return json.dumps(devices)

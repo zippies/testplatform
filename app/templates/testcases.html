@@ -15,55 +15,137 @@
   	<script src="/static/js/layer.js"></script>
 </head>
 <body>
-{% if testcases%}
-<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="false">
-{% for case in testcases %}
-	<div class="panel panel-default">
-		<div class="panel-heading" role="tab" id="heading_{{ case.id }}">
-			<h4 class="panel-title">
-				<table>
-					<thread>
-						<tr>
-							<th class="col-xs-1">{{ case.id }}</th>
-							<th class="col-xs-2">
-								<a role="button" class="showcase" id="{{ case.id }}" data-toggle="collapse" data-parent="#accordion" href="#collapse_{{case.id}}" aria-expanded="false" aria-controls="collapseOne">{{ case.caseName }}</a></th>
-							<th class="col-xs-9">用例描述：{{ case.caseDesc }}</th>
-							<th class="col-xs-1"><a href="javascript:;" id="delcase_{{ case.id }}" class="btn btn-danger delcase">删除</a></th>
-						</tr>
-					</thread>
-				</table>
-			</h4>
-		</div>
-		<div id="collapse_{{ case.id }}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading_{{case.id}}">
-			<div class="panel-body">
-				<div>
-					<form action="/editcase/{{case.id}}" method="post">
-						<div class="row" style="padding:10px">
-							<div style="float:left"><label>用例名称：</label></div>
-							<div style="float:left;margin-left:5px"><input name="casename" type="text" class="form-control" style="width:300px" value="{{case.caseName}}" required /></div>
-							<div style="float:left;margin-left:5px"><label>用例描述：</label></div>
-							<div style="float:left;margin-left:5px"><input name="casedesc" type="text" class="form-control" style="width:500px" value="{{case.caseDesc}}" required/></div>
-							<div style="float:left;margin-left:30px"><button type="submit" class="btn btn-success">保存</button></div>
-						</div>
-						<textarea id="casecontent_{{ case.id }}" name="casecontent" width="1000px" height="400px" required>{{ case.caseContent }}</textarea>
-						<script>
-							var mirror_{{ case.id }} = CodeMirror.fromTextArea(document.getElementById("casecontent_{{ case.id }}"), {
-								lineNumbers: true,
-								mode: "python",
-								theme: "monokai"
-							});
-							mirror_{{ case.id }}.setSize('100%',500);
-						</script>
-					</form>
+<ul id="myTab" class="nav nav-tabs">
+	<li class="{% if choiced == 'writecasediv' %}active{% endif %}">
+		<a href="#writecasediv" onclick="choiced('writecasediv')" data-toggle="tab">写测试用例</a>
+	</li>
+	<li class="{% if choiced == 'casediv' %}active{% endif %}">
+		<a href="#casediv" onclick="choiced('casediv')" data-toggle="tab">所有测试用例</a>
+	</li>
+	<li class="{% if choiced == 'elementdiv' %}active{% endif %}">
+		<a href="#elementdiv" onclick="choiced('elementdiv')" data-toggle="tab">所有元素</a>
+	</li>
+	<li class="{% if choiced == 'nomaldatadiv' %}active{% endif %}">
+		<a href="#nomaldatadiv" onclick="choiced('nomaldatadiv')" data-toggle="tab">通用测试数据</a>
+	</li>
+	<li class="{% if choiced == 'conflictdatadiv' %}active{% endif %}">
+		<a href="#conflictdatadiv" onclick="choiced('conflictdatadiv')" data-toggle="tab">冲突测试数据</a>
+	</li>
+</ul>
+
+<div id="myTabContent" class="tab-content">
+	<div class="tab-pane fade{% if choiced == 'writecasediv' %}in active{% endif %}" id="writecasediv">
+		<div class="panel-body">
+			<form id="writecaseform">
+				<div class="row" style="padding:10px">
+					<div style="float:left"><label>用例名称：</label></div>
+					<div style="float:left;margin-left:5px"><input id="casename" name="casename" type="text" class="form-control" style="width:300px"/></div>
+					<div style="float:left;margin-left:5px"><label>用例描述：</label></div>
+					<div style="float:left;margin-left:5px"><input id="casedesc" name="casedesc" type="text" class="form-control" style="width:500px"/></div>
+					<div style="float:left;margin-left:10px"><a href="javascript:;" class="btn btn-info" id="viewapi">查看api</a></div>
+					<div style="float:left;margin-left:10px"><a href="/mirror" class="btn btn-info" target="_blank">打开模拟器</a></div>
+					<div style="float:left;margin-left:20px"><a href="javascript:;" id="submitwritecase" class="btn form-control btn-success">保存</a></div>
+					<input type="reset" id="reset" style="display:none"/>
 				</div>
-			</div>
+				<hr>
+				<div>
+					<textarea name="casecontent" class="form-control" id="casecontent"></textarea>
+					<script>
+						var casecode = CodeMirror.fromTextArea(document.getElementById("casecontent"), {
+							lineNumbers: true,
+							mode: "python",
+							theme: "monokai"
+						});
+						casecode.setSize('100%',500);
+					</script>
+				</div>
+			</form>
 		</div>
 	</div>
-{% endfor %}
+
+	<div class="tab-pane fade {% if choiced == 'casediv' %}in active{% endif %}" id="casediv">
+		<div class="panel-body">
+			{% if testcases%}
+			<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="false">
+				{% set index = 0 %}
+				{% for case in testcases %}
+					{% set index = index + 1 %}
+					<div class="panel">
+						<div class="panel-heading" role="tab" id="heading_{{ case.id }}">
+							<h4 class="panel-title">
+								<table style="width:100%">
+										<tr>
+											<td style="width:5%">{{ index }}</td>
+											<td style="width:15%">
+												<a role="button" class="showcase" id="{{ case.id }}" data-toggle="collapse" data-parent="#accordion" href="#collapse_{{case.id}}" aria-expanded="false" aria-controls="collapseOne">{{ case.caseName }}</a></td>
+											<td style="width:70%">用例描述：{{ case.caseDesc }}</td>
+											<td style="width:10%">
+
+												<a href="javascript:;" id="delcase_{{ case.id }}" class="btn btn-danger delcase">删除</a>
+											</td>
+										</tr>
+								</table>
+							</h4>
+						</div>
+						<div id="collapse_{{ case.id }}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading_{{case.id}}">
+							<div class="panel-body">
+								<div>
+									<form action="/editcase/{{case.id}}" method="post">
+										<div class="row" style="padding:10px">
+											<div style="float:left"><label>用例名称：</label></div>
+											<div style="float:left;margin-left:5px"><input name="casename" type="text" class="form-control" style="width:300px" value="{{case.caseName}}" required /></div>
+											<div style="float:left;margin-left:5px"><label>用例描述：</label></div>
+											<div style="float:left;margin-left:5px"><input name="casedesc" type="text" class="form-control" style="width:500px" value="{{case.caseDesc}}" required/></div>
+											<div style="float:left;margin-left:5px">
+												<a href="javascript:;" class="btn btn-info" onclick="parent.showapi()">查看API</a>
+												<a href="/mirror" class="btn btn-info" target="_blank">打开模拟器</a>
+											</div>
+											<div style="float:left;margin-left:30px"><button type="submit" class="btn btn-success">保存</button></div>
+										</div>
+										<textarea id="casecontent_{{ case.id }}" name="casecontent" width="1000px" height="400px">{{ case.caseContent }}</textarea>
+										<script>
+											var mirror_{{ case.id }} = CodeMirror.fromTextArea(document.getElementById("casecontent_{{ case.id }}"), {
+												lineNumbers: true,
+												mode: "python",
+												theme: "monokai"
+											});
+											mirror_{{ case.id }}.setSize('100%',500);
+										</script>
+									</form>
+								</div>
+							</div>
+						</div>
+					</div>
+				{% endfor %}
+			</div>
+			{% else %}
+				<label><a href="/newtestcase">还没有用例,去添加</a></label>
+			{% endif %}
+		</div>
+	</div>
+
+	<div class="tab-pane fade {% if choiced == 'elementdiv' %}in active{% endif %}" id="elementdiv">
+		<div class="panel-body">
+			<iframe id="caseelements" src="/elements" frameborder="no" width="100%" height="1500px"></iframe>
+		</div>
+	</div>
+
+
+	<div class="tab-pane fade {% if choiced == 'nomaldatadiv' %}in active{% endif %}" id="nomaldatadiv">
+		<div class="panel-body">
+			<iframe id="nomaltestdatas" src="/testdatas" frameborder="no" width="100%" height="1500px"></iframe>
+		</div>
+	</div>
+
+
+	<div class="tab-pane fade {% if choiced == 'conflictdatadiv' %}in active{% endif %}" id="conflictdatadiv">
+		<div class="panel-body">
+			<iframe id="conflicttestdatas" src="/conflictdatas" frameborder="no" width="100%" height="1500px"></iframe>
+		</div>
+	</div>
 </div>
-{% else %}
-	<label><a href="/newtestcase">还没有用例,去添加</a></label>
-{% endif %}
+
+
 </body>
 <script>
 	$(function(){
@@ -87,6 +169,8 @@
 				$.get("/delcase/"+id,function(data){
 					if(data.result){
 						parent.layer.msg('删除成功', {icon: 6})
+						currentCount = parseInt($(window.parent.document.getElementById('casecount')).html());
+						$(window.parent.document.getElementById('casecount')).html(currentCount-1);
 						window.location.reload(true);
 					}else{
 						parent.layer.msg('删除失败:'+data.info, {icon: 5})
@@ -98,6 +182,75 @@
 			})
 		})
 
+		$("#upload_submit").click(function(){
+			$.ajax({
+				url:"/uploadcase",
+				type:"post",
+				data:$("#uploadcaseform").serialize(),
+				success:function(data){
+					parent.layer.msg(data)
+				}
+			})
+		})
+
+		$("#submitwritecase").click(function(){
+			if($("#casename").val() && $("#casedesc").val()){
+				$("#casecontent").val(casecode.getDoc().getValue())
+				$.ajax({
+					url:"/writecase",
+					type:"post",
+					data:$("#writecaseform").serialize(),
+					success:function(data){
+						if(data.result){
+							parent.layer.msg("新增成功")
+							$("#reset").click();
+							casecode.getDoc().setValue("");
+							casecode.refresh();
+							currentCount = parseInt($(window.parent.document.getElementById('casecount')).html());
+							$(window.parent.document.getElementById('casecount')).html(currentCount+1);
+							window.location.reload(true);
+						}else{
+							parent.layer.msg("新增失败:"+data.errorMsg)
+						}
+					}
+				})
+			}else{
+				parent.layer.msg("用例名称/描述不能为空")
+			}
+
+		})
+
+
+		$("#viewapi").click(function(){
+			parent.showapi();
+		})
+
+		$("#openelements,#closeelements").click(function(){
+			$("#openelements").toggle()
+			$("#closeelements").toggle()
+		})
+
+		$("#opentestdatas,#closetestdatas").click(function(){
+			$("#opentestdatas").toggle()
+			$("#closetestdatas").toggle()
+		})
+
+		$("#openconflictdatas,#closeconflictdatas").click(function(){
+			$("#openconflictdatas").toggle()
+			$("#closeconflictdatas").toggle()
+		})
+
 	})
+
+	function choiced(div) {
+		$.ajax({
+			url:"/testcase/choice/"+div,
+			type:"get",
+			synv:true,
+			success:function(data){
+				console.log("choiced:"+div)
+			}
+		})
+	}
 </script>
 </html>

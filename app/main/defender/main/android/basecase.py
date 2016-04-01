@@ -614,6 +614,32 @@ super_finds(case_element_name,nocheck=False)
 			error = "'element:%s' is not configured in '%s'" %(case_element_name,self.case_elements.elementfile or 'androidConfig.py')
 			raise CaseError(error)
 
+	def exist_text(self,text):
+		'''
+exist_text(text)
+查找当前页面是否存在含有text的元素
+用法：
+	self.exist_text("用户名")
+		'''
+		self.logger.log("[action]exist_text(text='%s')" %text)
+		elem = None
+		try:
+			elem = self.find("name",str(text),nocheck=False)
+		except:
+			pass
+		finally:
+			assert elem is not None,"当前页面未找到文本为'%s'的元素" %text
+
+	def exist_texts(self,texts):
+		'''
+exist_texts(texts)
+查找当前页面是否存在含有text的元素
+用法：
+	self.exist_texts(["用户名","密码"])
+		'''
+		for text in texts:
+			self.exist_text(text)
+
 	def super_input(self,case_element_name,text,nocheck=False):
 		'''
 super_input(case_element_name,text,nocheck=False)

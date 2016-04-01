@@ -53,7 +53,12 @@
 					<span class="col-xs-2"><a href="javascript:;" id="gohome">Home</a></span>
 					<span class="col-xs-5"><a href="javascript:;" id="power">Power</a></span>
 				</div>
-
+				<div style="margin-top:10px;">
+					<div class="input-group" style="margin-left:100px;width:400px">
+						<span class="input-group-addon" id="basic-addon1">当前activity</span>
+						<input type="text" class="form-control" id="current_activity" aria-describedby="basic-addon1">
+					</div>
+				</div>
 			</div>
 			<div class="col-md-4">
 				<button onclick="$('#nodeTreeView').treeview('expandAll')" class="btn btn-default">展开所有(Expand All)</button>
@@ -132,6 +137,7 @@ $(function() {
 			nodeData = data.nodeDatas
 			nodeinfos = data.nodeinfos
 			frameinfos = data.frameinfos
+			$("#current_activity").val(data.current_activity)
 			var notes = new Array()
 
 			layer.config({

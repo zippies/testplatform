@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 from flask import render_template,request,jsonify,flash,redirect,url_for
-from ..models import db,Testcase,Appelement,Testdata
-from flask.ext.login import login_required
+from ..models import db,Testcase
 from .. import Config
 from jinja2 import Template
 from . import main
-import json,os
+import os
 
 caselist_template = '''
 {% for case in cases %}
@@ -16,6 +15,8 @@ caselist_template = '''
 </tr>
 {% endfor %}
 '''
+choiced = "casediv"
+
 
 @main.route("/getcases")
 def getcases():
@@ -30,14 +31,11 @@ def getcases():
 
 	return caseinfo
 
-@main.route("/newtestcase")
-def newtestcase():
-	return render_template("newtestcase.html")
-
 @main.route("/writecase",methods=["POST"])
 def writecase():
-	name = request.form.get('casename')
-	desc = request.form.get('casedesc')
+	global choiced
+	name = request.form.get('casename').strip()
+	desc = request.form.get('casedesc').strip()
 	content = request.form.get('casecontent')
 	case = Testcase(
 		name,
@@ -46,8 +44,30 @@ def writecase():
 	)
 	db.session.add(case)
 	db.session.commit()
+	info = generateCase(case)
+	choiced = "casediv"
+	return jsonify(info)
 
-	return "新增成功"
+def generateCase(case):
+	info = {"result":True,"errorMsg":None}
+	try:
+		with open(os.path.join(Config.CASE_FOLDER,"%s.py" %case.caseName),'wb') as f:
+			libs,actions = [],[]
+			for c in case.caseContent.split("\r\n"):
+				if c:
+					libs.append(c) if c.startswith('from') or c.startswith("import") else actions.append(c)
+
+			content = Template(Config.case_template.strip()).render(
+				desc = case.caseDesc,
+				libs = libs,
+				actions = actions
+			)
+			f.write(str(content).encode('utf-8'))
+	except Exception as e:
+		info["result"] = False
+		info["errorMsg"] = str(e)
+	finally:
+		return info
 
 @main.route("/editcase/<int:id>",methods=['POST'])
 def editcase(id):
@@ -62,7 +82,8 @@ def editcase(id):
 			case.caseContent = content
 			db.session.add(case)
 			db.session.commit()
-			flash("编辑成功")
+			info = generateCase(case)
+			flash("编辑成功") if info["result"] else flash(info["errorMsg"])
 		else:
 			flash("该用例不存在")
 	except Exception as e:
@@ -94,64 +115,12 @@ def uploadcase():
 @main.route("/testcases")
 def testcases():
 	testcases = Testcase.query.all()
-	return render_template("testcases.html",testcases=testcases[::-1])
+	return render_template("testcases.html",testcases=testcases[::-1],choiced=choiced)
 
-#=============================================================================================
+@main.route("/testcase/choice/<div>")
+def choicecase(div):
+	global choiced
+	choiced = div
+	return "ok"
 
-@main.route("/elements",methods=["POST","GET"])
-def elements():
-	if request.method == "POST":
-		data = "添加成功"
-		try:
-			ele = Appelement(
-				request.form.get("findby"),
-				request.form.get("name"),
-				request.form.get("value")
-			)
-			db.session.add(ele)
-			db.session.commit()
-		except Exception as e:
-			data = "添加失败:%s" %str(e)
-		return data
-	return render_template("elements.html")
-
-@main.route("/elementdata")
-def elementdata():
-	elements = Appelement.query.all()
-	data = [
-		{
-		"id": ele.id,
-		"name":ele.name,
-		"by":"<input id='findby_%s' type='text' class='form-control' value='%s'/>" %(ele.id,ele.findby),
-		"value":"<input id='value_%s' type='text' class='form-control' value='%s'/>" %(ele.id,ele.value),
-		"operate":"<button class='btn btn-default' onclick='saveeditelement(%s)'>保存</button> <button class='btn btn-danger' onclick='delelement(%s)'>删除</button>" %(ele.id,ele.id)
-		} for ele in elements
-	]
-	return json.dumps(data)
-
-@main.route("/saveeditelement/<int:id>")
-def saveeditelement(id):
-	try:
-		ele = Appelement.query.filter_by(id=id).first()
-		findby = request.args.get("findby")
-		value = request.args.get("value")
-		ele.findby = findby
-		ele.value = value
-		print(id,ele.findby,ele.value)
-		db.session.add(ele)
-		db.session.commit()
-	except Exception as e:
-		return "保存失败:%s" %str(e)
-	return "保存成功"
-
-@main.route("/delelement/<int:id>")
-def delelement(id):
-	try:
-		ele = Appelement.query.filter_by(id=id).first()
-		if ele:
-			db.session.delete(ele)
-			db.session.commit()
-	except:
-		return "删除失败"
-	return "删除成功"
 

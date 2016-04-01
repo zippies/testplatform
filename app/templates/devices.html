@@ -10,97 +10,110 @@
   		.deviceinfo {
   			disabled:disabled;
   		}
+		.elem{
+			margin-bottom: 10px;
+		}
   	</style>
 </head>
 <body>
-	<div style="padding:10px">
-		<div id="searcharea">
-			<label>选择设备：</label>
-			<select>
-				<option>请选择平台</option>
-				{% for platform in deviceinfos.platform %}
-				<option>{{ platform }}</option>
-				{% endfor %}
-				}
-			</select>
-			<select>
-				<option>请选择平台版本</option>
-				{% for platformversion in deviceinfos.platformversion %}
-				<option>{{ platformversion }}</option>
-				{% endfor %}
-				}
-			</select>
-			<select>
-				<option>请选择分辨率</option>
-				{% for resolution in deviceinfos.resolution %}
-				<option>{{ resolution }}</option>
-				{% endfor %}
-				}
-			</select>
-			<select>
-				<option>请选择厂商</option>
-				{% for manufacturer in deviceinfos.manufacturer %}
-				<option>{{ manufacturer }}</option>
-				{% endfor %}
-				}
-			</select>
-			<select>
-				<option>请选择状态</option>
-				{% for status in deviceinfos.status %}
-				<option>{{ status }}</option>
-				{% endfor %}
-				}
-			</select>
-		</div>
-		<hr>
-		<div id="devicelist" class="row">
-			{% for device in devices %}
-				<div class="col-sm-6 col-md-3">
-					<div class="thumbnail">
-						<img src="static/imgs/phone.png" alt="htc">
-						<table class="table table-bordered table-striped" id="deviceinfotable" style="width:310px">
-							<tbody>
-								<tr>
-									<th>phoneModel:</th>
-									<td><input class="deviceinfo_{{ device.id }}" name="phoneModel" type="text" value="{{ device.phoneModel }}" disabled="disabled"></td>
-								</tr>
-								<tr>
-									<th>platform:</th>
-									<td><input class="deviceinfo_{{ device.id }}" name="platform" type="text" value="{{ device.platform }}" disabled="disabled"></td>
-								</tr>
-								<tr>
-									<th>paltformVersion:</th>
-									<td><input class="deviceinfo_{{ device.id }}" name="platformVersion" type="text" value="{{ device.platformVersion }}" disabled="disabled"></td>
-								</tr>
-								<tr>
-									<th>resolution:</th>
-									<td><input class="deviceinfo_{{ device.id }}" name="resolution" type="text" value="{{ device.resolution }}" disabled="disabled"></td>
-								</tr>
-								<tr>
-									<th>deviceName:</th>
-									<td><input class="deviceinfo_{{ device.id }}" name="deviceName" type="text" value="{{ device.deviceName }}" disabled="disabled"></td>
-								</tr>
-								<tr>
-									<th>状态:</th>
-									<td id="status_{{device.id}}">{% if device.status == 0%}<font color="green">连接正常</font>{%else%}<font color="red">连接异常</font>{% endif %}</td>
-								</tr>
-							</tbody>
-						</table>
-							<a href="javascript:;" class="btn btn-info editdevice" id="editdevice_{{ device.id }}">编辑</a>
-							<a href="javascript:;" class="btn btn-info saveedit" id="saveedit_{{ device.id }}" style="display:none">保存</a>
-							<a href="javascript:;" class="btn btn-warning deldevice" id="deldevice_{{ device.id }}">删除</a>
-					</div>
+	<div id="devicelist" class="row">
+		{% for device in devices %}
+			<div class="col-sm-6 col-md-3" id="devicediv_{{ device.id }}">
+				<div class="thumbnail">
+					<img src="static/imgs/phone.png" alt="htc">
+					<table class="table table-bordered table-striped" id="deviceinfotable" style="width:310px">
+						<tbody>
+							<tr>
+								<th>手机型号:</th>
+								<td><input class="deviceinfo_{{ device.id }}" name="phoneModel" type="text" value="{{ device.phoneModel }}" disabled="disabled"></td>
+							</tr>
+							<tr>
+								<th>系统平台:</th>
+								<td><input class="deviceinfo_{{ device.id }}" name="platform" type="text" value="{{ device.platform }}" disabled="disabled"></td>
+							</tr>
+							<tr>
+								<th>系统版本:</th>
+								<td><input class="deviceinfo_{{ device.id }}" name="platformVersion" type="text" value="{{ device.platformVersion }}" disabled="disabled"></td>
+							</tr>
+<!-- 								<tr>
+								<th>resolution:</th>
+								<td><input class="deviceinfo_{{ device.id }}" name="resolution" type="text" value="{{ device.resolution }}" disabled="disabled"></td>
+							</tr> -->
+							<tr>
+								<th>设备序号:</th>
+								<td><input class="deviceinfo_{{ device.id }}" name="deviceName" type="text" value="{{ device.deviceName }}" disabled="disabled"></td>
+							</tr>
+							<tr>
+								<th>状态:</th>
+								<td id="status_{{device.id}}">{% if device.status == 0%}<font color="green">连接正常</font>{%else%}<font color="red">连接异常</font>{% endif %}</td>
+							</tr>
+						</tbody>
+					</table>
+						<a href="javascript:;" class="btn btn-info editdevice" id="editdevice_{{ device.id }}">编辑</a>
+						<a href="javascript:;" class="btn btn-info saveedit" id="saveedit_{{ device.id }}" style="display:none">保存</a>
+						<a href="javascript:;" class="btn btn-warning deldevice" id="deldevice_{{ device.id }}">删除</a>
 				</div>
-			{% endfor %}
-		</div>
+			</div>
+		{% endfor %}
 	</div>
-
-
+	<hr>
+	<div>
+		<form action="/newdevice" method="post">
+			<div class="input-group elem">
+				<span class="input-group-addon" id="basic-addon1"><strong>手机型号:</strong></span>
+				<input name="phoneModel" type="text" class="form-control" required/>
+			</div>
+			<div class="input-group elem">
+				<span class="input-group-addon" id="basic-addon1"><strong>生产厂商:</strong></span>
+				<input name="manufacturer" type="text" class="form-control" required/>
+			</div>
+			<div class="input-group elem">
+				<span class="input-group-addon" id="basic-addon1"><strong>系统平台:</strong></span>
+				<select name="platform" type="text" class="form-control" required>
+					<option>Android</option>
+<!-- 					<option>IOS</option> -->
+				</select>
+			</div>
+			<div class="input-group elem">
+				<span class="input-group-addon" id="basic-addon1"><strong>平台版本:</strong></span>
+				<select name="platformVersion" type="text" class="form-control" required>
+					<option>6.0</option>
+					<option>5.1</option>
+					<option>5.0</option>
+					<option>4.4</option>
+					<option>4.3</option>
+					<option>4.2</option>
+					<option>4.1</option>
+					<option>4.0</option>
+				</select>
+			</div>
+			<div class="input-group elem">
+				<span class="input-group-addon" id="basic-addon1"><strong>设备序号:</strong></span>
+				<input name="deviceName" type="text" class="form-control" required/>
+			</div>
+	<!-- 		<label>分辨率:</label>
+			<input name="resolution" type="text" class="form-control" /> -->
+			<div style="text-align:center">
+				<button class="form-control btn-primary" type="submit">添加</button>
+			</div>
+		</form>
+	</div>
+	<hr>
 <script>
 	$(function(){
 		interval = setInterval("resizeFrame()",50)
-		
+
 		getDeviceStatus()
+
+		{% for message in get_flashed_messages() %}
+			{% if message.result %}
+				parent.layer.msg("添加成功")
+				currentCount = parseInt($(window.parent.document.getElementById('devicecount')).html());
+				$(window.parent.document.getElementById('devicecount')).html(currentCount+1);
+			{% else %}
+				parent.layer.msg("添加失败：{{ message.errorMsg }}")
+			{% endif %}
+		{% endfor %}
 
 		layer.config({
 			extend: 'extend/layer.ext.js'
@@ -138,7 +151,9 @@
 				$.get("/deldevice/"+id,function(data){
 					if(data.result){
 						parent.layer.msg('删除成功', {icon: 6})
-						window.location.reload(true);
+						currentCount = parseInt($(window.parent.document.getElementById('devicecount')).html());
+						$(window.parent.document.getElementById('devicecount')).html(currentCount-1);
+						$("#devicediv_"+id).remove()
 					}else{
 						parent.layer.msg('失败:'+data.info, {icon: 5})
 					}

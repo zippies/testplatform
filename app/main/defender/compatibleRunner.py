@@ -79,6 +79,18 @@ class Compatibler(object):
 
 		self.save_screen("uninstall_app")
 
+		self.logcontents.append("[action]Try to install new apk again:%s " %self.apk)
+		install_pkg = "adb -s {deviceName} install {apk}".format(deviceName=self.device.deviceName,apk=self.apk)
+		infos = os.popen(install_pkg).readlines()
+		for info in infos:
+			if info.strip():
+				if "Failure" in info.strip() or "Error" in info.strip() or "Missing" in info.strip():
+					self.errorMsg = "install apk failed!"
+				else:
+					self.logcontents.append("[status]installing apk:%s" %info.strip())
+
+		self.save_screen("install_apk_again")
+
 		end = time.time()
 		self.runtime = round(end - start,2)
 

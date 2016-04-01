@@ -21,7 +21,7 @@
 }
 
 #main-nav.nav-tabs.nav-stacked > li > a > span {
-    color: #4A515B;
+    color: white;
 }
 
 #main-nav.nav-tabs.nav-stacked > li.active > a, #main-nav.nav-tabs.nav-stacked > li > a:hover {
@@ -38,10 +38,6 @@
     border-color: #2B2E33;
 }
 
-    #main-nav.nav-tabs.nav-stacked > li.active > a, #main-nav.nav-tabs.nav-stacked > li > a:hover > span {
-        color: #FFF;
-    }
-
 #main-nav.nav-tabs.nav-stacked > li {
 margin-bottom: 4px;
 }
@@ -52,18 +48,6 @@ margin-bottom: 4px;
     text-align: center;
 }
 
-.navbar-static-top {
-    background-color: #212121;
-    margin-bottom: 5px;
-}
-
-.navbar-brand {
-    background: url('') no-repeat 10px 8px;
-    display: inline-block;
-    vertical-align: middle;
-    padding-left: 50px;
-    color: #fff;
-}
 
 #navigation {
 	position: absolute;

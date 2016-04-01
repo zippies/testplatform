@@ -4,7 +4,7 @@
 {% block head %}
   <meta charset="UTF-8">
   <link type="image/x-icon" rel="shortcut icon" href="/static/imgs/favicon.ico" />
-  <title>wenba测试
+  <title>移动测试平台
   {% block title %}
   {% endblock %}
   </title>
@@ -23,8 +23,10 @@
 <body>
 	<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
 		<div class="container-fluid">
-				<span><a class="navbar-brand" href="/"><span class="glyphicon glyphicon-home"> 首页</span></a></span>
-				<span><ul class="user-menu">
+				<span>
+					<a class="navbar-brand" href="/"><span class="glyphicon glyphicon-home"> 首页</span></a></span>
+				<span>
+				<ul class="user-menu">
 					<li class="dropdown pull-right">
 						<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span> User <span class="caret"></span></a>
 						<ul class="dropdown-menu" role="menu">
@@ -43,38 +45,17 @@
 					<a href="javascript:;"><i class="glyphicon glyphicon-th-large"></i> 导航栏</a>
 				</li>
 				<li>
-					<a href="#jobmanage" class="collapsed" data-toggle="collapse"><i class="glyphicon glyphicon-credit-card"></i> 任务管理</a>
-					<ul id="jobmanage" class="nav nav-list collapse secondmenu" style="height: 0px;">
-						<li><a href="javascript:;" class="nav_item" id="nav_newjob"><i class="glyphicon glyphicon-plus"></i> 新增任务</a></li>
-						<li><a href="javascript:;" class="nav_item" id="nav_alljob"><i class="glyphicon glyphicon-th-list"></i> 历史任务</a></li>
-					</ul>
+					<a href="javascript:;" class="nav_item" id="nav_alljob"><i class="glyphicon glyphicon-credit-card"></i> 任务管理</a>
 				</li>
 				<li>
-					<a href="#devicemanage" class="collapsed" data-toggle="collapse"><i class="glyphicon glyphicon-modal-window"></i> 设备管理
-						<span class="label label-warning pull-right">{{ deviceCount }}</span>
+					<a href="javascript:;" class="nav_item" id="nav_allcase"><i class="glyphicon glyphicon-list-alt"></i> 用例 | 元素 | 测试数据管理
+						<span class="label label-warning pull-right" id="casecount">{{ testcaseCount }}</span>
 					</a>
-					<ul id="devicemanage" class="nav nav-list collapse secondmenu" style="height: 0px;">
-						<li><a href="javascript:;" class="nav_item" id="nav_newdevice"><i class="glyphicon glyphicon-plus"></i> 添加设备</a></li>
-						<li><a href="javascript:;" class="nav_item" id="nav_alldevice"><i class="glyphicon glyphicon-th-list"></i> 所有设备</a></li>
-					</ul>
 				</li>
 				<li>
-					<a href="#casemanage" class="collapsed" data-toggle="collapse"><i class="glyphicon glyphicon-list-alt"></i> 用例管理
-						<span class="label label-warning pull-right">{{ testcaseCount }}</span>
+					<a href="javascript:;" class="nav_item" id="nav_alldevice"><i class="glyphicon glyphicon-phone"></i> 设备管理
+						<span class="label label-warning pull-right" id="devicecount">{{ deviceCount }}</span>
 					</a>
-					<ul id="casemanage" class="nav nav-list collapse secondmenu" style="height: 0px;">
-						<li><a href="javascript:;" class="nav_item" id="nav_newcase"><i class="glyphicon glyphicon-plus"></i> 添加用例</a></li>
-						<li><a href="javascript:;" class="nav_item" id="nav_allcase"><i class="glyphicon glyphicon-th-list"></i> 所有用例</a></li>
-					</ul>
-				</li>
-				<li>
-					<a href="#datamanage" class="collapsed" data-toggle="collapse"><i class="glyphicon glyphicon-list-alt"></i> 测试数据管理
-					</a>
-					<ul id="datamanage" class="nav nav-list collapse secondmenu" style="height: 0px;">
-						<li><a href="javascript:;" class="nav_item" id="nav_normaldata"><i class="
-glyphicon glyphicon-th-list"></i> 通用测试数据</a></li>
-						<li><a href="javascript:;" class="nav_item" id="nav_conflictdata"><i class="glyphicon glyphicon-th-list"></i> 互斥测试数据</a></li>
-					</ul>
 				</li>
 			</ul>
 		</div>

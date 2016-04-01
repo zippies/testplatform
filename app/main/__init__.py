@@ -7,4 +7,4 @@ from .defender.main.android.basecase import AndroidDevice as API
 
 main = Blueprint('main',__name__)
 
-from . import deviceView,jobView,caseView,loginView,mirrorView,dataView
+from . import deviceView,jobView,caseView,loginView,mirrorView,dataView,elementView

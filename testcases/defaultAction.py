@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import sys
-sys.path.append("C:/Users/Administrator/Desktop/selftest/testplatform/app/main/defender/main")
+sys.path.append("app/main/defender/main")
 from android.basecase import AndroidDevice
 
 
@@ -34,14 +34,12 @@ class TestCase(AndroidDevice):
 
         self.log("username:%s password:%s" %(username,password))
 
-        self.super_click("注册登录按钮")
+        self.super_click("登录按钮")
 
-        self.super_input("手机号输入框",username)
+        self.super_input("登录手机号输入框",username)
 
-        self.super_click("手机号下一步按钮")
+        self.super_input("登录密码输入框",password)
 
-        self.super_input("密码输入框",password)
+        self.super_click("登录按钮")
 
-        self.super_click("密码下一步按钮")
-
-        self.save_screen("login")
+        self.reject_alert()

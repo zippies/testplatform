@@ -16,8 +16,8 @@ class CaseObject(object):
 
 	def _processSelf(self,case):
 		if os.path.exists(case.appiumlogfile):
-			with open(case.appiumlogfile,'r') as f:
-				self.appiumlogcontent = f.readlines()
+			with open(case.appiumlogfile,'rb') as f:
+				self.appiumlogcontent = [l.decode("utf-8") for l in f.readlines()]
 		else:
 			self.appiumlogcontent = ['appium log did not generated,check "androidConfig.py" whether "appium_log_level" has been set to "error",try "info" or "debug" instead']
 		if os.path.exists(case.caselogfile):
@@ -59,6 +59,7 @@ class AndroidRunner(Thread):
 		self.current_time = time.time()
 		self.logtime = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 		self.appiums = appiums
+		self.deadports = []
 		self.logdir = os.path.join(logpath,self.logtime)
 		self.callback = callback
 		self.result = {
@@ -127,13 +128,14 @@ class AndroidRunner(Thread):
 					 --log-no-colors > %s.txt" %(case.appium_port,case.bootstrap_port,appiumlog,self.appium_log_level,case.device_name,os.path.join(self.logdir,case.appium_port))
 			p = Process(target=os.system,args=(cmd,))
 			p.daemon = True
-			appium_process_list.append(p)
+			appium_process_list.append([p,case.appium_port,case.bootstrap_port,case.device_name])
 			if self.is_Appium_Alive(case.appium_port):
-				self.stopAppium()
-			print("[action]Starting Appium on port : %s bootstrap_port: %s for device %s" %(case.appium_port,case.bootstrap_port,case.device_name))
+				self.stopAppium(case.appium_port)
+				self.deadports.append(case.appium_port)
 
 		for p in appium_process_list:
-			p.start()
+			print("[action]Starting Appium on port : %s bootstrap_port: %s for device %s" %(p[1],p[2],p[3]))
+			p[0].start()
 
 		for case in cases:
 			starts = time.time()
@@ -145,15 +147,30 @@ class AndroidRunner(Thread):
 					time.sleep(0.5)
 			else:
 				print("[failure]Start Appium failed on port: %s bootstrap_port: %s for device %s!" %(case.appium_port,case.bootstrap_port,case.device_name))
-				self.stopAppium()
+				self.stopAppium(case.appium_port)
 				sys.exit(-1)
 
-	def stopAppium(self):
+	def stopAppium(self,port=None):
 		'''
 			关闭所有appium服务
 		'''
 		if self.current_system == 'Windows':
-			os.system("taskkill /F /IM node.exe")
+			if port:
+				info = os.popen("netstat -ano|findstr %s" %port).readline()
+				if "LISTENING" in info:
+					pid = info.split("LISTENING")[1].strip()
+					print("Stop pid:",pid)
+					os.system("ntsd -c q -p %s" %pid)
+			else:
+				for cases in self.cases.values():
+					for case in cases:
+						if case.appium_port in self.deadports:
+							continue
+						info = os.popen("netstat -ano|findstr %s" %case.appium_port).readline()
+						if "LISTENING" in info:
+							pid = info.split("LISTENING")[1].strip()
+							print("Stop pid:%s for device:%s" %(pid,case.device_name))
+							os.system("ntsd -c q -p %s" %pid)
 		else:
 			os.system("killall node")
 
@@ -161,12 +178,13 @@ class AndroidRunner(Thread):
 		'''
 			运行所有测试用例
 		'''
+		currentcase = None
 		try:
 			for cases in self.cases.values():
 				self.startAppium(cases)
 				testjobs = []
-
 				for case in cases:
+					currentcase = case
 					t = Thread(target=self.runTest,args=(case,self.conflict_datas))
 					testjobs.append(t)
 
@@ -229,7 +247,7 @@ class AndroidRunner(Thread):
 			else:
 				self.result['failed'].append(CaseObject(case))
 			print("end test:",case.casename)
-			if initsuccess:
-				if not self.callback:
-					case.close_app()
+			# if initsuccess:  #打开会卸载apk
+			# 	if not self.callback:
+			# 		case.close_app()
 

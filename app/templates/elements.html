@@ -2,11 +2,15 @@
 <html>
 <head lang="en">
 	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
-	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.1/bootstrap-table.min.css">
+	<link rel="stylesheet" href="/static/bower_components/bootstrap-table/dist/bootstrap-table.min.css">
 	<script src="/static/jquery/jquery.min.js"></script>
 	<script src="/static/bootstrap/js/bootstrap.min.js"></script>
-	<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.1/bootstrap-table.min.js"></script>
-	<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.1/locale/bootstrap-table-zh-CN.min.js"></script>
+	<script src="/static/bower_components/bootstrap-table/dist/bootstrap-table.js"></script>
+	<script src="/static/bower_components/bootstrap-table/dist/locale/bootstrap-table-zh-CN.js"></script>
+	<script src="/static/bower_components/bootstrap-table/dist/bootstrap-table-export.js"></script>
+	<script src="/static/bower_components/bootstrap-table/dist/jquery.base64.js"></script>
+	<script src="/static/bower_components/bootstrap-table/dist/tableExport.js"></script>
+
 </head>
 <body style="overflow-x: hidden;">
 <div>
@@ -17,6 +21,12 @@
 				<div style="float:left;margin-left:10px"><input id="newvalue" type="text" name="value" class="form-control" placeholder="value" /></div>
 			</form>
 			<div style="float:left;margin-left:10px"><button id="newbtn" class="btn btn-default">添加元素</button></div>
+			<div style="float:left;margin-left:10px">
+				<form id="importform" method="post" action="/import/elements" enctype="multipart/form-data">
+					<button class="btn btn-info" id="importbtn" type="button">import</button>
+					<input type="file" id="importipt" name="elementfile" onChange="$('#importform').submit()" style="display:none"/>
+				</form>
+			</div>
 	</div>
 	<div style="margin-top:10px">
 		<table id="table">
@@ -26,6 +36,15 @@
 
 <script>
 	$(function(){
+
+		{% for message in get_flashed_messages() %}
+			parent.layer.msg("{{message}}")
+		{% endfor %}
+
+		$("#importbtn").click(function(){
+			$("#importipt").click()
+		})
+
 		$("#newbtn").click(function(){
 			if($("#newname").val() && $("#newfindby").val() && $("#newvalue").val()){
 				$.ajax({
@@ -33,11 +52,11 @@
 					type:"post",
 					data:$("#newform").serialize(),
 					error:function(request){
-						parent.layer.msg(request.status)
+						parent.parent.layer.msg(request.status)
 					},
 					success:function(data){
 						window.location.reload(true)
-						parent.layer.msg(data)
+						parent.parent.layer.msg(data)
 					}
 				})
 			}else{
@@ -47,29 +66,30 @@
 	})
 
 	function saveeditelement(id) {
+		name = $("#name_"+id).val()
 		findby = $("#findby_"+id).val()
 		value = $("#value_"+id).val()
 		if(findby && value){
 			$.ajax({
 				url:"/saveeditelement/"+id,
-				data:{"findby":findby,"value":value},
+				data:{"name":name,"findby":findby,"value":value},
 				type:"get",
 				async:true,
 				error:function(request){
-					parent.layer.msg(request.status)
+					parent.parent.layer.msg(request.status)
 				},
 				success:function(data){
-					parent.layer.msg(data)
+					parent.parent.layer.msg(data)
 				}
 			})
 		}else{
-			parent.layer.msg("name/findby/value 不允许为空")
+			parent.parent.layer.msg("name/findby/value 不允许为空")
 		}
 
 	}
 
 	function delelement(id) {
-		parent.layer.confirm('真的需要删除吗？',{
+		parent.parent.layer.confirm('真的需要删除吗？',{
 			btn:['确定','取消']
 		},function(){
 			$.ajax({
@@ -77,11 +97,11 @@
 				type:"get",
 				async:true,
 				error:function(request){
-					parent.layer.msg(request.status)
+					parent.parent.layer.msg(request.status)
 				},
 				success:function(data){
 					window.location.reload(true)
-					parent.layer.msg(data);
+					parent.parent.layer.msg(data);
 				}
 			})
 		},function(){
@@ -90,11 +110,21 @@
 	}
 
 	$("#table").empty().bootstrapTable({
+		method: 'get',
+		cache: false,
+		striped: true,
+		search: true,
+		showColumns: true,
+		showRefresh: true,
+		showExport: true,
+		exportTypes: ['json'],
+		search: true,
+		clickToSelect: true,
 		columns: [{
 			field: 'id',
 			width: '8%',
 			align: 'center',
-			title: 'elementID'
+			title: 'ID'
 		 }, {
 			field: 'name',
 			width: '15%',

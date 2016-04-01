@@ -25,6 +25,7 @@ class Config:
 
     #系统权限弹框中允许/拒绝按钮的id
     system_alerts = [
+    	('me.sui.arizona:id/btn_right','me.sui.arizona:id/btn_left'),
         ('com.huawei.systemmanager:id/btn_allow','com.huawei.systemmanager:id/btn_forbbid'),
         ('android:id/button1','android:id/button'),
         ('flyme:id/accept','flyme:id/reject')
@@ -33,7 +34,7 @@ class Config:
     log_path = os.path.join(os.path.dirname(__file__),"logs")
     snapshot_path = os.path.join(os.path.dirname(__file__),"snapshots")
 
-    monkey_action_count = 1000
+    monkey_action_count = 10000
 
     case_template = \
 '''
@@ -48,6 +49,7 @@ class TestCase(AndroidDevice):
 
     def __init__(self,ce,dc):
         self.dc = dc
+        print(dc)
         self.appium_port = ce['port']
         self.bootstrap_port = ce['bootstrap_port']
         self.device_name = dc['deviceName']

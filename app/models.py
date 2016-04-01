@@ -32,12 +32,13 @@ class Testjob(db.Model):
 	testapk = db.Column(db.String(512))
 	appPackage = db.Column(db.String(64))
 	appActivity = db.Column(db.String(64))
-	result = db.Column(db.Integer,default=0)
 	reportID = db.Column(db.Integer,default=0)
-	status = db.Column(db.Integer,default=0)
+	status = db.Column(db.Integer,default=0)  # 0：未运行   1：正在运行  2：完成
+	result = db.Column(db.Integer,default=0)  # 0:未运行    -1：失败   1：成功
+	buildid = db.Column(db.Integer)
 	createdtime = db.Column(db.DateTime,default=datetime.now)
 
-	def __init__(self,jobName,jobType,relateCases,relateDevices,testapk,appPackage,appActivity):
+	def __init__(self,jobName,jobType,relateCases,relateDevices,testapk,appPackage,appActivity,buildid=0):
 		self.jobName = jobName
 		self.jobType = jobType
 		self.relateCases = relateCases
@@ -45,9 +46,11 @@ class Testjob(db.Model):
 		self.testapk = testapk
 		self.appPackage = appPackage
 		self.appActivity = appActivity
+		self.buildid = buildid
 
 	def __repr__(self):
 		return "<testjob:%s>" % self.jobName
+
 
 class Report(db.Model):
 	id = db.Column(db.Integer,primary_key=True)

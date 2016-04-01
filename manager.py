@@ -5,8 +5,10 @@ from app.models import *
 from flask.ext.script import Manager,Shell
 from flask.ext.migrate import Migrate,MigrateCommand
 from werkzeug.contrib.fixers import ProxyFix
+import pickle
 
 app = createApp()
+app.debug = True
 app.wsgi_app = ProxyFix(app.wsgi_app)
 manager = Manager(app)
 migrate = Migrate(app,db)
@@ -32,4 +34,5 @@ def unauthorized(e):
 	return redirect(url_for(".login"))
 
 if __name__ == '__main__':
+	pickle.dump({},open("data/tasks.pkl",'wb'))
 	manager.run()
