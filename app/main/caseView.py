@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from flask import render_template,request,jsonify,flash,redirect,url_for
-from ..models import db,Testcase,Actionflow
+from ..models import db,Testcase,Actionflow,Testjob
 from .. import Config
 from jinja2 import Template
 from . import main
@@ -46,31 +46,33 @@ def writecase():
 
 def generateCase(case):
 	info = {"result":True,"errorMsg":None}
-	try:
-		with open(os.path.join(Config.CASE_FOLDER,"%s.py" %case.caseName),'wb') as f:
-			libs,actions = [],[]
-			for c in case.caseContent.split("\r\n"):
-				if c:
-					if c.strip().startswith('from') or c.strip().startswith("import"):
-						libs.append(c)
-					elif c.strip().startswith("{{") and c.strip().endswith("}}"):
-						actionflow_name = c.strip("{}")
-						actionflow = Actionflow.query.filter_by(name=actionflow_name).first()
-						if actionflow:
-							actions += actionflow.actions
-					else:
-						actions.append(c)
+	job = Testjob.query.filter_by(status=1).first()
+	if not job:
+		try:
+			with open(os.path.join(Config.CASE_FOLDER,"%s.py" %case.caseName),'wb') as f:
+				libs,actions = [],[]
+				for c in case.caseContent.split("\r\n"):
+					if c:
+						if c.strip().startswith('from') or c.strip().startswith("import"):
+							libs.append(c)
+						elif c.strip().startswith("{{") and c.strip().endswith("}}"):
+							actionflow_name = c.strip("{}")
+							actionflow = Actionflow.query.filter_by(name=actionflow_name).first()
+							if actionflow:
+								actions += actionflow.actions
+						else:
+							actions.append(c)
 
-			content = Template(Config.case_template.strip()).render(
-				desc = case.caseDesc,
-				libs = libs,
-				actions = actions
-			)
-			f.write(str(content).encode('utf-8'))
-	except Exception as e:
-		info["result"] = False
-		info["errorMsg"] = str(e)
-	finally:
+				content = Template(Config.case_template.strip()).render(
+					desc = case.caseDesc,
+					libs = libs,
+					actions = actions
+				)
+				f.write(str(content).encode('utf-8'))
+		except Exception as e:
+			info["result"] = False
+			info["errorMsg"] = str(e)
+	else:
 		return info
 
 @main.route("/editcase/<int:id>",methods=['POST'])
@@ -97,20 +99,20 @@ def editcase(id):
 
 @main.route("/delcase/<int:id>")
 def delcase(id):
-	resp = {"result":True,"info":None}
+	info = {"result":True,"errorMsg":None}
 	try:
 		case = Testcase.query.filter_by(id=id).first()
 		if case:
 			db.session.delete(case)
 			db.session.commit()
 		else:
-			resp["result"] = False
-			resp["info"] = "用例不存在"
+			info["result"] = False
+			info["errorMsg"] = "用例不存在"
 	except Exception as e:
-		resp["result"] = False
-		resp["info"] = str(e)
+		info["result"] = False
+		info["errorMsg"] = str(e)
 	finally:
-		return jsonify(resp)
+		return jsonify(info)
 
 @main.route("/uploadcase",methods=["POST"])
 def uploadcase():
@@ -121,10 +123,5 @@ def testcases():
 	testcases = Testcase.query.all()
 	return render_template("testcases.html",testcases=testcases[::-1])
 
-# @main.route("/testcase/choice/<div>")
-# def choicecase(div):
-# 	global choiced
-# 	choiced = div
-# 	return "ok"
 
 
