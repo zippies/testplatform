@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from flask import render_template,request,jsonify,flash,redirect,url_for
-from ..models import db,Testcase
+from ..models import db,Testcase,Actionflow
 from .. import Config
 from jinja2 import Template
 from . import main
@@ -15,8 +15,6 @@ caselist_template = '''
 </tr>
 {% endfor %}
 '''
-#choiced = "casediv"
-
 
 @main.route("/getcases")
 def getcases():
@@ -33,7 +31,6 @@ def getcases():
 
 @main.route("/writecase",methods=["POST"])
 def writecase():
-	#global choiced
 	name = request.form.get('casename').strip()
 	desc = request.form.get('casedesc').strip()
 	content = request.form.get('casecontent')
@@ -45,7 +42,6 @@ def writecase():
 	db.session.add(case)
 	db.session.commit()
 	info = generateCase(case)
-	#choiced = "casediv"
 	return jsonify(info)
 
 def generateCase(case):
@@ -55,7 +51,15 @@ def generateCase(case):
 			libs,actions = [],[]
 			for c in case.caseContent.split("\r\n"):
 				if c:
-					libs.append(c) if c.startswith('from') or c.startswith("import") else actions.append(c)
+					if c.strip().startswith('from') or c.strip().startswith("import"):
+						libs.append(c)
+					elif c.strip().startswith("{{") and c.strip().endswith("}}"):
+						actionflow_name = c.strip("{}")
+						actionflow = Actionflow.query.filter_by(name=actionflow_name).first()
+						if actionflow:
+							actions += actionflow.actions
+					else:
+						actions.append(c)
 
 			content = Template(Config.case_template.strip()).render(
 				desc = case.caseDesc,

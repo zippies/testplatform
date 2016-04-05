@@ -46,7 +46,6 @@ def parseBounds(bound_str):
 	width = round((int(end_x) -int(start_x))*0.4)
 	return (round(int(start_x)*0.4),round(int(start_y)*0.4),height,width)
 
-
 def setXpath(node,xpaths):
 	xpathinfo = None
 	if node.nodeName != "hierarchy":

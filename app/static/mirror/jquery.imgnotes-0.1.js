@@ -19,6 +19,7 @@
 			var y = parseInt(eve.clientY) - parseInt(imgOffset.top);
 			$.get("/mirror/showcloser",{"x":x,"y":y},function(em) {
 				if(em != "0"){
+					console.log(em)
 					$("#"+em).show();
 					$("#nodeTreeView").treeview('expandAll');
 					$('#nodeTreeView').treeview('selectNode',parseInt(em)-1);

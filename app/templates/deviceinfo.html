@@ -49,9 +49,12 @@
 			</div>
 			<div class="col-md-4">
 				<div id="imgarea" class="row" style="text-align:center">
-					<span class="col-xs-5"><a href="javascript:;" id="goback">Back</a></span>
+					<span class="col-xs-2"></span>
+					<span class="col-xs-2"><a href="javascript:;" id="goback">Back</a></span>
 					<span class="col-xs-2"><a href="javascript:;" id="gohome">Home</a></span>
-					<span class="col-xs-5"><a href="javascript:;" id="power">Power</a></span>
+					<span class="col-xs-2"><a href="javascript:;" id="power">Power</a></span>
+					<span class="col-xs-2"><a href="javascript:;" id="fresh">fresh</a></span>
+					<span class="col-xs-2"></span>
 				</div>
 				<div style="margin-top:10px;">
 					<div class="input-group" style="margin-left:100px;width:400px">
@@ -85,6 +88,7 @@ $(function() {
 		})
 	});
 
+
 	$("#gohome").click(function(){
 		$(window.parent.document).find("#connect-info").empty().append("按Home键,等待响应....")
 		$.get("/mirror/sendkeycode/3",function(data){
@@ -111,6 +115,18 @@ $(function() {
 		})
 	})
 
+	$("#fresh").click(function(){
+		$(window.parent.document).find("#connect-info").empty().append("正在刷新屏幕,等待响应....")
+		$.get("/mirror/fresh",function(data){
+			if(!data.status){
+				$(window.parent.document).find("#connect-info").append("\r\n操作失败:appium已断开,请重启服务！")
+				layer.alert("error:"+data.info)
+			}else{
+				$(window.parent.document).find("#connect-info").append("完成")
+				initSelectableTree()
+			}
+		})
+	});
 });
 
 	function initSelectableTree() {

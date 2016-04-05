@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/static/bower_components/bootstrap-table/dist/bootstrap-table.min.css">
+	<script src="/static/jquery/jquery.min.js"></script>
+	<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+	<script src="/static/bower_components/bootstrap-table/dist/bootstrap-table.js"></script>
+	<script src="/static/bower_components/bootstrap-table/dist/locale/bootstrap-table-zh-CN.js"></script>
+	<script src="/static/bower_components/bootstrap-table/dist/bootstrap-table-export.js"></script>
+	<script src="/static/bower_components/bootstrap-table/dist/jquery.base64.js"></script>
+	<script src="/static/bower_components/bootstrap-table/dist/tableExport.js"></script>
+  	<script src="/static/js/common.js"></script>
+  	<script src="/static/js/layer.js"></script>
+</head>
+<body style="overflow-x: hidden;">
+<div class="row">
+	<div class="col-md-4">
+		<form id="actionflowform">
+			<div style="width:400px">
+				<div class="input-group">
+					<span class="input-group-addon" id="sizing-addon2">动作流</span>
+					<input type="text" name="name" class="form-control" placeholder="name" aria-describedby="sizing-addon2">
+				</div>
+			</div>
+			<div class="input-group" style="margin-top:10px;width:400px;">
+				<label class="input-group-addon">Action</label>
+				<input type="text" name="1" class="form-control" />
+				<span class="input-group-addon"><a href="javascript:;" id="1" onclick="delaction(this.id)"><span class="glyphicon glyphicon-minus"></span></a></span>
+				<span class="input-group-addon"><a href="javascript:;" onclick="addaction()"><span class="glyphicon glyphicon-plus"></span></a></span>
+			</div>
+			<div id="addactionbtn" style="width:400px;text-align:right;margin-top:5px"><button class="btn btn-default">提交</button></div>
+		</form>
+	</div>
+	<div class="col-md-8">
+		<button>test</button>
+	</div>
+</div>
+
+<script>
+	$(function(){
+
+		{% for message in get_flashed_messages() %}
+			parent.layer.msg("{{message}}")
+		{% endfor %}
+
+		sessionStorage.actionCount = 1;
+
+		$("#actionflowform").submit(function(){
+			$.ajax({
+				url:"/newactionflow",
+				type:"post",
+				async:true,
+				data:$(this).serialize(),
+				error:function(request){
+					parent.layer.msg(request.status)
+				},
+				success:function(data){
+					if(data.result){
+						parent.layer.msg("新增成功")
+					}else{
+						parent.layer.msg(data.errorMsg)
+					}
+				}
+			})
+			
+		})
+
+	})
+
+	function addaction(){
+		sessionStorage.actionCount = parseInt(sessionStorage.actionCount) + 1;
+		count = sessionStorage.actionCount
+		$("#addactionbtn").before('<div class="input-group" style="width:400px;" id="action_'+count+'"><label class="input-group-addon">Action</label><input type="text" name="'+count+'" class="form-control" /><span class="input-group-addon"><a href="javascript:;" id="'+count+'" onclick="delaction(this.id)"><span class="glyphicon glyphicon-minus"></span></a></span><span class="input-group-addon"><a href="javascript:;" onclick="addaction()"><span class="glyphicon glyphicon-plus"></span></a></span></div>')
+	}
+
+	function delaction(id){
+		count = sessionStorage.actionCount
+		if(parseInt(count) == 1 || id == 1){
+			parent.layer.msg("至少应有一个action")
+		}else{
+			$("#action_"+id).remove()
+			count = sessionStorage.actionCount
+			for(i=parseInt(id)+1;i<=parseInt(count);i++){
+				num = i - 1
+				$("#actiontitle_"+i).html("Action"+num);
+			}
+
+			sessionStorage.actionCount = parseInt(sessionStorage.actionCount) - 1;
+		}
+
+	}
+
+</script>
+</body>
+</html>
