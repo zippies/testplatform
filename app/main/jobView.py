@@ -377,8 +377,8 @@ def newjobfromjenkins():
 			if not device:
 				assert 1==2,"id为'%s'的设备未创建或已被删除" %deviceid
 
-		cmd_activity = "aapt d badging %s|%s launchable-activity" %(apk,"findstr" if system == "Windows" else "grep")
-		cmd_package = "aapt d badging %s|%s package" %(apk,"findstr" if system == "Windows" else "grep")
+		cmd_activity = "./bin/aapt d badging %s|%s launchable-activity" %(apk,"findstr" if system == "Windows" else "grep")
+		cmd_package = "./bin/aapt d badging %s|%s package" %(apk,"findstr" if system == "Windows" else "grep")
 		activity = Popen(cmd_activity,stdout=PIPE,shell=True)
 		package = Popen(cmd_package,stdout=PIPE,shell=True)
 		main_activity = activity.stdout.read().decode().split("name='")[1].split("'")[0]

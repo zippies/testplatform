@@ -23,7 +23,7 @@
 			<div style="float:left;margin-left:10px"><button id="newbtn" class="btn btn-default">添加元素</button></div>
 			<div style="float:left;margin-left:10px">
 				<form id="importform" method="post" action="/import/elements" enctype="multipart/form-data">
-					<button class="btn btn-info" id="importbtn" type="button">import</button>
+					<a href="javascript:;" class="btn btn-default" id="importbtn"><span class="glyphicon glyphicon-import"></span></a>
 					<input type="file" id="importipt" name="elementfile" onChange="$('#importform').submit()" style="display:none"/>
 				</form>
 			</div>

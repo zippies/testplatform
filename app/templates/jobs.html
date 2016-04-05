@@ -49,18 +49,10 @@
 				<div style="padding:10px">
 					<div class="panel panel-default">
 						<div class="panel-heading">
-							二、任务信息
+							二、任务名称
 						</div>
 					</div>
-					<div class="row">
-						<div class="col-sm-1" style="text-align: center;">
-							<label>任务名称：</label>
-						</div>
-						<div class="col-sm-3">
-							<input type="text" name="jobName" class="form-control" value="随米_APP自动化测试_{{ timenow }}" required/>
-						</div>
-					</div>
-					
+					<input type="text" name="jobName" class="form-control" value="随米_APP自动化测试_{{ timenow }}" required/>
 				</div>
 				<div style="padding:10px">
 					<div id="testtype_head" class="panel panel-default">
@@ -138,7 +130,7 @@
 						五、保存
 					</div>
 				</div>
-				<button class="btn btn-primary" onclick="submitform()">保存</button>
+				<button class="form-control btn btn-primary" onclick="submitform()">保存</button>
 			</div>
 		</div>
 	</div>

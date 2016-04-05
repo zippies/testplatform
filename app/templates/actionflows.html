@@ -18,78 +18,79 @@
   	<script src="/static/js/layer.js"></script>
 </head>
 <body style="overflow-x: hidden;">
-
-<form id="actionflowform">
-	<div class="input-group">
-		<span class="input-group-addon" id="sizing-addon2">动作流名称</span>
-		<input type="text" id="flowname" name="name" class="form-control" placeholder="name" aria-describedby="sizing-addon2">
-	</div>
-	<div style="margin-top:10px">
-		<textarea id="actionflowsarea" name="actions"></textarea>
-		<script>
-			var flowcode = CodeMirror.fromTextArea(document.getElementById("actionflowsarea"), {
-				lineNumbers: true,
-				mode: "python",
-				theme: "monokai"
-			});
-			flowcode.setSize('100%',200);
-		</script>
-	</div>
-</form>
-<div id="addactionbtn" style="margin-top:5px"><button class="form-control btn btn-primary">新增动作流</button></div>
-
-<hr>
-
-{% if actionflows%}
-<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="false">
-	{% set index = 0 %}
-	{% for flow in actionflows %}
-		{% set index = index + 1 %}
-		<div class="panel">
-			<div class="panel-heading" role="tab" id="heading_{{ flow.id }}">
-				<h4 class="panel-title">
-					<table style="width:100%">
-						<tr>
-							<td style="width:20%">{{ index }}</td>
-							<td style="width:70%">
-								<a role="button" class="showflow" id="{{ flow.id }}" data-toggle="collapse" data-parent="#accordion" href="#collapse_{{flow.id}}" aria-expanded="false" aria-controls="collapseOne">{{ flow.name }}</a></td>
-							<td style="width:10%;text-align: center">
-								<a href="javascript:;" id="delflow_{{ flow.id }}" class="btn btn-danger delflow">删除</a>
-							</td>
-						</tr>
-					</table>
-				</h4>
-			</div>
-			<div id="collapse_{{ flow.id }}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading_{{flow.id}}">
-				<div class="panel-body">
-					<div>
-						<form action="/editflow/{{ flow.id }}" method="post">
-							<div class="row" style="padding:10px">
-								<div style="float:left"><label>用例名称：</label></div>
-								<div style="float:left;margin-left:5px"><input name="name" type="text" class="form-control" style="width:300px" value="{{ flow.name }}" required /></div>
-								<div style="float:left;margin-left:30px"><button type="submit" class="btn btn-success">保存</button></div>
-							</div>
-							<textarea id="flowcontent_{{ flow.id }}" name="actions" width="1000px" height="400px">{{ flow.actions|join("\r\n") }}</textarea>
-							<script>
-								var mirror_{{ flow.id }} = CodeMirror.fromTextArea(document.getElementById("flowcontent_{{ flow.id }}"), {
-									lineNumbers: true,
-									mode: "python",
-									theme: "monokai"
-								});
-								mirror_{{ flow.id }}.setSize('100%',300);
-							</script>
-						</form>
+<h4>已有动作流列表：</h4>
+<div style="padding:20px">
+	{% if actionflows%}
+	<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="false">
+		{% set index = 0 %}
+		{% for flow in actionflows %}
+			{% set index = index + 1 %}
+			<div class="panel">
+				<div class="panel-heading" role="tab" id="heading_{{ flow.id }}">
+					<h4 class="panel-title">
+						<table style="width:100%">
+							<tr>
+								<td style="width:20%">{{ index }}</td>
+								<td style="width:70%">
+									<a role="button" class="showflow" id="{{ flow.id }}" data-toggle="collapse" data-parent="#accordion" href="#collapse_{{flow.id}}" aria-expanded="false" aria-controls="collapseOne">{{ flow.name }}</a></td>
+								<td style="width:10%;text-align: center">
+									<a href="javascript:;" id="delflow_{{ flow.id }}" class="btn btn-danger delflow">删除</a>
+								</td>
+							</tr>
+						</table>
+					</h4>
+				</div>
+				<div id="collapse_{{ flow.id }}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading_{{flow.id}}">
+					<div class="panel-body">
+						<div>
+							<form action="/editflow/{{ flow.id }}" method="post">
+								<div class="row" style="padding:10px">
+									<div style="float:left"><label>用例名称：</label></div>
+									<div style="float:left;margin-left:5px"><input name="name" type="text" class="form-control" style="width:300px" value="{{ flow.name }}" required /></div>
+									<div style="float:left;margin-left:30px"><button type="submit" class="btn btn-success">保存</button></div>
+								</div>
+								<textarea id="flowcontent_{{ flow.id }}" name="actions" width="1000px" height="400px">{{ flow.actions|join("\r\n") }}</textarea>
+								<script>
+									var mirror_{{ flow.id }} = CodeMirror.fromTextArea(document.getElementById("flowcontent_{{ flow.id }}"), {
+										lineNumbers: true,
+										mode: "python",
+										theme: "monokai"
+									});
+									mirror_{{ flow.id }}.setSize('100%',200);
+								</script>
+							</form>
+						</div>
 					</div>
 				</div>
 			</div>
-		</div>
-	{% endfor %}
+		{% endfor %}
+	</div>
+	{% else %}
+		还没有添加动作流
+	{% endif %}
 </div>
-{% else %}
-	还没有添加动作流
-{% endif %}
 
-
+<h4>新增动作流：</h4>
+<div style="padding:20px">
+	<form id="actionflowform">
+		<div class="input-group">
+			<span class="input-group-addon" id="sizing-addon2">动作流名称</span>
+			<input type="text" id="flowname" name="name" class="form-control" placeholder="name" aria-describedby="sizing-addon2">
+		</div>
+		<div style="margin-top:10px">
+			<textarea id="actionflowsarea" name="actions"></textarea>
+			<script>
+				var flowcode = CodeMirror.fromTextArea(document.getElementById("actionflowsarea"), {
+					lineNumbers: true,
+					mode: "python",
+					theme: "monokai"
+				});
+				flowcode.setSize('100%',200);
+			</script>
+		</div>
+	</form>
+	<div id="addactionbtn" style="margin-top:5px"><button class="form-control btn btn-primary">新增动作流</button></div>
+</div>
 <script>
 	$(function(){
 

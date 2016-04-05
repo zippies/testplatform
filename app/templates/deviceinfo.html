@@ -192,29 +192,6 @@ $(function() {
 						}
 					},
 					{
-						text: "刷新屏幕",
-						func: function() {
-							elem_id = this.id
-							$(window.parent.document).find("#connect-info").empty().append("刷新屏幕,等待响应....")
-							$.ajax({
-								type:"GET",
-								url:"/mirror/fresh",
-								async:true,
-								error:function(request){
-									$(window.parent.document).find("#connect-info").append("操作失败: "+request.statusText+" "+request.status)
-								},
-								success:function(data){
-									if(!data.status){
-										layer.alert(data.info)
-									}else{
-										$(window.parent.document).find("#connect-info").append("完成")
-										initSelectableTree()
-									}
-								}
-							})
-						}
-					},
-					{
 						text: "滑动元素",
 						data:
 							[[
@@ -339,15 +316,107 @@ $(function() {
 								}
 							})
 						}
-					}
-				],
-				[
+					},
 					{
 						text: "取消选择",
 						func: function() {
 							$("#"+this.id).hide()
 						}
 					}
+				],
+				[
+					{
+						text: "查看元素名称",
+						func: function() {
+							var id = this.id
+							var resourceid = nodeinfos[id]['resource-id']
+							var text = nodeinfos[id]['text']
+							var xpath = nodeinfos[id]['xpath']
+							$.ajax({
+								url:"/showelementname",
+								data:{"resourceid":resourceid,"text":text,"xpath":xpath},
+								success:function(data){
+									if(data.exist){
+										layer.msg("元素名称："+data.name)
+									}else{
+										layer.msg("该元素未保存")
+									}
+								}
+							})
+						}
+					},
+					{
+						text: "保存元素by",
+						data:[[
+							{
+								text:"id",
+								func: function(){
+									var id = this.id
+									var findby = "id"
+									layer.prompt({
+										title:"元素名称",
+										formType:0
+									},function(name){
+										$(window.parent.document).find("#connect-info").empty().append("保存元素: "+name)
+										var value = nodeinfos[id]['resource-id']
+										$.ajax({
+											url:"/elements",
+											type:"post",
+											data:{"name":name,"findby":findby,"value":value},
+											success:function(data){
+												layer.msg(data);
+											}
+										})
+									})
+								}
+							},
+							{
+								text:"name",
+								func: function(){
+									var id = this.id
+									var findby = "name"
+									layer.prompt({
+										title:"元素名称",
+										formType:0
+									},function(name){
+										$(window.parent.document).find("#connect-info").empty().append("保存元素: "+name)
+										var value = nodeinfos[id]['text']
+										$.ajax({
+											url:"/elements",
+											type:"post",
+											data:{"name":name,"findby":findby,"value":value},
+											success:function(data){
+												layer.msg(data);
+											}
+										})
+									})
+								}
+							},
+							{
+								text:"xpath",
+								func: function(){
+									var id = this.id
+									var findby = "xpath"
+									layer.prompt({
+										title:"元素名称",
+										formType:0
+									},function(name){
+										$(window.parent.document).find("#connect-info").empty().append("保存元素: "+name)
+										var value = nodeinfos[id]['xpath']
+										$.ajax({
+											url:"/elements",
+											type:"post",
+											data:{"name":name,"findby":findby,"value":value},
+											success:function(data){
+												layer.msg(data);
+											}
+										})
+									})
+								}
+							}
+						]]
+					}
+
 				]
 			];
 

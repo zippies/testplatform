@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from flask import render_template,request,redirect,url_for,flash
+from flask import render_template,request,redirect,url_for,flash,jsonify
 from ..models import db,Appelement
 from . import main
 import json
@@ -34,12 +34,12 @@ def elementdata():
 	elements = Appelement.query.all()
 	data = [
 		{
-		"id": ele.id,
+		"id": i+1,
 		"name":"<input id='name_%s' type='text' class='form-control' value='%s'/><label style='display:none'>%s</label>" %(ele.id,ele.name,ele.name),
 		"by":"<input id='findby_%s' type='text' class='form-control' value='%s'/><label style='display:none'>%s</label>" %(ele.id,ele.findby,ele.findby),
 		"value":"<input id='value_%s' type='text' class='form-control' value='%s'/><label style='display:none'>%s</label>" %(ele.id,ele.value,ele.value),
 		"operate":"<button class='btn btn-default' onclick='saveeditelement(%s)'>保存</button> <button class='btn btn-danger' onclick='delelement(%s)'>删除</button>" %(ele.id,ele.id)
-		} for ele in elements
+		} for i,ele in enumerate(elements)
 	]
 	return json.dumps(data)
 
@@ -95,3 +95,28 @@ def importelements():
 				count += 1
 	flash("导入完成！共导入%s条元素信息" %count)
 	return redirect(url_for(".elements"))
+
+@main.route("/showelementname")
+def showelementname():
+	info = {"exist":False,"name":None}
+	resourceid = request.args.get("resourceid")
+	text = request.args.get("text")
+	xpath = request.args.get("xpath")
+
+	if resourceid:
+		ele = Appelement.query.filter(db.and_(Appelement.findby == "id",Appelement.value == resourceid)).first()
+		if ele:
+			info = {"exist":True,"name":ele.name}
+		else:
+			ele = Appelement.query.filter(db.and_(Appelement.findby == "xpath",Appelement.value == xpath)).first()
+			if ele:
+				info = {"exist":True,"name":ele.name}
+			else:
+				if text:
+					ele = Appelement.query.filter(db.and_(Appelement.findby == "name",Appelement.value == text)).first()
+					if ele:
+						info = {"exist":True,"name":ele.name}
+
+	return jsonify(info)
+
+	

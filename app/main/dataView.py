@@ -29,11 +29,11 @@ def testdata():
 	testdatas = Testdata.query.all()
 	data = [
 		{
-		"id": testdata.id,
+		"id": i+1,
 		"name":"<input id='name_%s' type='text' class='form-control' value='%s'/><label style='display:none'>%s</label>" %(testdata.id,testdata.name,testdata.name),
 		"value":"<input id='value_%s' type='text' class='form-control' value='%s'/><label style='display:none'>%s</label>" %(testdata.id,testdata.value,testdata.value),
 		"operate":"<button class='btn btn-default' onclick='saveedittestdata(%s)'>保存</button> <button class='btn btn-danger' onclick='deltestdata(%s)'>删除</button>" %(testdata.id,testdata.id)
-		} for testdata in testdatas
+		} for i,testdata in enumerate(testdatas)
 	]
 	return json.dumps(data)
 
@@ -113,11 +113,11 @@ def conflictdata():
 	conflictdatas = Conflictdata.query.all()
 	data = [
 		{
-		"id": testdata.id,
+		"id": i+1,
 		"name":"<input id='name_%s' type='text' class='form-control' value='%s'/><label style='display:none'>%s</label>" %(testdata.id,testdata.name,testdata.name),
 		"value":"<input id='value_%s' type='text' class='form-control' value='%s'/><label style='display:none'>%s</label>" %(testdata.id,json.dumps(testdata.value),json.dumps(testdata.value)),
 		"operate":"<button class='btn btn-default' onclick='saveeditconflictdata(%s)'>保存</button> <button class='btn btn-danger' onclick='delconflictdata(%s)'>删除</button>" %(testdata.id,testdata.id)
-		} for testdata in conflictdatas
+		} for i,testdata in enumerate(conflictdatas)
 	]
 	return json.dumps(data)
 
