@@ -104,18 +104,18 @@ def showelementname():
 	xpath = request.args.get("xpath")
 
 	if resourceid:
-		ele = Appelement.query.filter(db.and_(Appelement.findby == "id",Appelement.value == resourceid)).first()
+		ele = Appelement.query.filter_by(value=resourceid).first()
+		if ele:
+			info = {"exist":True,"name":ele.name}
+	else:
+		ele = Appelement.query.filter_by(value=xpath).first()
 		if ele:
 			info = {"exist":True,"name":ele.name}
 		else:
-			ele = Appelement.query.filter(db.and_(Appelement.findby == "xpath",Appelement.value == xpath)).first()
-			if ele:
-				info = {"exist":True,"name":ele.name}
-			else:
-				if text:
-					ele = Appelement.query.filter(db.and_(Appelement.findby == "name",Appelement.value == text)).first()
-					if ele:
-						info = {"exist":True,"name":ele.name}
+			if text:
+				ele = Appelement.query.filter_by(value=text).first()
+				if ele:
+					info = {"exist":True,"name":ele.name}
 
 	return jsonify(info)
 

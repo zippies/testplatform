@@ -5,7 +5,7 @@ from android.basecase import AndroidDevice
 
 
 class TestCase(AndroidDevice):
-    desc = "测试文库的文档预览和收藏功能"
+    desc = "测试文库-更多的文档预览和过程中的页面检查"
 
     def __init__(self,ce,dc):
         self.dc = dc
@@ -35,10 +35,40 @@ class TestCase(AndroidDevice):
 
         username,password = self.conflictdatas("登录账号")
 
-        self.super_input("登录手机号输入框",username)
+        self.super_input("手机号输入框",username)
 
-        self.super_input("登录密码输入框",password)
+        self.super_input("密码输入框",password)
 
         self.super_click("登录按钮")
 
         self.back()
+
+        self.super_click("功能导航按钮")
+
+        self.super_click("功能导航-文库")
+
+        check_texts = ["文库","热点","通用课程","高数","马哲","思修","更多 >"]
+
+        self.exist_texts(check_texts)
+
+        self.super_click("文库-更多")
+
+        articles = self.super_finds("文库-更多-文档名列表")
+
+        assert len(articles)>0,"列表中未找到文档信息"
+
+        for article in articles:
+
+            title1 = article.text
+
+            article.click()
+
+            check_texts = ["添加到打印","评论","收藏文档"]
+
+            self.exist_texts(check_texts)
+
+            title2 = self.super_find("文档详情页-标题").text
+
+            self.equals(title1,title2)
+
+            self.super_click("文档详情页-返回")

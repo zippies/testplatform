@@ -322,8 +322,8 @@ def clearText(id):
 	try:
 		if elem_id:
 			driver.click('id',elem_id)
-			driver.press_keycode(29,28672)
-			driver.press_keycode(67)
+			for i in range(len(elem.get("text"))):
+				driver.press_keycode(67)
 			freshScreen()
 		else:
 			resp["status"] = False

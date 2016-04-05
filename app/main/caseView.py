@@ -72,8 +72,8 @@ def generateCase(case):
 		except Exception as e:
 			info["result"] = False
 			info["errorMsg"] = str(e)
-	else:
-		return info
+
+	return info
 
 @main.route("/editcase/<int:id>",methods=['POST'])
 def editcase(id):
@@ -93,6 +93,7 @@ def editcase(id):
 		else:
 			flash("该用例不存在")
 	except Exception as e:
+		print(e)
 		flash("编辑失败:%s" %str(e))
 	finally:
 		return redirect(url_for(".testcases"))

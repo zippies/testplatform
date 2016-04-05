@@ -550,7 +550,7 @@ super_click(case_element_name,nocheck=False)
 		if by and value:
 			self.click(by,value,desc=case_element_name,nocheck=nocheck)
 		else:
-			error = "'element:%s' is not configured in '%s'" %(case_element_name,self.case_elements.elementfile or 'androidConfig.py')
+			error = "系统内未保存名称为'%s'的元素" %case_element_name
 			raise CaseError(error)
 
 	def super_clicks(self,case_element_names,nocheck=False):
@@ -594,24 +594,24 @@ super_find(case_element_name,nocheck=False)
 		if by and value:
 			return self.find(by,value,nocheck=nocheck)
 		else:
-			error = "'element:%s' is not configured in '%s'" %(case_element_name,self.case_elements.elementfile or 'androidConfig.py')
+			error = "系统内未保存名称为'%s'的元素" %case_element_name
 			raise CaseError(error)
 
 	def super_finds(self,case_element_name,nocheck=False):
 		'''
 super_finds(case_element_name,nocheck=False)
-查找系统内已添加的多个元素
+返回与系统内已添加的元素拥有相同属性的元素列表
 参数：
-	case_element_names：系统内已添加的元素名称列表
+	case_element_name：系统内已添加的元素名称
 	nocheck：该值为True时，找不到元素会忽略错误继续执行
 用法：
-	self.super_finds(["用户名输入框","登录按钮"])
+	elements = self.super_finds("文章列表")
 		'''
 		by,value = self.case_elements.get(case_element_name)
 		if by and value:
 			return self.finds(by,value,nocheck=nocheck)
 		else:
-			error = "'element:%s' is not configured in '%s'" %(case_element_name,self.case_elements.elementfile or 'androidConfig.py')
+			error = "系统内未保存名称为'%s'的元素" %case_element_name
 			raise CaseError(error)
 
 	def exist_text(self,text):
