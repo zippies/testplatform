@@ -3,17 +3,18 @@ import requests,sys,time
 app = sys.argv[1]
 cases = sys.argv[2]
 buildid = sys.argv[3]
+server_port = sys.argv[4]
 
-device_url = "http://localhost:5000/getdevicestatusfromjenkins"
-newjob_url = "http://localhost:5000/newjobfromjenkins"
+device_url = "http://localhost:%s/getdevicestatusfromjenkins" %server_port
+newjob_url = "http://localhost:%s/newjobfromjenkins" %server_port
 
 devices = requests.get(device_url).json()
 if not devices:
 	print("[error]no device can be used")
 	sys.exit(-1)
 
-runjob_url = "http://localhost:5000/runjobfromjenkins/%s" %buildid
-status_url = "http://localhost:5000/getjobstatusfromjenkins/%s" %buildid
+runjob_url = "http://localhost:%s/runjobfromjenkins/%s" %(server_port,buildid)
+status_url = "http://localhost:%s/getjobstatusfromjenkins/%s" %(server_port,buildid)
 
 
 data = {
@@ -53,7 +54,7 @@ if result_new["result"]:
 			print("[status]failed:Job timeout - 1800s")
 	else:
 		print("[status]failed:%s" %result_run["errorMsg"])
-		print("see details: http://localhost:5000")
+		print("see details: http://localhost:%s" %server_port)
 		sys.exit(-1)
 
 else:
