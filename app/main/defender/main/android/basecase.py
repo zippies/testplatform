@@ -655,7 +655,7 @@ super_input(case_element_name,text,nocheck=False)
 		if by and value:
 			self.input(by,value,text,desc=case_element_name,nocheck=nocheck)
 		else:
-			error = "'element:%s' is not configured in '%s'" %(case_element_name,self.case_elements.elementfile or 'androidConfig.py')
+			error = "系统内未保存名称为'%s'的元素" %case_element_name
 			raise CaseError(error)
 
 	def super_inputs(self,case_element_names,text,nocheck=False):
@@ -686,7 +686,7 @@ super_gettext(case_element_name,nocheck=False)
 		if by and value:
 			return self.gettext(by,value,desc=case_element_name,nocheck=nocheck)
 		else:
-			error = "'element:%s' is not configured in '%s'" %(case_element_name,self.case_elements.elementfile or 'androidConfig.py')
+			error = "系统内未保存名称为'%s'的元素" %case_element_name
 			raise CaseError(error)
 
 	def super_waitfor(self,case_element_name,timeout=10):
@@ -703,7 +703,7 @@ super_waitfor(case_element_name,timeout=10)
 		if by and value:
 			return self.waitfor(by,value,desc=case_element_name,timeout=timeout)
 		else:
-			error = "'element:%s' is not configured in '%s'" %(case_element_name,self.case_elements.elementfile or 'androidConfig.py')
+			error = "系统内未保存名称为'%s'的元素" %case_element_name
 			raise CaseError(error)
 
 
