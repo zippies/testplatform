@@ -145,8 +145,8 @@
 						<th class="center">Type</th>
 						<th class="center">RelateCase</th>
 						<th class="center">RelateDevice</th>
-						<th class="center">Result</th>
 						<th class="center">CreatedTime</th>
+						<th class="center">Result</th>
 						<th class="center">Operation</th>
 					</tr>
 				</thread>
@@ -160,8 +160,8 @@
 						<td class="center">{% if job.jobType == 1 %} 兼容性测试 {% elif job.jobType == 2%} monkey性能测试 {% else %} 功能测试 {% endif %}</td>
 						<td class="center">{% if job.relateCases %}{{ job.relateCases }}{% else %}空{% endif %}</td>
 						<td class="center">{{ job.relateDevices }}</td>
-						<td class="center" id="result_{{ job.id }}">{% if job.result == 0 %}<img src="static/imgs/block.png" />{% elif job.result == -1 %}<img src="static/imgs/fail.png" />{% elif job.result == 1 %}<img src="static/imgs/success.png" />{% endif %}</td>
 						<td class="center">{{ job.createdtime }}</td>
+						<td class="center" id="result_{{ job.id }}">{% if job.result == 0 %}<img src="static/imgs/block.png" />{% elif job.result == -1 %}<img src="static/imgs/fail.png" />{% elif job.result == 1 %}<img src="static/imgs/success.png" />{% endif %}</td>
 						<td class="center">
 							<div class="btn-group">
 								{% if job.status == 0 %}
