@@ -356,18 +356,18 @@ def newjobfromjenkins():
 		apk = data.get("app")
 		jobtype = data.get("type")
 		choicedcases = dict(data).get("cases")
-		print(choicedcases)
+		#print(choicedcases)
 		choiceddevices = dict(data).get("devices")
 		buildid = data.get("buildid")
 		jobname = "Suime_AutomationTest_Build_%s" %buildid
 		if "all" in choicedcases:
-			choicedcases = [case.id for case in Testcase.query.all()]
+			choicedcases = [case.id for case in Testcase.query.filter_by(status=1).all()]
 		else:
 			try:
 				choicedcases = eval(choicedcases[0])
 			except:
 				pass
-			print(choicedcases)
+			#print(choicedcases)
 			for caseid in choicedcases:
 				if not Testcase.query.filter_by(id=caseid).first():
 					assert 1==2,"id为'%s'的用例未创建或已被删除" %caseid
