@@ -4,30 +4,18 @@ from ..models import db,Testcase,Actionflow,Testjob
 from .. import Config
 from jinja2 import Template
 from . import main
-import os
-
-caselist_template = '''
-{% for case in cases %}
-<tr>
-	<td><input type="checkbox" name="choicedCase" id="case_{{ case.id }}" value={{ case.id }} /></td>
-	<td id="casename_{{ case.id }}" class="casename">{{ case.name }}</td>
-	<td id="casedesc_{{ case.id }}" class="casedesc">{{ case.desc }}</td>
-</tr>
-{% endfor %}
-'''
+import os,json
 
 @main.route("/getcases")
 def getcases():
-	data = []
 	cases = Testcase.query.all()
-	for case in cases:
-		data.append({"id":case.id,"name":case.caseName,"desc":case.caseDesc})
+	data = [{
+		"id":"<input type='checkbox' name='choicedCase' id='case_{id}' value='{id}'/>".format(id=case.id),
+		"name":case.caseName,
+		"desc":case.caseDesc
+	} for case in cases]
 
-	caseinfo = Template(caselist_template).render(
-		cases = data
-	)
-
-	return caseinfo
+	return json.dumps(data)
 
 @main.route("/writecase",methods=["POST"])
 def writecase():

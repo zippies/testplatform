@@ -2,8 +2,11 @@
 <html>
 <head lang="en">
 	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/static/bower_components/bootstrap-table/dist/bootstrap-table.min.css">
 	<script src="/static/jquery/jquery.min.js"></script>
 	<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+	<script src="/static/bower_components/bootstrap-table/dist/bootstrap-table.js"></script>
+	<script src="/static/bower_components/bootstrap-table/dist/locale/bootstrap-table-zh-CN.js"></script>
 	<script src="/static/js/common.js"></script>
 	<script src="/static/js/layer.js"></script>
 	<style>
@@ -17,14 +20,26 @@
 		}
 		.choiceditem{
 			border:1px solid green;
+			border-radius:5px;
 		}
+
+		.list-group-item:hover{
+			cursor:pointer;
+		}
+
+		#deviceitem:hover{
+			cursor:pointer;
+		}
+
 		.center{
 			text-align:center;
 		}
+
 	</style>
 </head>
 <body>
-<ul id="myTab" class="nav nav-tabs">
+<div id="topdiv"></div>
+<ul id="headtab" class="nav nav-tabs">
 	<li>
 		<a href="#newjobdiv" onclick="choiced('newjobdiv')" data-toggle="tab">新增测试任务</a>
 	</li>
@@ -52,7 +67,7 @@
 							二、任务名称
 						</div>
 					</div>
-					<input type="text" name="jobName" class="form-control" value="随米_APP自动化测试_{{ timenow }}" required/>
+					<input type="text" name="jobName" class="form-control" value="APP自动化测试_{{ timenow }}" required/>
 				</div>
 				<div style="padding:10px">
 					<div id="testtype_head" class="panel panel-default">
@@ -95,21 +110,7 @@
 					</label>
 					<div id="choicecase" style="display:none">
 						选择测试用例
-						<table class="table table-bordered table-striped">
-							<colgroup>
-								<col class="col-xs-1">
-								<col class="col-xs-3">
-								<col class="col-xs-8">
-							</colgroup>
-							<thread>
-								<tr>
-									<th>勾选</th>
-									<th>用例名</th>
-									<th>用例描述</th>
-								</tr>
-							</thread>
-							<tbody id="casebody">
-							</tbody>
+						<table id="casetable">
 						</table>
 					</div>
 				</div>
@@ -130,7 +131,7 @@
 						五、保存
 					</div>
 				</div>
-				<button class="btn btn-primary" onclick="submitform()">保存</button>
+				<a href="#topdiv" class="btn btn-primary" onclick="submitform()">保存</a>
 			</div>
 		</div>
 	</div>
@@ -161,7 +162,7 @@
 						<td class="center">{% if job.relateCases %}{{ job.relateCases }}{% else %}空{% endif %}</td>
 						<td class="center">{{ job.relateDevices }}</td>
 						<td class="center">{{ job.createdtime }}</td>
-						<td class="center" id="result_{{ job.id }}">{% if job.result == 0 %}<img src="static/imgs/block.png" />{% elif job.result == -1 %}<img src="static/imgs/fail.png" />{% elif job.result == 1 %}<img src="static/imgs/success.png" />{% endif %}</td>
+						<td class="center" id="result_{{ job.id }}">{% if job.result == 0 %}<img id="resultimg_{{ job.id }}" src="static/imgs/block.png" />{% elif job.result == -1 %}<img id="resultimg_{{ job.id }}" src="static/imgs/fail.png" />{% elif job.result == 1 %}<img id="resultimg_{{ job.id }}" src="static/imgs/success.png" />{% endif %}</td>
 						<td class="center">
 							<div class="btn-group">
 								{% if job.status == 0 %}
@@ -172,12 +173,16 @@
 									<a id="viewreport_{{ job.id }}" name="{{ job.id }}" class="btn btn-info viewreport" style="display:none">查看报告</a>
 								{% else %}
 									<a id="viewreport_{{ job.id }}" name="{{ job.id }}" class="btn btn-info viewreport">查看报告</a>
+									<button type="button" id="{{ job.id }}" class="btn btn-primary runbtn" style="display:none">立即运行</button>
 								{% endif %}
 								<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 									<span class="caret"></span>
 									<span class="sr-only">Toggle Dropdown</span>
 								</button>
 								<ul class="dropdown-menu">
+									{% if job.status == 2 %}
+									<li><a href="javascript:;" onclick="rerun({{ job.id }})">重新运行</a></li>
+									{% endif %}
 									<li><a href="/deljob/{{ job.id }}">删除</a></li>
 								</ul>
 							</div>
@@ -205,24 +210,36 @@
 		var requested = false
 
 		$(".testtype").click(function(){
-
 			if(this.id == 'functional'){
 				$("#testtype_head").removeClass("panel-danger").addClass("panel-default")
 				$("#choicecase").show()
 				if(requested){
 					console.log("requested")
 				}else{
-					$.ajax({
-						url:"/getcases",
-						type:"get",
-						async:false,
-						error:function(request){
-							console.log(request.status)
-						},
-						success:function(data){
-							$("#casebody").append(data)
-							requested = true
+					$("#casetable").bootstrapTable({
+						method: 'get',
+						cache: true,
+						striped: true,
+						pagination:true,
+						pageNumber:1,
+						pageSize:20,
+						columns: [
+						{
+							field: 'id',
+							title: '选择',
+							width: '10%',
+							align: 'center'
+						 }, {
+							field: 'name',
+							width: '30%',
+							title: '名称'
+						}, {
+							field: 'desc',
+							width: '60%',
+							title: '描述'
 						}
+						],
+						url: "/getcases"
 					})
 				}
 			}else{
@@ -265,9 +282,17 @@
 		$(".viewreport").click(function(){
 			parent.viewreport($(this).attr("name"));
 		})
+
+		$(".testtype").click(function(){
+			$(".testtype").removeClass("choiceditem")
+			$(this).addClass("choiceditem")
+		})
 	})
 
 	function showchange(id){
+		if($("#choiceddevice_head").hasClass('panel-danger')){
+			$("#choiceddevice_head").removeClass("panel-danger").addClass("panel-default")
+		}
 		if($("#thumbnail_"+id).hasClass("choiceditem")){
 			$("#thumbnail_"+id).removeClass("choiceditem")
 		}else{
@@ -279,22 +304,33 @@
 		var checkpass = true
 		var testtype = $('input:radio[name="testType"]:checked').val();
 		var choiceddevice = $('input:checkbox[name="choicedDevice"]:checked').val()
+		var choicedcase = new Array();
+		$("input:checkbox[name='btSelectItem']:checked").each(function(index,e){
+			choicedcase[index] = $(e).attr("data-index");
+		})
 		if(!choiceddevice){
 			$("#choiceddevice_head").removeClass("panel-default").addClass("panel-danger")
 			layer.msg('请选择设备', {icon: 2})
 			checkpass = false
+		}else{
+			$("#choiceddevice_head").removeClass("panel-danger").addClass("panel-default")
 		}
 		if(!testtype){
 			$("#testtype_head").removeClass("panel-default").addClass("panel-danger")
 			layer.msg('请选择测试类型', {icon: 2})
 			checkpass = false
+		}else{
+			$("#testtype_head").removeClass("panel-danger").addClass("panel-default")
 		}
 		if($.trim($("#upload_apk").val())==''){
 			$("#uploadapk_head").removeClass("panel-default").addClass("panel-danger")
 			layer.msg('请先上传apk', {icon: 2})
 			checkpass = false
+		}else{
+			$("#uploadapk_head").removeClass("panel-danger").addClass("panel-default")
 		}
 		if(checkpass){
+			layer.msg("正在创建任务..")
 			$("#newjobform").submit()
 		}
 	}
@@ -305,6 +341,7 @@
 			var resp = JSON.parse(event.data);
 			if(resp.jobid){
 				if(resp.status == 1){
+					$("#resultimg_"+resp.jobid).attr("src","static/imgs/block.png");
 					$("#"+resp.jobid).html("正在运行..").attr("disabled","disabled")
 					$(".runbtn").attr("disabled","disabled")
 				}else if(resp.status == 2){
@@ -313,9 +350,9 @@
 					$(".runbtn").removeAttr("disabled")
 					$("#joblist_"+resp.jobid).removeClass("danger").addClass("warning")
 					if(resp.result == -1){
-						$("#result_"+resp.jobid).empty().append("<img src='static/imgs/fail.png' />")
+						$("#result_"+resp.jobid).empty().append("<img id='resultimg_"+resp.jobid+"' src='static/imgs/fail.png' />")
 					}else{
-						$("#result_"+resp.jobid).empty().append("<img src='static/imgs/success.png' />")
+						$("#result_"+resp.jobid).empty().append("<img id='resultimg_"+resp.jobid+"' src='static/imgs/success.png' />")
 					}
 					parent.layer.msg("运行完成")
 				}else{
@@ -345,6 +382,12 @@
 		$("#"+div).addClass("active")
 	}
 
+	function rerun(id){
+		$("#viewreport_"+id).hide()
+		$("#resultimg_"+id).attr("src","static/imgs/block.png");
+		$("#"+id).show().click();
+
+	}
 </script>
 
 </body>

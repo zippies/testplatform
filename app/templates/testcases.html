@@ -40,16 +40,16 @@
 	<div class="tab-pane fade" id="writecasediv">
 		<div class="panel-body">
 			<form id="writecaseform">
-				<div class="row" style="padding:10px">
-					<div style="float:left"><label>用例名称：</label></div>
-					<div style="float:left;margin-left:5px"><input id="casename" name="casename" type="text" class="form-control" style="width:300px"/></div>
-					<div style="float:left;margin-left:5px"><label>用例描述：</label></div>
-					<div style="float:left;margin-left:5px"><input id="casedesc" name="casedesc" type="text" class="form-control" style="width:500px"/></div>
-					<div style="float:left;margin-left:10px"><a href="javascript:;" class="btn btn-info" id="viewapi">查看api</a></div>
-					<div style="float:left;margin-left:10px"><a href="/mirror" class="btn btn-info" target="_blank">打开模拟器</a></div>
-					<div style="float:left;margin-left:20px"><a href="javascript:;" id="submitwritecase" class="btn form-control btn-success">保存</a></div>
+				<ul class="list-inline">
+					<li><label>用例名称：</label></li>
+					<li><input id="casename" name="casename" type="text" class="form-control"/></li>
+					<li><label>用例描述：</label></li>
+					<li><input id="casedesc" name="casedesc" type="text" class="form-control"/></li>
+					<li><a href="javascript:;" class="btn btn-info" id="viewapi">查看api</a></li>
+					<li><a href="/mirror" class="btn btn-info" target="_blank">打开模拟器</a></li>
+					<li><a href="javascript:;" id="submitwritecase" class="btn form-control btn-success">保存</a></li>
 					<input type="reset" id="reset" style="display:none"/>
-				</div>
+				</ul>
 				<hr>
 				<div>
 					<textarea name="casecontent" id="casecontent"></textarea>
@@ -86,12 +86,10 @@
 											<td style="width:5%">{{ index }}</td>
 											<td style="width:15%">
 												<a role="button" class="showcase" id="{{ case.id }}" data-toggle="collapse" data-parent="#accordion" href="#collapse_{{case.id}}" aria-expanded="false" aria-controls="collapseOne">{{ case.caseName }}</a></td>
-											<td style="width:70%">用例描述：{{ case.caseDesc }}</td>
-											<td style="width:10%">
-												
-													<a href="javascript:;" id="pass_{{ case.id }}" onclick="passcase({{ case.id }})" class="btn btn-success" {% if case.status == 0 %}{% elif case.status == 1 %}style="display:none"{% endif %}>设置通过</a>
-													<a href="javascript:;" id="canclepass_{{ case.id }}" onclick="canclepasscase({{ case.id }})" class="btn btn-warning" {% if case.status == 0 %}style="display:none"{% elif case.status == 1 %}{% endif %}>取消通过</a>
-												
+											<td style="width:60%">用例描述：{{ case.caseDesc }}</td>
+											<td style="width:20%">
+												<a href="javascript:;" id="pass_{{ case.id }}" onclick="passcase({{ case.id }})" class="btn btn-success" {% if case.status == 0 %}{% elif case.status == 1 %}style="display:none"{% endif %}>设置通过</a>
+												<a href="javascript:;" id="canclepass_{{ case.id }}" onclick="canclepasscase({{ case.id }})" class="btn btn-warning" {% if case.status == 0 %}style="display:none"{% elif case.status == 1 %}{% endif %}>取消通过</a>
 												<a href="javascript:;" id="delcase_{{ case.id }}" class="btn btn-danger delcase">删除</a>
 											</td>
 										</tr>
@@ -102,17 +100,17 @@
 							<div class="panel-body">
 								<div>
 									<form action="/editcase/{{case.id}}" method="post">
-										<div class="row" style="padding:10px">
-											<div style="float:left"><label>用例名称：</label></div>
-											<div style="float:left;margin-left:5px"><input name="casename" type="text" class="form-control" style="width:300px" value="{{case.caseName}}" required /></div>
-											<div style="float:left;margin-left:5px"><label>用例描述：</label></div>
-											<div style="float:left;margin-left:5px"><input name="casedesc" type="text" class="form-control" style="width:500px" value="{{case.caseDesc}}" required/></div>
-											<div style="float:left;margin-left:5px">
+										<ul class="list-inline">
+											<li><label>用例名称：</label></li>
+											<li><input name="casename" type="text" class="form-control" value="{{case.caseName}}" required /></li>
+											<li><label>用例描述：</label></li>
+											<li><input name="casedesc" type="text" class="form-control" value="{{case.caseDesc}}" required/></li>
+											<li>
 												<a href="javascript:;" class="btn btn-info" onclick="parent.showapi()">查看API</a>
 												<a href="/mirror" class="btn btn-info" target="_blank">打开模拟器</a>
-											</div>
-											<div style="float:left;margin-left:30px"><button type="submit" class="btn btn-success">保存</button></div>
-										</div>
+											</li>
+											<li><button type="submit" class="btn btn-success">保存</button></li>
+										</ul>
 										<textarea id="casecontent_{{ case.id }}" name="casecontent" width="1000px" height="400px">{{ case.caseContent }}</textarea>
 										<script>
 											var mirror_{{ case.id }} = CodeMirror.fromTextArea(document.getElementById("casecontent_{{ case.id }}"), {
