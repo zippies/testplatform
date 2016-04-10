@@ -4,6 +4,7 @@
 	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
   	<script src="/static/jquery/jquery.min.js"></script>
   	<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+	<script src="/static/js/index.js"></script>
   	<script src="/static/js/common.js"></script>
   	<script src="/static/js/layer.js"></script>
   	<style>
@@ -94,8 +95,12 @@
 	<!-- 		<label>分辨率:</label>
 			<input name="resolution" type="text" class="form-control" /> -->
 			<div style="text-align:center">
-				<button class="form-control btn-primary" type="submit">添加</button>
+				<ul class="list-inline">
+					<li><button class="btn btn-primary" type="submit">添加</button></li>
+					<li><a href="javascript:;" onclick="viewdeviceinfo()">查看adb devices信息</a></li>
+				</ul>
 			</div>
+
 		</form>
 	</div>
 	<hr>

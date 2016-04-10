@@ -181,9 +181,9 @@
 								</button>
 								<ul class="dropdown-menu">
 									{% if job.status == 2 %}
-									<li><a href="javascript:;" onclick="rerun({{ job.id }})">重新运行</a></li>
+									<li id="rerun_{{ job.id }}"><a href="javascript:;" onclick="rerun({{ job.id }})">重新运行</a></li>
 									{% endif %}
-									<li><a href="/deljob/{{ job.id }}">删除</a></li>
+									<li id="del_{{ job.id }}"><a href="/deljob/{{ job.id }}">删除</a></li>
 								</ul>
 							</div>
 						</td> 
@@ -355,6 +355,7 @@
 						$("#result_"+resp.jobid).empty().append("<img id='resultimg_"+resp.jobid+"' src='static/imgs/success.png' />")
 					}
 					parent.layer.msg("运行完成")
+					$("#del_"+resp.jobid).before('<li id="rerun_'+resp.jobid+'"><a href="javascript:;" onclick="rerun('+resp.jobid+')">重新运行</a></li>')
 				}else{
 
 				}
@@ -383,6 +384,7 @@
 	}
 
 	function rerun(id){
+		$("#rerun_"+id).remove()
 		$("#viewreport_"+id).hide()
 		$("#resultimg_"+id).attr("src","static/imgs/block.png");
 		$("#"+id).show().click();

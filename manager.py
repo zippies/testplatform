@@ -5,7 +5,7 @@ from app.models import *
 from flask.ext.script import Manager,Shell
 from flask.ext.migrate import Migrate,MigrateCommand
 from werkzeug.contrib.fixers import ProxyFix
-import pickle
+import pickle,os,sys
 
 app = createApp()
 app.debug = True
@@ -35,4 +35,7 @@ def unauthorized(e):
 
 if __name__ == '__main__':
 	pickle.dump({},open("data/tasks.pkl",'wb'))
-	manager.run()
+	if not os.path.exists("data.sqlite") and sys.argv[1] == "runserver":
+		print("[error]数据库尚未初始化，请先运行:python manager.py dbinit")
+	else:
+		manager.run()

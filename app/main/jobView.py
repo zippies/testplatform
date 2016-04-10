@@ -1,17 +1,16 @@
 # -*- coding: utf-8 -*-
 from flask import render_template,request,jsonify,redirect,url_for,send_file,Response,session,flash
 from ..models import db,Testjob,Appelement,Testcase,Device,Report,Testdata,Conflictdata
-from flask.ext.login import login_required
 from werkzeug.utils import secure_filename
-from multiprocessing import Process
 from subprocess import Popen,PIPE
+from collections import namedtuple
 from . import main,AndroidRunner,MonkeyRunner,CompatibleRunner,API
 from .. import Config
 import os,sys,json,time,pickle,platform
 sys.path.append(Config.CASE_FOLDER)
 
 system = platform.system()
-tasks = {}
+FakeDevice = namedtuple("FakeDevice","deviceName,platform,platformVersion")
 
 @main.route("/")
 @main.route("/index")
@@ -32,6 +31,7 @@ def index():
 
 @main.route("/getStatus")
 def getStatus():
+	global tasks
 	task = {}
 	try:
 		task = pickle.load(open("data/tasks.pkl",'rb'))
@@ -158,15 +158,6 @@ def runCompatibilityTest(job):
 	job.status = 1
 	db.session.add(job)
 	db.session.commit()
-
-class FakeDevice(object):
-	def __init__(self,deviceName,platform,platformVersion):
-		self.deviceName = deviceName
-		self.platform = platform
-		self.platformVersion = platformVersion
-
-	def __repr__(self):
-		return "<fakedevice:%s>" % self.deviceName
 
 def runStabilityTest(job):
 	timestamp = job.createdtime.strftime("%y%m%d%H%M%S")

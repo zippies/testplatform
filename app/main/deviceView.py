@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 from flask import render_template,redirect,url_for,request,jsonify,Response,flash
-from flask.ext.login import login_required
-from subprocess import Popen,PIPE
 from ..models import Device,db
 from . import main
-import json
+from jinja2 import Template
+import json,subprocess
 
 @main.route("/newdevice",methods=["POST"])
 def newdevice():
@@ -102,27 +101,41 @@ device_template = '''
 {% endfor %}
 '''
 
-def updatedevicesinfo():
-	cmd = "adb devices"
-	connected_devices = {}
-	p = Popen(cmd,stdout=PIPE,shell=True)
-	for info in p.stdout.readlines():
-		info = info.decode()
-		if 'List' in info:
-			continue
-		elif 'offline' in info:
-			name,state = [n.strip() for n in info.split('\t') if n.strip()]
-			connected_devices[name] = -1
-		elif 'unauthorized' in info:
-			name,state = [n.strip() for n in info.split('\t') if n.strip()]
-			connected_devices[name] = -2
-		elif 'device' in info:
-			name,state = [n.strip() for n in info.split('\t') if n.strip()]
-			connected_devices[name] = 0
+def isadbok():
+	cmd = "adb devices".split(" ")
+	try:
+		info = subprocess.run(cmd,stdout=subprocess.PIPE)
+		if info.returncode == 0 and 'error' not in info.stdout.decode():
+			return info.stdout.decode()
 		else:
-			continue
-	
-	p.kill()
+			restart = "adb kill-server".split(" ")
+			info = subprocess.run(restart,stdout=subprocess.PIPE)
+			if info.returncode == 0 and "successfully" in info.stdout.decode():
+				return isadbok()
+			else:
+				return None
+	except Exception as e:
+		print(str(e))
+		return None
+
+def updatedevicesinfo():
+	connected_devices = {}
+	result = isadbok()
+	if result:
+		for info in result.split("\r\n"):
+			if "List" in info:
+				continue
+			elif 'offline' in info:
+				name,state = [n.strip() for n in info.split('\t') if n.strip()]
+				connected_devices[name] = -1
+			elif 'unauthorized' in info:
+				name,state = [n.strip() for n in info.split('\t') if n.strip()]
+				connected_devices[name] = -2
+			elif 'device' in info:
+				name,state = [n.strip() for n in info.split('\t') if n.strip()]
+				connected_devices[name] = 0
+			else:
+				continue
 
 	devices = Device.query.all()
 	for device in devices:
@@ -136,8 +149,7 @@ def updatedevicesinfo():
 
 @main.route("/getdevices")
 def getdevices():
-	from jinja2 import Template
-	global device_template
+	#global device_template
 	updatedevicesinfo()
 	devices = Device.query.all()
 	deviceinfo = Template(device_template).render(
@@ -157,27 +169,35 @@ def getdevicestatus():
 
 	return Response("data:"+status+"\n\n",mimetype="text/event-stream")
 
+@main.route("/getconnecteddevice")
+def getconnecteddevice():
+	resp = None
+	info = isadbok()
+	if info:
+		devices = "".join(["<li>%s</li>" %device for device in info.split("\r\n")[1:] if device.strip()])
+		if devices:
+			resp = "".join(["<ul>",devices,"</ul>"])
+		else:
+			resp = "<code>没有连接的设备</code>"
+	else:
+		resp = "<code>设备连接异常</code>"
+	return resp
+
 @main.route("/getdevicestatusfromjenkins")
 def getdevicestatusfromjenkins():
-	cmd = "adb devices"
+	cmd = "adb devices".split(" ")
 	devices = []
-	p = Popen(cmd,stdout=PIPE,shell=True)
-	for info in p.stdout.readlines():
-		info = info.decode()
-		if 'List' in info:
-			continue
-		elif 'offline' in info:
-			continue
-		elif 'unauthorized' in info:
-			continue
-		elif 'device' in info:
-			name = info.split('\t')[0].strip()
-			device = Device.query.filter_by(deviceName=name).first()
-			if device:
-				devices.append(device.id)
-		else:
-			continue
-
-	p.kill()
+	result = subprocess.run(cmd,stdout=subprocess.PIPE)
+	if result.returncode == 0:
+		for info in result.stdout.decode():
+			if "List" in info:
+				continue
+			elif 'device' in info:
+				name = info.split('\t')[0].strip()
+				device = Device.query.filter_by(deviceName=name).first()
+				if device:
+					devices.append(device.id)
+			else:
+				continue
 
 	return json.dumps(devices)

@@ -39,7 +39,7 @@ class Testjob(db.Model):
 	createdtime = db.Column(db.DateTime,default=datetime.now)
 
 	def __init__(self,jobName,jobType,relateCases,relateDevices,testapk,appPackage,appActivity,buildid=0):
-		self.jobName = jobName
+		self.jobName = jobName.strip()
 		self.jobType = jobType
 		self.relateCases = relateCases
 		self.relateDevices = relateDevices
@@ -78,12 +78,12 @@ class Device(db.Model):
 	createdtime = db.Column(db.DateTime,default=datetime.now)
 
 	def __init__(self,phoneModel,deviceName,manufacturer,platform,platformVersion,resolution):
-		self.phoneModel = phoneModel
-		self.deviceName = deviceName
-		self.manufacturer = manufacturer
-		self.platform = platform
-		self.platformVersion = platformVersion
-		self.resolution = resolution
+		self.phoneModel = phoneModel.strip()
+		self.deviceName = deviceName.strip()
+		self.manufacturer = manufacturer.strip()
+		self.platform = platform.strip()
+		self.platformVersion = platformVersion.strip()
+		self.resolution = resolution.strip()
 
 	def __repr__(self):
 		return "<device:%s>" % self.phoneModel
@@ -97,8 +97,8 @@ class Testcase(db.Model):
 	createdtime = db.Column(db.DateTime,default=datetime.now)
 
 	def __init__(self,caseName,caseDesc,caseContent):
-		self.caseName = caseName
-		self.caseDesc = caseDesc
+		self.caseName = caseName.strip()
+		self.caseDesc = caseDesc.strip()
 		self.caseContent = caseContent
 
 	def __repr__(self):
@@ -126,7 +126,7 @@ class Testdata(db.Model):
 	createdtime = db.Column(db.DateTime,default=datetime.now)
 
 	def __init__(self,name,value):
-		self.name = name
+		self.name = name.strip()
 		self.value = value
 
 	def __repr__(self):
@@ -139,7 +139,7 @@ class Conflictdata(db.Model):
 	createdtime = db.Column(db.DateTime,default=datetime.now)
 
 	def __init__(self,name,value):
-		self.name = name
+		self.name = name.strip()
 		self.value = value
 
 	def __repr__(self):
@@ -152,7 +152,7 @@ class Actionflow(db.Model):
 	createdtime = db.Column(db.DateTime,default=datetime.now) 
 
 	def __init__(self,name,actions):
-		self.name = name
+		self.name = name.strip()
 		self.actions = actions
 
 	def __repr__(self):

@@ -45,3 +45,17 @@ function viewreport(id){
 		content: '/viewreport/'+id
 	});
 }
+
+function viewdeviceinfo(){
+    position_x = parent.document.body.clientWidth - 300;
+    parent.layer.open({
+        type:2,
+        title:"当前连接的设备信息",
+        shadeClose:true,
+        shade:false,
+        maxxin:false,
+        offset:['100px',position_x+'px'],
+        area:['300px','300px'],
+        content:'/getconnecteddevice'
+    })
+}
