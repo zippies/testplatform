@@ -16,7 +16,7 @@
 </head>
 <body>
 <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
-{% for api in apis %}
+{% for api in selfapis+driverapis %}
 	<div class="panel panel-danger">
 		<div class="panel-heading" role="tab" id="heading_{{ api[0] }}">
 			<h4 class="panel-title">

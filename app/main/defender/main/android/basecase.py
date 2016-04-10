@@ -65,16 +65,16 @@ class AndroidDevice(webdriver.Remote):
 		return "<TestCase>:"+self.casename
 #=============================================自定义方法  BEGIN ==============================================================
 	def log(self,info):
-		'''
+		'''[方法]
 log(info)
-向日志中写入内容
+向日志中写入内容，该内容会在报告中显示
 用法：
 	self.log("hello,chris")
 		'''
 		self.logger.log("[log]%s" %info)
 
 	def sleep(self,seconds):
-		'''
+		'''[方法]
 sleep(seconds)
 睡眠几秒
 参数：
@@ -86,7 +86,7 @@ sleep(seconds)
 		time.sleep(seconds)
 
 	def find(self,by,value,nocheck=False):
-		'''
+		'''[方法]
 find(by,value,nocheck=False)
 查找一个元素
 参数：
@@ -113,7 +113,7 @@ find(by,value,nocheck=False)
 				return None
 		
 	def finds(self,by,value,nocheck=False):
-		'''
+		'''[方法]
 finds(by,value,nocheck=False)
 查找多个元素
 参数：
@@ -140,7 +140,7 @@ finds(by,value,nocheck=False)
 				return []
 
 	def click(self,by,value,desc="",nocheck=False):
-		'''
+		'''[方法]
 click(by,value,desc="",nocheck=False)
 点击一个元素
 参数：
@@ -167,7 +167,7 @@ click(by,value,desc="",nocheck=False)
 			ele.click()
 
 	def save_screen(self,filename=None,immediate=False):
-		'''
+		'''[方法]
 save_screen(filename=None,immediate=False)
 保存屏幕截图
 参数：
@@ -191,7 +191,7 @@ save_screen(filename=None,immediate=False)
 		self.get_screenshot_as_file(screen)
 
 	def input(self,by,value,text,desc="",nocheck=False):
-		'''
+		'''[方法]
 input(by,value,text,desc="",nocheck=False)
 向一个元素内输入内容
 参数：
@@ -215,7 +215,7 @@ input(by,value,text,desc="",nocheck=False)
 			ele.send_keys(text)
 
 	def gettext(self,by,value,desc="",nocheck=False):
-		'''
+		'''[方法]
 gettext(by,value,desc="",nocheck=False)
 向一个元素内输入内容
 参数：
@@ -239,7 +239,7 @@ gettext(by,value,desc="",nocheck=False)
 			return ele.text
 
 	def waitfor(self,by,value,desc="",timeout=10):
-		'''
+		'''[方法]
 waitfor(by,value,desc="",timeout=10)
 向一个元素内输入内容
 参数：
@@ -264,7 +264,7 @@ waitfor(by,value,desc="",timeout=10)
 			raise ActionTimeOut("'%s:%s' element not shown after %s seconds '%s'" %(by,value,timeout,desc))
 
 	def swipe(self,begin,end,duration=None):
-		"""
+		"""[方法]
 swipe(begin,end,duration=None)
 从一个点滑动到另一个点
 参数:
@@ -291,7 +291,7 @@ swipe(begin,end,duration=None)
 		return self
 
 	def swipe_up(self,duration=None):
-		'''
+		'''[方法]
 swipe_up(duration=None)
 从屏幕底端向上划整个屏幕高度
 参数：
@@ -304,7 +304,7 @@ swipe_up(duration=None)
 		self.swipe(start,end,duration)
 
 	def swipe_down(self,duration=None):
-		'''
+		'''[方法]
 swipe_down(duration=None)
 从屏幕顶端向下划整个屏幕高度
 参数：
@@ -317,7 +317,7 @@ swipe_down(duration=None)
 		self.swipe(start,end,duration)
 
 	def swipe_left(self,duration=None):
-		'''
+		'''[方法]
 swipe_left(duration=None)
 从屏幕右端向左划整个屏幕宽度
 参数：
@@ -330,7 +330,7 @@ swipe_left(duration=None)
 		self.swipe(start,end,duration)
 
 	def swipe_right(self,duration=None):
-		'''
+		'''[方法]
 swipe_right(duration=None)
 从屏幕左端向右划整个屏幕宽度
 参数：
@@ -343,7 +343,7 @@ swipe_right(duration=None)
 		self.swipe(start,end,duration)
 
 	def flick(self, begin, end):
-		"""
+		"""[方法]
 flick(begin, end)
 Flick from one point to another point.
 Args:
@@ -368,7 +368,7 @@ Args:
 		return self
 
 	def equals(self,a,b,strip=False):
-		'''
+		'''[方法]
 equals(a,b,strip=False)
 判断两个对象a,b是否相等
 参数：
@@ -387,7 +387,7 @@ equals(a,b,strip=False)
 			raise CheckError("'%s' does not equals '%s'" %(a,b))
 
 	def allow_alert(self,nocheck=True):
-		'''
+		'''[方法]
 allow_alert(nocheck=True)
 允许系统授权弹框
 参数：
@@ -402,7 +402,7 @@ allow_alert(nocheck=True)
 					ele.click()
 
 	def reject_alert(self,nocheck=True):
-		'''
+		'''[方法]
 reject_alert(nocheck=True)
 拒绝系统授权弹框
 参数：
@@ -417,7 +417,7 @@ reject_alert(nocheck=True)
 					ele.click()
 
 	def testdatas(self,name):
-		'''
+		'''[方法]
 testdatas(name)
 通用测试数据
 参数：
@@ -432,7 +432,7 @@ testdatas(name)
 			raise CaseError("testdata '%s' undefined,please add first." %name)
 
 	def conflictdatas(self,name):
-		'''
+		'''[方法]
 conflictdatas(name)
 互斥测试数据
 参数：
@@ -450,7 +450,7 @@ conflictdatas(name)
 			raise CaseError("conflictdata '%s' undefined,please add first." %name)
 
 	def click_point(self,x,y,duration=None):
-		'''
+		'''[方法]
 click_point(x,y,duration=None)
 点击屏幕坐标
 参数：
@@ -470,7 +470,7 @@ click_point(x,y,duration=None)
 		return self
 
 	def goback(self):
-		'''
+		'''[方法]
 按返回按钮
 用法：
 	self.goback()
@@ -479,16 +479,16 @@ click_point(x,y,duration=None)
 		return self
 
 	def gohome(self):
-		'''
-			按Home按钮
-			用法：
-				self.gohome()
+		'''[方法]
+按Home按钮
+用法：
+	self.gohome()
 		'''
 		self.press_keycode(3)
 		return self
 
 	def parseGestures(self,location,size):
-		'''
+		'''[方法]
 parseGestures(location,size)
 解析手势密码
 参数：
@@ -512,7 +512,7 @@ parseGestures(location,size)
 		return points
 
 	def gestures_password(self,case_element_name,gestures,nocheck=False):
-		'''
+		'''[方法]
 gestures_password(case_element_name,gestures,nocheck=False)
 处理手势密码
 参数：
@@ -537,7 +537,7 @@ gestures_password(case_element_name,gestures,nocheck=False)
 			return self
 
 	def super_click(self,case_element_name,nocheck=False):
-		'''
+		'''[方法]
 super_click(case_element_name,nocheck=False)
 点击系统内已添加的某个元素
 参数：
@@ -554,7 +554,7 @@ super_click(case_element_name,nocheck=False)
 			raise CaseError(error)
 
 	def super_clicks(self,case_element_names,nocheck=False):
-		'''
+		'''[方法]
 super_clicks(case_element_names,nocheck=False)
 点击系统内已添加的多个元素
 参数：
@@ -567,7 +567,7 @@ super_clicks(case_element_names,nocheck=False)
 			self.super_click(name,nocheck=nocheck)
 
 	def super_exists(self,case_element_name):
-		'''
+		'''[方法]
 super_exists(case_element_name)
 判断是否能找到系统内已添加的某个元素
 参数：
@@ -581,7 +581,7 @@ super_exists(case_element_name)
 			return False
 
 	def super_find(self,case_element_name,nocheck=False):
-		'''
+		'''[方法]
 super_find(case_element_name,nocheck=False)
 查找系统内已添加的某个元素
 参数：
@@ -598,7 +598,7 @@ super_find(case_element_name,nocheck=False)
 			raise CaseError(error)
 
 	def super_finds(self,case_element_name,nocheck=False):
-		'''
+		'''[方法]
 super_finds(case_element_name,nocheck=False)
 返回与系统内已添加的元素拥有相同属性的元素列表
 参数：
@@ -615,7 +615,7 @@ super_finds(case_element_name,nocheck=False)
 			raise CaseError(error)
 
 	def exist_text(self,text):
-		'''
+		'''[方法]
 exist_text(text)
 查找当前页面是否存在含有text的元素
 用法：
@@ -631,7 +631,7 @@ exist_text(text)
 			assert elem is not None,"当前页面未找到文本为'%s'的元素" %text
 
 	def exist_texts(self,texts):
-		'''
+		'''[方法]
 exist_texts(texts)
 查找当前页面是否存在含有text的元素
 用法：
@@ -641,7 +641,7 @@ exist_texts(texts)
 			self.exist_text(text)
 
 	def super_input(self,case_element_name,text,nocheck=False):
-		'''
+		'''[方法]
 super_input(case_element_name,text,nocheck=False)
 向系统内已添加的某个元素输入内容
 参数：
@@ -659,7 +659,7 @@ super_input(case_element_name,text,nocheck=False)
 			raise CaseError(error)
 
 	def super_inputs(self,case_element_names,text,nocheck=False):
-		'''
+		'''[方法]
 super_inputs(case_element_names,text,nocheck=False)
 向系统内已添加的多个元素输入内容
 参数：
@@ -673,7 +673,7 @@ super_inputs(case_element_names,text,nocheck=False)
 			self.super_input(name,text,nocheck=nocheck)
 
 	def super_gettext(self,case_element_name,nocheck=False):
-		'''
+		'''[方法]
 super_gettext(case_element_name,nocheck=False)
 获取某个元素的文本内容
 参数：
@@ -690,7 +690,7 @@ super_gettext(case_element_name,nocheck=False)
 			raise CaseError(error)
 
 	def super_waitfor(self,case_element_name,timeout=10):
-		'''
+		'''[方法]
 super_waitfor(case_element_name,timeout=10)
 等待某个元素出现
 参数：

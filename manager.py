@@ -34,6 +34,8 @@ def unauthorized(e):
 	return redirect(url_for(".login"))
 
 if __name__ == '__main__':
+	if not os.path.isdir("data"):
+		os.mkdir("data")
 	pickle.dump({},open("data/tasks.pkl",'wb'))
 	if not os.path.exists("data.sqlite") and sys.argv[1] == "runserver":
 		print("[error]数据库尚未初始化，请先运行:python manager.py dbinit")

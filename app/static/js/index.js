@@ -18,14 +18,14 @@ function initNavBar() {
 }
 
 function showapi(){
-	width = $(parent.document).width()/4
+	width = $(parent.document).width()/3
 	layer.open({
 		type: 2,
 		title: 'API文档',
 		shadeClose: true,
 		shade: false,
 		maxmin: true, //开启最大化最小化按钮
-		offset: ['0px',width*3-5+"px"],
+		offset: ['0px',width*2-5+"px"],
 		area: [width+"px","100%"],
 		content: '/showapi'
 	});

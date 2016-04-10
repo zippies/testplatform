@@ -327,7 +327,7 @@ def getscreenshot():
 def showapi():
 	funcs = dir(API)
 	funcs.sort()
-	apis = []
+	selfapis,driverapis = [],[]
 	for func in funcs:
 		if not func.startswith("_"):
 			doc = eval("API.%s" %func).__doc__
@@ -335,9 +335,10 @@ def showapi():
 				doc = doc.replace("\n","<p>")
 				doc = doc.replace("\t","&nbsp&nbsp&nbsp&nbsp")
 				doc = doc.replace("driver","self")
-			apis.append([func,doc])
 
-	return render_template("api.html",apis=apis)
+				selfapis.append([func,doc]) if doc.startswith("[方法]") else driverapis.append([func,doc])
+
+	return render_template("api.html",selfapis=selfapis,driverapis=driverapis)
 
 @main.route("/newjobfromjenkins",methods=["POST"])
 def newjobfromjenkins():
