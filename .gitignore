@@ -7,3 +7,4 @@ tmp
 *.apk
 data.sqlite
 task.pkl
+testcases/*.py

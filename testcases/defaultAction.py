@@ -36,9 +36,9 @@ class TestCase(AndroidDevice):
 
         self.super_click("登录按钮")
 
-        self.super_input("登录手机号输入框",username)
+        self.super_input("手机号输入框",username)
 
-        self.super_input("登录密码输入框",password)
+        self.super_input("密码输入框",password)
 
         self.super_click("登录按钮")
 
