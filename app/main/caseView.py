@@ -42,12 +42,24 @@ def generateCase(case):
 				for c in case.caseContent.split("\r\n"):
 					if c:
 						if c.strip().startswith('from') or c.strip().startswith("import"):
-							libs.append(c)
+							libs.append(c.strip())
 						elif c.strip().startswith("{{") and c.strip().endswith("}}"):
-							actionflow_name = c.strip("{}")
+							whitespace = c.split("{{")[0]
+							actionflow_name,args = c.strip().strip("{}").strip().split("(")
+							args = args.strip("()").split(",")
 							actionflow = Actionflow.query.filter_by(name=actionflow_name).first()
 							if actionflow:
-								actions += actionflow.actions
+								flowactions = []
+								for index,action in enumerate(actionflow.actions):
+									for arg in args:
+										if "{{%s}}" %arg in action:
+											action = action.replace("{{%s}}" %arg,arg)
+										else:
+											continue
+
+									flowactions.append(whitespace+action)
+
+								actions += flowactions
 						else:
 							actions.append(c)
 

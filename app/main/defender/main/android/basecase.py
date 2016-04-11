@@ -130,14 +130,23 @@ finds(by,value,nocheck=False)
 		if by not in ['id','accessibility_id','class_name','css_selector','name','link_text','partial_link_text','xpath','ios_uiautomation','android_uiautomator']:
 			raise CaseError("'find' function doesn't support such type:'%s'" %by)
 
+		eles = None
+
 		try:
 			eles = eval("self.find_elements_by_%s" %by)(value)
-			return eles
 		except Exception as e:
 			if not nocheck:
-				raise CaseError("Elements not found using '%s' : %s" %(by,value))
+				raise CheckError("Elements not found using '%s' : %s" %(by,value))
 			else:
 				return []
+		finally:
+			if not eles:
+				if not nocheck:
+					raise CheckError("Elements not found using '%s' : %s" %(by,value))
+				else:
+					return []
+			else:
+				return eles
 
 	def click(self,by,value,desc="",nocheck=False):
 		'''[方法]
@@ -520,7 +529,7 @@ gestures_password(case_element_name,gestures,nocheck=False)
 	gestures：手势密码需要划过的点代表的数字组成的列表(九宫格每个点代表的数字按照从上至下从左往右的顺序用1-9标记)
 	nocheck：如果该值为True,找不到元素时忽略错误继续执行
 用法：
-	self.deal_gestures_password("手势密码九宫格",[1,2,3,5,7,8,9])  -- 写了一个Z字的手势密码
+	self.gestures_password("手势密码九宫格",[1,2,3,5,7,8,9])  -- 写了一个Z字的手势密码
 		'''
 		elem = self.super_find(case_element_name,nocheck=nocheck)
 		if elem:

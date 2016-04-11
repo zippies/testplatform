@@ -181,7 +181,7 @@
 								</button>
 								<ul class="dropdown-menu">
 									{% if job.status == 2 %}
-									<li id="rerun_{{ job.id }}"><a href="javascript:;" onclick="rerun({{ job.id }})">重新运行</a></li>
+									<li id="rerun_{{ job.id }}"><a class="rerun" onclick="rerun({{ job.id }})">重新运行</a></li>
 									{% endif %}
 									<li id="del_{{ job.id }}"><a href="/deljob/{{ job.id }}">删除</a></li>
 								</ul>
