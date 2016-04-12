@@ -33,6 +33,7 @@ class Testjob(db.Model):
 	appPackage = db.Column(db.String(64))
 	appActivity = db.Column(db.String(64))
 	reportID = db.Column(db.Integer,default=0)
+	appium_ports = db.Column(db.PickleType,default=[])
 	status = db.Column(db.Integer,default=0)  # 0：未运行   1：正在运行  2：完成
 	result = db.Column(db.Integer,default=0)  # 0:未运行    -1：失败   1：成功
 	buildid = db.Column(db.Integer)

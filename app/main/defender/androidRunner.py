@@ -4,7 +4,6 @@ from .main import Logger,TestData,CaseElements
 from multiprocessing import Process
 from threading import Thread
 from datetime import datetime
-from pprint import pprint
 
 class CaseObject(object):
 	def __init__(self,case):

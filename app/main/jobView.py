@@ -7,6 +7,7 @@ from collections import namedtuple
 from . import main,AndroidRunner,MonkeyRunner,CompatibleRunner,API
 from .. import Config
 import os,sys,json,time,pickle,platform
+import subprocess
 sys.path.append(Config.CASE_FOLDER)
 
 system = platform.system()
@@ -114,6 +115,31 @@ def deljob(id):
 	try:
 		job = Testjob.query.filter_by(id=id).first()
 		if job:
+			if job.status == 1:
+				if job.jobType == 1:
+					pass
+				elif job.jobType == 2:
+					devices = [device.deviceName for device in [Device.query.filter_by(id=deviceid).first() for deviceid in job.relateDevices]]
+					for device in devices:
+						searchcmd = "adb -s %s shell ps |grep com.android.commands.monkey" %device
+						info = subprocess.run(searchcmd,stdout=PIPE)
+						result = info.stdout.decode()
+						if info.returncode == 0 and result:
+							monkey_pid = [item for item in result.split(" ") if item.strip()][1]
+							print(result,monkey_pid)
+							killcmd = "adb -s %s shell kill -9 %s" %(device,monkey_pid)
+							subprocess.run(killcmd,stdout=PIPE)
+				elif job.jobType == 3:
+					appium_ports = job.appium_ports
+					print(appium_ports)
+					for port in appium_ports:
+						info = os.popen("netstat -ano|findstr %s" % port).readline()
+						if "LISTENING" in info:
+							pid = info.split("LISTENING")[1].strip()
+							print("Stop pid:", pid)
+							os.system("ntsd -c q -p %s" % pid)
+				else:
+					pass
 			db.session.delete(job)
 			db.session.commit()
 			flash("删除成功！")
@@ -214,6 +240,7 @@ def runStabilityTest(job):
 
 def runFunctionalTest(job):
 	testcases = {}
+	appium_ports = []
 	cases = [Testcase.query.filter_by(id=caseid).first() for caseid in job.relateCases]
 
 	assert len(cases) > 0,"没有可用的测试用例"
@@ -242,6 +269,7 @@ def runFunctionalTest(job):
 		device['automationName'] = 'Appium' if float(device['platformVersion']) > 4.2 else 'Selendroid'
 		capabilities[index] = device
 		port = str(16230 + index)
+		appium_ports.append(port)
 		bootstrap_port = str(17230 + index)
 		selendroid_port = str(15230 + index)
 		appiums.append({"port":port,"bootstrap_port":bootstrap_port,"url":"http://localhost:%s/wd/hub" %port})
@@ -265,7 +293,7 @@ def runFunctionalTest(job):
 	)
 
 	runner.start()
-
+	job.appium_ports = appium_ports
 	job.status = 1
 	db.session.add(job)
 	db.session.commit()
