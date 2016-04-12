@@ -537,10 +537,11 @@ gestures_password(case_element_name,gestures,nocheck=False)
 			action = TouchAction(self)
 			for index,ges in enumerate(gestures):
 				x,y = points[ges]
+				self.log("point x:%s,y:%s" %(x,y))
 				if index == 0:
-					action = action.long_press(x=x,y=y)
+					action.long_press(x=x,y=y)
 				else:
-					action = action.move_to(x=x,y=y)
+					action.move_to(x=x,y=y)
 
 			action.release().perform()
 			return self
