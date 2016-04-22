@@ -4,6 +4,7 @@ from ..models import db,Testjob,Appelement,Testcase,Device,Report,Testdata,Confl
 from werkzeug.utils import secure_filename
 from subprocess import Popen,PIPE
 from collections import namedtuple
+from jinja2 import Template
 from . import main,AndroidRunner,MonkeyRunner,CompatibleRunner,API
 from .. import Config
 import os,sys,json,time,pickle,platform,importlib,subprocess
@@ -276,6 +277,7 @@ def runFunctionalTest(job):
 
 	reloaded = []
 	for case in cases:
+		generateCase(case)
 		module = importlib.import_module(case.caseName)
 		if case.caseName not in reloaded:
 			module = importlib.reload(importlib.import_module(case.caseName))
@@ -303,6 +305,41 @@ def runFunctionalTest(job):
 	job.status = 1
 	db.session.add(job)
 	db.session.commit()
+
+def generateCase(case):
+	with open(os.path.join(Config.CASE_FOLDER,"%s.py" %case.caseName),'wb') as f:
+		libs,actions = [],[]
+		for c in case.caseContent.split("\r\n"):
+			if c:
+				if c.strip().startswith('from') or c.strip().startswith("import"):
+					libs.append(c.strip())
+				elif c.strip().startswith("{{") and c.strip().endswith("}}"):
+					whitespace = c.split("{{")[0]
+					actionflow_name,args = c.strip().strip("{}").strip().split("(")
+					args = args.strip("()").split(",")
+					actionflow = Actionflow.query.filter_by(name=actionflow_name).first()
+					if actionflow:
+						flowactions = []
+						for index,action in enumerate(actionflow.actions):
+							for arg in args:
+								if "{{%s}}" %arg in action:
+									action = action.replace("{{%s}}" %arg,arg)
+								else:
+									continue
+
+							flowactions.append(whitespace+action)
+
+						actions += flowactions
+				else:
+					actions.append(c)
+
+		content = Template(Config.case_template.strip()).render(
+			desc = case.caseDesc,
+			libs = libs,
+			actions = actions
+		)
+		f.write(str(content).encode('utf-8'))
+
 
 @main.route("/viewreport/<int:id>")
 def viewreport(id):
