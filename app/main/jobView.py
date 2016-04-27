@@ -422,7 +422,6 @@ def newjobfromjenkins():
 		apk = data.get("app")
 		jobtype = data.get("type")
 		choicedcases = dict(data).get("cases")
-		#print(choicedcases)
 		choiceddevices = dict(data).get("devices")
 		buildid = data.get("buildid")
 		jobname = "Suime_AutomationTest_Build_%s" %buildid
@@ -433,7 +432,7 @@ def newjobfromjenkins():
 				choicedcases = eval(choicedcases[0])
 			except:
 				pass
-			#print(choicedcases)
+
 			for caseid in choicedcases:
 				if not Testcase.query.filter_by(id=caseid).first():
 					assert 1==2,"id为'%s'的用例未创建或已被删除" %caseid
@@ -451,7 +450,7 @@ def newjobfromjenkins():
 		packageName = package.stdout.read().decode().split("name='")[1].split("'")[0]
 		activity.kill()
 		package.kill()
-		testjob = Testjob(jobname,jobtype,choicedcases,choiceddevices,apk,packageName,main_activity,buildid=buildid)
+		testjob = Testjob(jobname,jobtype,choiceddevices,apk,packageName,main_activity,choicedcases,buildid=buildid)
 		db.session.add(testjob)
 		db.session.commit()
 	except Exception as e:
@@ -475,7 +474,7 @@ def runjobfromjenkins(build_id):
 
 def runJenkinsTest(job):
 	info = {"result":True,"errorMsg":None}
-	testcases = {}
+	testcases = OrderedDict()
 	cases = [Testcase.query.filter_by(id=caseid).first() for caseid in job.caseorder]
 
 	if not len(cases) > 0:
