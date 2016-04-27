@@ -9,6 +9,7 @@
 	2、appium 1_4_13 +
 
 使用：
+
     1、安装依赖的库：cmd窗口下进入项目目录，执行：pip install -r requirements.txt
 
 	2、等库安装完成后，继续执行命令: python manager.py dbinit   如果输出了 "ok" ，说明环境已经ok
