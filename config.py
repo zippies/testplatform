@@ -2,7 +2,7 @@
 import os
 
 class Config:
-    DEBUG = True
+    DEBUG = False
     #SQLALCHEMY_DATABASE_URI = 'mysql+mysqlconnector://root@localhost:3306/websnail'
     SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(os.path.abspath(os.path.dirname(__file__)),'data.sqlite')
     SECRET_KEY = 'what does the fox say?'
