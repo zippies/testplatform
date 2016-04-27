@@ -312,7 +312,7 @@ swipe(begin,end,duration=None)
 	def swipe_up(self,duration=None):
 		'''[方法]
 swipe_up(duration=None)
-从屏幕底端向上划整个屏幕高度
+从屏幕中间向上划半个屏幕高度
 参数：
 	duration：滑动操作持续的时间
 用法：
@@ -325,7 +325,7 @@ swipe_up(duration=None)
 	def swipe_down(self,duration=None):
 		'''[方法]
 swipe_down(duration=None)
-从屏幕顶端向下划整个屏幕高度
+从屏幕中间向下划半个屏幕高度
 参数：
 	duration：滑动操作持续的时间
 用法：
@@ -338,7 +338,7 @@ swipe_down(duration=None)
 	def swipe_left(self,duration=None):
 		'''[方法]
 swipe_left(duration=None)
-从屏幕右端向左划整个屏幕宽度
+从屏幕中间向左划半个屏幕宽度
 参数：
 	duration：滑动操作持续的时间
 用法：
@@ -351,7 +351,7 @@ swipe_left(duration=None)
 	def swipe_right(self,duration=None):
 		'''[方法]
 swipe_right(duration=None)
-从屏幕左端向右划整个屏幕宽度
+从屏幕中间向右划半个屏幕宽度
 参数：
 	duration：滑动操作持续的时间
 用法：

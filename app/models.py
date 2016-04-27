@@ -1,27 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
-from . import db,login_manager
-from flask.ext.login import UserMixin
-
-@login_manager.user_loader
-def load_user(user_id):
-	return User.query.get(int(user_id))
-
-class User(db.Model,UserMixin):
-	id = db.Column(db.Integer,primary_key=True)
-	email = db.Column(db.String(64),unique=True,index=True)
-	username = db.Column(db.String(64),unique=True,index=True)
-	password = db.Column(db.String(128))
-	createdtime = db.Column(db.DateTime,default=datetime.now)
-
-	def __init__(self,email,username,password):
-		self.email = email
-		self.username = username
-		self.password = password
-
-	def __repr__(self):
-		return "<user:%s>" % self.username
-
+from . import db
 
 class Testjob(db.Model):
 	id = db.Column(db.Integer,primary_key=True)
