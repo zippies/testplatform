@@ -36,3 +36,16 @@
 
     2、由于adb本身不稳定，多次插拔手机会使adb命令出错，导致获取不到手机的连接状态，亲们可以手动重启adb，方式：cmd窗口下执行 adb kill-server  |  adb devices
 
+有关持续集成：
+
+    平台支持与jenkins集成，通过目录下的 jenkins_ci.py  【前提是jenkins部署的机器和本机网络互通】
+
+    1、新建一个jenkins的job，添加Execute Windows batch command,填写如下内容：
+
+        cd $path_to_testplatform
+
+        python jenkins_ci.py $path_to_your_apk all %BUILD_NUMBER% 5000
+
+        说明：$path_to_testplatform 是本地测试平台的存放目录  $path_to_your_apk 是本机待测试apk存放的绝对路径 其他的不需要修改
+
+    2、保存，点击立即构建，此时jenkins会向测试平台发送创建测试任务的请求，在测试平台内会自动新建一个测试任务，默认选择连接正常的手机，以及平台内所有用例设置为通过了的用例进行测试（这就是为什么平台内[所有用例]模块有[设置通过]和[取消通过]按钮，为持续集成设计的）
