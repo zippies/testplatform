@@ -1,20 +1,37 @@
 # -*- coding: utf-8 -*-
 from flask import render_template,request,jsonify,flash,redirect,url_for
 from ..models import db,Testcase
-
+from jinja2 import Template
 from . import main
-import os,json
 
-@main.route("/getcases")
+case_template = """
+{% if cases %}
+<span class="glyphicon glyphicon-hand-up">拖动改变用例执行顺序</span>
+<div id="caselist" class="list-group">
+	{% for case in cases %}
+		<div case-id="{{case.id}}" id="case-{{case.id}}" class="list-group-item" style="width:100%;height:auto">
+			<ul class="list-inline">
+				<li class="glyphicon glyphicon-resize-vertical" aria-hidden="true"></li>
+				<li>[用例]: {{ case.caseName }}</li>
+				<li>[描述]{{ case.caseDesc }}</li>
+			</ul>
+		</div>
+	{% endfor %}
+</div>
+{% else %}
+	没有选择用例
+{% endif %}
+"""
+
+@main.route("/getcases",methods=["POST"])
 def getcases():
-	cases = Testcase.query.all()
-	data = [{
-		"id":"<input type='checkbox' name='choicedCase' id='case_{id}' value='{id}'/>".format(id=case.id),
-		"name":case.caseName,
-		"desc":case.caseDesc
-	} for case in cases]
+	cases_req = dict(request.form).get("cases[]") or []
+	cases = [Testcase.query.filter_by(id=id).first() for id in cases_req]
+	template = Template(case_template).render(
+		cases = cases
+	)
 
-	return json.dumps(data)
+	return template
 
 @main.route("/writecase",methods=["POST"])
 def writecase():

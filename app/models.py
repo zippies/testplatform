@@ -6,7 +6,6 @@ class Testjob(db.Model):
 	id = db.Column(db.Integer,primary_key=True)
 	jobName = db.Column(db.String(64))
 	jobType = db.Column(db.Integer)   # 0:兼容性  1:稳定性  2:功能性
-	relateCases = db.Column(db.PickleType)
 	relateDevices = db.Column(db.PickleType)
 	testapk = db.Column(db.String(512))
 	appPackage = db.Column(db.String(64))
@@ -16,16 +15,17 @@ class Testjob(db.Model):
 	status = db.Column(db.Integer,default=0)  # 0：未运行   1：正在运行  2：完成
 	result = db.Column(db.Integer,default=0)  # 0:未运行    -1：失败   1：成功
 	buildid = db.Column(db.Integer)
+	caseorder = db.Column(db.PickleType)
 	createdtime = db.Column(db.DateTime,default=datetime.now)
 
-	def __init__(self,jobName,jobType,relateCases,relateDevices,testapk,appPackage,appActivity,buildid=0):
+	def __init__(self,jobName,jobType,relateDevices,testapk,appPackage,appActivity,caseorder,buildid=0):
 		self.jobName = jobName.strip()
 		self.jobType = jobType
-		self.relateCases = relateCases
 		self.relateDevices = relateDevices
 		self.testapk = testapk
 		self.appPackage = appPackage
 		self.appActivity = appActivity
+		self.caseorder = caseorder
 		self.buildid = buildid
 
 	def __repr__(self):

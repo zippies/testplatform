@@ -2,11 +2,11 @@
 <html>
 <head lang="en">
 	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
-	<link rel="stylesheet" href="/static/bower_components/bootstrap-table/dist/bootstrap-table.min.css">
+	<link rel="stylesheet" href="/static/css/bootstrap-multiselect.css" type="text/css"/>
 	<script src="/static/jquery/jquery.min.js"></script>
 	<script src="/static/bootstrap/js/bootstrap.min.js"></script>
-	<script src="/static/bower_components/bootstrap-table/dist/bootstrap-table.js"></script>
-	<script src="/static/bower_components/bootstrap-table/dist/locale/bootstrap-table-zh-CN.js"></script>
+	<script type="text/javascript" src="/static/js/bootstrap-multiselect.js"></script>
+	<script src="/static/js/Sortable.js"></script>
 	<script src="/static/js/common.js"></script>
 	<script src="/static/js/layer.js"></script>
 	<style>
@@ -109,9 +109,20 @@
 						</li>
 					</label>
 					<div id="choicecase" style="display:none">
-						选择测试用例
-						<table id="casetable">
-						</table>
+						<div class="well" style="padding:20px">
+							选择测试用例:
+							<span>
+								<select id="caseselect" onchange="showCaseOrder()" name="choicedCase" multiple="multiple">
+								{% for case in cases %}
+									<option name="case" value="{{ case.id }}"> [case] {{ case.caseName }}</option>
+								{% endfor %}
+								</select>
+							</span>
+
+							<div id="adjustcaseorder" style="padding:20px">
+
+							</div>
+						</div>
 					</div>
 				</div>
 
@@ -159,7 +170,7 @@
 						<td class="center">{{ cnt }}</td>
 						<td>{{ job.jobName }}</td>
 						<td class="center">{% if job.jobType == 1 %} 兼容性测试 {% elif job.jobType == 2%} monkey性能测试 {% else %} 功能测试 {% endif %}</td>
-						<td class="center">{% if job.relateCases %}{{ job.relateCases }}{% else %}空{% endif %}</td>
+						<td class="center">{% if job.jobType == 3 %}{{ job.caseorder }}{% else %}空{% endif %}</td>
 						<td class="center">{{ job.relateDevices }}</td>
 						<td class="center">{{ job.createdtime }}</td>
 						<td class="center" id="result_{{ job.id }}">{% if job.result == 0 %}<img id="resultimg_{{ job.id }}" src="static/imgs/block.png" />{% elif job.result == -1 %}<img id="resultimg_{{ job.id }}" src="static/imgs/fail.png" />{% elif job.result == 1 %}<img id="resultimg_{{ job.id }}" src="static/imgs/success.png" />{% endif %}</td>
@@ -203,45 +214,22 @@
 		interval = setInterval("resizeFrame()",50);
 		sessionStorage.tab_choiced = "";
 
+		$('#caseselect').multiselect({
+			includeSelectAllOption: true,
+			numberDisplayed: 2,
+			buttonWidth: '250px'
+		});
+
 		$("#upload_apk").change(function(){
 			$("#uploadapk_head").removeClass("panel-danger").addClass("panel-default")
 		})
 
-		var requested = false
+		var requested = false;
 
 		$(".testtype").click(function(){
 			if(this.id == 'functional'){
 				$("#testtype_head").removeClass("panel-danger").addClass("panel-default")
 				$("#choicecase").show()
-				if(requested){
-					console.log("requested")
-				}else{
-					$("#casetable").bootstrapTable({
-						method: 'get',
-						cache: true,
-						striped: true,
-						pagination:true,
-						pageNumber:1,
-						pageSize:20,
-						columns: [
-						{
-							field: 'id',
-							title: '选择',
-							width: '10%',
-							align: 'center'
-						 }, {
-							field: 'name',
-							width: '30%',
-							title: '名称'
-						}, {
-							field: 'desc',
-							width: '60%',
-							title: '描述'
-						}
-						],
-						url: "/getcases"
-					})
-				}
 			}else{
 				$("#choicecase").hide()
 				$("#testtype_head").removeClass("panel-danger").addClass("panel-default")
@@ -304,10 +292,12 @@
 		var checkpass = true
 		var testtype = $('input:radio[name="testType"]:checked').val();
 		var choiceddevice = $('input:checkbox[name="choicedDevice"]:checked').val()
+
 		var choicedcase = new Array();
-		$("input:checkbox[name='btSelectItem']:checked").each(function(index,e){
-			choicedcase[index] = $(e).attr("data-index");
+		$("option[name='case']:selected").each(function(index,e){
+			choicedcase[index] = $(e).val();
 		})
+
 		if(!choiceddevice){
 			$("#choiceddevice_head").removeClass("panel-default").addClass("panel-danger")
 			layer.msg('请选择设备', {icon: 2})
@@ -320,7 +310,12 @@
 			layer.msg('请选择测试类型', {icon: 2})
 			checkpass = false
 		}else{
-			$("#testtype_head").removeClass("panel-danger").addClass("panel-default")
+			if(testtype ==3 && choicedcase.length == 0){
+				checkpass = false
+				layer.msg("请选择测试用例",{icon: 2})
+			}else{
+				$("#testtype_head").removeClass("panel-danger").addClass("panel-default")
+			}
 		}
 		if($.trim($("#upload_apk").val())==''){
 			$("#uploadapk_head").removeClass("panel-default").addClass("panel-danger")
@@ -329,8 +324,11 @@
 		}else{
 			$("#uploadapk_head").removeClass("panel-danger").addClass("panel-default")
 		}
+
 		if(checkpass){
 			layer.msg("正在创建任务..")
+			order = localStorage.caseorder
+			$("#newjobform").attr("action","/newjob?order="+order)
 			$("#newjobform").submit()
 		}
 	}
@@ -389,6 +387,48 @@
 		$("#resultimg_"+id).attr("src","static/imgs/block.png");
 		$("#"+id).show().click();
 
+	}
+
+	function showCaseOrder(){
+		parent.layer.load(2);
+		$("#adjustcaseorder").empty();
+
+		var choicedcase = new Array();
+		$("option[name='case']:selected").each(function(index,e){
+			choicedcase[index] = $(e).val();
+		})
+
+		$.ajax({
+			url:"/getcases",
+			type:"post",
+			data:{"cases":choicedcase},
+			error:function(request){
+				parent.layer.msg(request.status)
+			},
+			success:function(data){
+				$("#adjustcaseorder").append(data)
+				Sortable.create(document.getElementById("caselist"), {
+					handle: '.list-group-item',
+					sort:true,
+					delay: 0,
+					dataIdAttr: 'case-id',
+					animation: 150,
+					store: {
+						get: function (sortable) {
+							var order = localStorage.getItem("caseorder");
+							localStorage.clear()
+							localStorage.setItem("caseorder",sortable.toArray().join('|'))
+							return order ? order.split('|') : [];
+						},
+						set: function (sortable) {
+							var order = sortable.toArray();
+							localStorage.setItem("caseorder", order.join('|'));
+						}
+					}
+				});
+			}
+		})
+		parent.layer.closeAll('loading');
 	}
 </script>
 

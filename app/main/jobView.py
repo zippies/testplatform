@@ -3,7 +3,7 @@ from flask import render_template,request,jsonify,redirect,url_for,send_file,Res
 from ..models import db,Testjob,Appelement,Testcase,Device,Report,Testdata,Conflictdata,Actionflow
 from werkzeug.utils import secure_filename
 from subprocess import Popen,PIPE
-from collections import namedtuple
+from collections import namedtuple,OrderedDict
 from jinja2 import Template
 from . import main,AndroidRunner,MonkeyRunner,CompatibleRunner,API
 from .. import Config
@@ -24,7 +24,9 @@ def index():
 
 	devices = Device.query.all()
 	testcases = Testcase.query.all()
+	print(testcases)
 	return render_template("index.html",
+						    cases = testcases,
 							deviceCount = len(devices),
 							testcaseCount = len(testcases)
 	)
@@ -81,15 +83,16 @@ def getStatus():
 def jobs():
 	jobs = Testjob.query.all()
 	timenow = time.strftime("%Y-%m-%d %H:%M:%S")
-	return render_template("jobs.html",jobs=jobs[::-1],timenow=timenow)
+	cases = Testcase.query.all()
+	return render_template("jobs.html",jobs=jobs[::-1],timenow=timenow,cases=cases)
 
 
 @main.route("/newjob",methods=["POST"])
 def newjob():
 	choiceddevices = dict(request.form).get('choicedDevice')
-	choicedcases = dict(request.form).get("choicedCase")
 	jobname = request.form.get('jobName')
 	testtype = request.form.get('testType')
+	order = request.args.get("order").split("|")
 	f = request.files['file']
 	fname = secure_filename(f.filename)
 	apk = os.path.join(Config.UPLOAD_FOLDER,fname)
@@ -104,7 +107,7 @@ def newjob():
 	packageName = package.stdout.read().decode().split("name='")[1].split("'")[0]
 	activity.kill()
 	package.kill()
-	testjob = Testjob(jobname,testtype,choicedcases,choiceddevices,apk,packageName,main_activity)
+	testjob = Testjob(jobname,testtype,choiceddevices,apk,packageName,main_activity,order)
 	db.session.add(testjob)
 	db.session.commit()
 	return redirect(url_for(".jobs"))
@@ -240,9 +243,9 @@ def runStabilityTest(job):
 	db.session.commit()
 
 def runFunctionalTest(job):
-	testcases = {}
+	testcases = OrderedDict()
 	appium_ports = []
-	cases = [Testcase.query.filter_by(id=caseid).first() for caseid in job.relateCases]
+	cases = [Testcase.query.filter_by(id=caseid).first() for caseid in job.caseorder]
 
 	assert len(cases) > 0,"没有可用的测试用例"
 
@@ -297,7 +300,7 @@ def runFunctionalTest(job):
 							Config.system_alerts,
 							appelements,
 							testdatas,
-							conflict_datas	
+							conflict_datas
 	)
 
 	runner.start()
@@ -350,9 +353,9 @@ def viewreport(id):
 			if job.jobType == 3:
 				return render_template("report.html",
 										jobtype=3,
-										casecount=len(job.relateCases),
+										casecount=len(job.caseorder),
 										devicecount=len(job.relateDevices),
-										totalcount=len(job.relateCases)*len(job.relateDevices),
+										totalcount=len(job.caseorder)*len(job.relateDevices),
 										successCases=report.successCases,
 										failedCases=report.failedCases,
 										success=len(report.successCases),
@@ -473,7 +476,7 @@ def runjobfromjenkins(build_id):
 def runJenkinsTest(job):
 	info = {"result":True,"errorMsg":None}
 	testcases = {}
-	cases = [Testcase.query.filter_by(id=caseid).first() for caseid in job.relateCases]
+	cases = [Testcase.query.filter_by(id=caseid).first() for caseid in job.caseorder]
 
 	if not len(cases) > 0:
 		info = {"result":False,"errorMsg":"没有可用的测试用例"}
