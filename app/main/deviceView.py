@@ -65,14 +65,16 @@ def devices():
 device_template = '''
 {% for device in devices %}
 {% if device.status == 0%}
-<label id="deviceitem" class="col-sm-6 col-md-3">
+<label id="deviceitem" class="col-lg-3 col-md-4 col-sm-2">
 	<input type="checkbox" onclick="showchange({{ device.id }})" name="choicedDevice" value="{{ device.id }}" {% if device.status != 0 %}disabled{% endif %}/>
-	<div class="thumbnail" id="thumbnail_{{ device.id }}">
-		<img src="static/imgs/phone.png" alt="htc">
-		<table class="table table-bordered table-striped" id="deviceinfotable" style="width:310px">
+	<div id="thumbnail_{{ device.id }}" style="border:1px solid #D9D9D9;border-radius:5px;padding:15px;">
+		<div style="text-align:center;margin-bottom:15px">
+			<img src="static/imgs/phone.png" alt="htc">
+		</div>
+		<table class="table table-bordered table-striped" id="deviceinfotable">
 			<tbody>
 				<tr>
-					<th>phoneModel:</th>
+					<th style="width:100px">phoneModel:</th>
 					<td>
 						<input class="deviceinfo_{{ device.id }}" name="phoneModel" type="text" value="{{ device.phoneModel }}" disabled="disabled" style="display:none">
 						<span>{{ device.phoneModel }}</span>
