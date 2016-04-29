@@ -14,15 +14,20 @@
 		.elem{
 			margin-bottom: 10px;
 		}
+		.devices{
+			border:1px solid green;
+			padding:5px;
+		}
   	</style>
 </head>
 <body>
-	<div id="devicelist" class="row">
+	<div id="devicelist" class="col-lg-12">
 		{% for device in devices %}
-			<div class="col-sm-6 col-md-3" id="devicediv_{{ device.id }}">
-				<div class="thumbnail">
-					<img src="static/imgs/phone.png" alt="htc">
-					<table class="table table-bordered table-striped" id="deviceinfotable" style="width:310px">
+			<div class="col-lg-3 col-md-4 col-sm-2" id="devicediv_{{ device.id }}" style="margin-bottom:10px">
+				<div class="devices">
+					<div style="text-align:center;"><img src="static/imgs/phone.png" alt="phone"></div>
+
+					<table class="table table-bordered table-striped" id="deviceinfotable">
 						<tbody>
 							<tr>
 								<th>手机型号:</th>
@@ -36,10 +41,6 @@
 								<th>系统版本:</th>
 								<td><input class="deviceinfo_{{ device.id }}" name="platformVersion" type="text" value="{{ device.platformVersion }}" disabled="disabled"></td>
 							</tr>
-<!-- 								<tr>
-								<th>resolution:</th>
-								<td><input class="deviceinfo_{{ device.id }}" name="resolution" type="text" value="{{ device.resolution }}" disabled="disabled"></td>
-							</tr> -->
 							<tr>
 								<th>设备序号:</th>
 								<td><input class="deviceinfo_{{ device.id }}" name="deviceName" type="text" value="{{ device.deviceName }}" disabled="disabled"></td>

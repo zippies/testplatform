@@ -6,7 +6,7 @@ from . import main
 
 case_template = """
 {% if cases %}
-<span class="glyphicon glyphicon-hand-up">拖动改变用例执行顺序</span>
+<span class="glyphicon glyphicon-hand-up" style="margin-bottom:10px">拖动改变用例执行顺序</span>
 <div id="caselist" class="list-group">
 	{% for case in cases %}
 		<div case-id="{{case.id}}" id="case-{{case.id}}" class="list-group-item" style="width:100%;height:auto">

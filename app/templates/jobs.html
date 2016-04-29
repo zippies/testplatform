@@ -38,7 +38,6 @@
 	</style>
 </head>
 <body>
-<div id="topdiv"></div>
 <ul id="headtab" class="nav nav-tabs">
 	<li>
 		<a href="#newjobdiv" onclick="choiced('newjobdiv')" data-toggle="tab">新增测试任务</a>
@@ -109,7 +108,7 @@
 						</li>
 					</label>
 					<div id="choicecase" style="display:none">
-						<div class="well" style="padding:20px">
+						<div style="margin-left:20px">
 							选择测试用例:
 							<span>
 								<select id="caseselect" onchange="showCaseOrder()" name="choicedCase" multiple="multiple">
@@ -142,7 +141,7 @@
 						五、保存
 					</div>
 				</div>
-				<a href="#topdiv" class="btn btn-primary" onclick="submitform()">保存</a>
+				<a href="javascript:;" class="btn btn-primary" onclick="submitform()">保存</a>
 			</div>
 		</div>
 	</div>
@@ -284,6 +283,7 @@
 	}
 
 	function submitform(){
+		parent.window.scrollTo(0,0);
 		var checkpass = true
 		var testtype = $('input:radio[name="testType"]:checked').val();
 		var choiceddevice = $('input:checkbox[name="choicedDevice"]:checked').val()
