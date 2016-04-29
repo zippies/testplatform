@@ -2,7 +2,7 @@
 import os
 
 class Config:
-    DEBUG = False
+    DEBUG = True
     #SQLALCHEMY_DATABASE_URI = 'mysql+mysqlconnector://root@localhost:3306/websnail'
     SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(os.path.abspath(os.path.dirname(__file__)),'data.sqlite')
     SECRET_KEY = 'what does the fox say?'
@@ -21,6 +21,7 @@ class Config:
     #系统权限弹框中允许/拒绝按钮的id
     system_alerts = [
     	('me.sui.arizona:id/btn_right','me.sui.arizona:id/btn_left'),
+        ('com.lbe.security.miui:id/accept','com.lbe.security.miui:id/reject'),
         ('com.huawei.systemmanager:id/btn_allow','com.huawei.systemmanager:id/btn_forbbid'),
         ('android:id/button1','android:id/button'),
         ('flyme:id/accept','flyme:id/reject')
@@ -29,7 +30,7 @@ class Config:
     log_path = os.path.join(os.path.dirname(__file__),"logs")
     snapshot_path = os.path.join(os.path.dirname(__file__),"snapshots")
 
-    monkey_action_count = 10000
+    monkey_action_count = 3000
 
     case_template = \
 '''

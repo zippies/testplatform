@@ -31,7 +31,10 @@
 						</tr>
 					</thread>
 					<tbody>
-						<tr><td><input type="text" class="form-control" value="{{ packageName }}" /></td><td><input type="text" class="form-control" value="{{ main_activity }}" /></td></tr>
+						<tr>
+							<td><input type="text" id="packagename" class="form-control" value="{{ packageName }}" /></td>
+							<td><input type="text" id="mainactivity" class="form-control" value="{{ main_activity }}" /></td>
+						</tr>
 					</tbody>
 				</table>
 			</div>
@@ -56,7 +59,6 @@
 									<td>{% if deviceStatus[device.deviceName] %}操作中..{% else %}连接正常{% endif %}</td>
 									<td>
 										<button class="btn btn-danger disconnDevice" desc="{{device.replacedName}}" name="{{device.deviceName}}" id="dis_{{ device.replacedName }}" {% if not deviceStatus[device.deviceName] %}style="display:none"{% endif %}>断开连接</button>
-									
 										<button class="btn btn-default connectDevice" desc="{{device.replacedName}}" name="{{device.deviceName}}" id="con_{{ device.replacedName }}" data-toggle="tooltip" data-placement="right" title="初始化可能较慢,请耐心等待" {% if deviceStatus[device.deviceName] %}style="display:none"{% endif %}>安装并启动app</button>
 									</td>
 								{% elif device.state == 'unauthorized' %}
@@ -87,6 +89,10 @@
 <script language="javascript">
 	$(function() {
 		$(".connectDevice").click(function() {
+			if(!$("#packagename").val() && !$("#mainactiviry").val()){
+				$("#connect-info").empty().append("请先上传apk文件")
+				return
+			}
 			$(this).attr("disabled", true).removeClass("btn-default").addClass("btn-warning").html("正在连接")
 			$("#connect-info").empty().append("正在启动appium...\r\n")
 			var deviceName = this.name
@@ -168,6 +174,7 @@
 	function refreshframe(framename){
 		devicecontainer.window.initSelectableTree();
 	}
+
 
 </script>
 </body>

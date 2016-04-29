@@ -215,6 +215,7 @@ class AndroidRunner(Thread):
 		initsuccess = False
 		caselog = os.path.join(self.logdir,case.casename+"_case")
 		logger = Logger(caselog)
+		errorMsg = None
 		setattr(case, 'logger',logger)
 		setattr(case, 'result', {"errorMsg":None})
 		setattr(case, 'appiumlogfile', os.path.join(self.logdir,case.device_name+"_"+case.appium_port+case.filename+"_appium.log"))
@@ -229,7 +230,6 @@ class AndroidRunner(Thread):
 			case.run()
 			case.result['result'] = True
 		except Exception as e:
-			print(e)
 			errorMsg = str(e)
 			case.logger.log("[ERROR]%s" %errorMsg)
 			if initsuccess:
@@ -237,7 +237,9 @@ class AndroidRunner(Thread):
 			case.result['result'] = False
 			case.result['errorMsg'] = errorMsg
 		finally:
-			case.save_screen("end")
+			if not errorMsg:
+				case.save_screen("end")
+			case.quit()
 			end = time.time()
 			case.result['runtime'] = round(end-start,2)
 			self.result['duration'] += case.result['runtime']
@@ -246,7 +248,4 @@ class AndroidRunner(Thread):
 			else:
 				self.result['failed'].append(CaseObject(case))
 			print("end test:",case.casename)
-			# if initsuccess:  #打开会卸载apk
-			# 	if not self.callback:
-			# 		case.close_app()
 

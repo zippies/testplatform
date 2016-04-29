@@ -16,6 +16,7 @@ appium_port = 14111
 bootstrap_port = 14112
 appium_log_level = "error"
 driver = None
+devicename = None
 nodeDatas = []
 nodeinfos = {}
 frameinfos = {}
@@ -346,13 +347,24 @@ def back(code):
 
 	return jsonify(resp)
 
+def save_screen():
+	save = "adb -s {deviceName} shell /system/bin/screencap -p /sdcard/current.png".format(deviceName=devicename)
+	pull = "adb -s {deviceName} pull /sdcard/current.png {snapshotpath}".format(deviceName=devicename,snapshotpath=os.path.join(Config.UPLOAD_FOLDER,"current.png"))
+	os.system(save)
+	os.system(pull)
+
 @main.route("/mirror/fresh")
 def fresh():
 	resp = {"status":True,"info":None}
 	try:
 		freshScreen(0)
+	except AttributeError:
+		devices = getDeviceState()
+		# dump = "adb -s %s shell uiautomator dump /sdcard/uidump.xml" %devicename
+		# pull = "adb -s %s pull /sdcard/uidump.xml %s" %(devicename,os.path.join(Config.UPLOAD_FOLDER,"uidump.xml"))
+		# os.system(dump)
+		# os.system(pull)
 	except Exception as e:
-		print(1111111111111,e)
 		resp["status"] = False
 		resp["info"] = "长时间无操作,appium已断开连接,请重新启动"
 
@@ -383,7 +395,6 @@ def freshScreen(seconds=2):
 	_id = 0
 	nodeDatas,nodeinfos,frameinfos = [],{},{}
 	current = os.path.join(Config.UPLOAD_FOLDER,"current.png")
-	print(current)
 	driver.save_screen(current,seconds=seconds)
 	current_activity = driver.current_activity
 	page_source = driver.page_source
@@ -440,7 +451,7 @@ def isconnect():
 
 @main.route('/mirror/getscreen',methods=["GET","POST"])
 def getScreen():
-	global driver,nodeDatas,nodeinfos,frameinfos,reversedframe,reverseframe,packageName,main_activity,apk
+	global driver,nodeDatas,nodeinfos,frameinfos,reversedframe,reverseframe,packageName,main_activity,apk,devicename
 	if reversedframe:
 		reverseframe = copy.deepcopy(frameinfos)
 		for id in reverseframe.keys():
@@ -469,8 +480,6 @@ def getScreen():
 		driver = AndroidDevice("http://localhost:%s/wd/hub" %appium_port,capabilities)
 		freshScreen()
 		return "ok"
-
-
 
 	return render_template(
 							"deviceinfo.html",
