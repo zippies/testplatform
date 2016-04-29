@@ -10,3 +10,4 @@ task.pkl
 testcases/*.py
 data
 .idea
+*.png

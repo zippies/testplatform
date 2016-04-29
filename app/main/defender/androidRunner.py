@@ -232,15 +232,14 @@ class AndroidRunner(Thread):
 		except Exception as e:
 			errorMsg = str(e)
 			case.logger.log("[ERROR]%s" %errorMsg)
-			if initsuccess:
-				case.save_screen("error")
 			case.result['result'] = False
 			case.result['errorMsg'] = errorMsg
 		finally:
-			if not errorMsg:
+			if initsuccess:
 				case.save_screen("end")
-			case.quit()
+				case.quit()
 			end = time.time()
+			time.sleep(2)
 			case.result['runtime'] = round(end-start,2)
 			self.result['duration'] += case.result['runtime']
 			if case.result['result']:

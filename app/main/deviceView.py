@@ -64,6 +64,7 @@ def devices():
 
 device_template = '''
 {% for device in devices %}
+{% if device.status == 0%}
 <label id="deviceitem" class="col-sm-6 col-md-3">
 	<input type="checkbox" onclick="showchange({{ device.id }})" name="choicedDevice" value="{{ device.id }}" {% if device.status != 0 %}disabled{% endif %}/>
 	<div class="thumbnail" id="thumbnail_{{ device.id }}">
@@ -72,32 +73,41 @@ device_template = '''
 			<tbody>
 				<tr>
 					<th>phoneModel:</th>
-					<td><input class="deviceinfo_{{ device.id }}" name="phoneModel" type="text" value="{{ device.phoneModel }}" disabled="disabled"></td>
+					<td>
+						<input class="deviceinfo_{{ device.id }}" name="phoneModel" type="text" value="{{ device.phoneModel }}" disabled="disabled" style="display:none">
+						<span>{{ device.phoneModel }}</span>
+					</td>
 				</tr>
 				<tr>
 					<th>platform:</th>
-					<td><input class="deviceinfo_{{ device.id }}" name="platform" type="text" value="{{ device.platform }}" disabled="disabled"></td>
+					<td>
+						<input class="deviceinfo_{{ device.id }}" name="platform" type="text" value="{{ device.platform }}" disabled="disabled" style="display:none">
+						<span>{{ device.platform }}</span>
+					</td>
 				</tr>
 				<tr>
 					<th>paltformVersion:</th>
-					<td><input class="deviceinfo_{{ device.id }}" name="platformVersion" type="text" value="{{ device.platformVersion }}" disabled="disabled"></td>
+					<td>
+						<input class="deviceinfo_{{ device.id }}" name="platformVersion" type="text" value="{{ device.platformVersion }}" disabled="disabled" style="display:none">
+						<span>{{ device.platformVersion }}</span>
+					</td>
 				</tr>
-<!--				<tr>
-					<th>resolution:</th>
-					<td><input class="deviceinfo_{{ device.id }}" name="resolution" type="text" value="{{ device.resolution }}" disabled="disabled"></td>
-				</tr>-->
 				<tr>
 					<th>deviceName:</th>
-					<td><input class="deviceinfo_{{ device.id }}" name="deviceName" type="text" value="{{ device.deviceName }}" disabled="disabled"></td>
+					<td>
+						<input class="deviceinfo_{{ device.id }}" name="deviceName" type="text" value="{{ device.deviceName }}" disabled="disabled" style="display:none">
+						<span>{{ device.deviceName }}</span>
+					</td>
 				</tr>
 				<tr>
 					<th>连接状态:</th>
-					<td>{% if device.status == 0%}<font color="green">连接正常</font>{%else%}<font color="red">连接异常</font>{% endif %}</td>
+					<td><font color="green">连接正常</font></td>
 				</tr>
 			</tbody>
 		</table>
 	</div>
 </label>
+{% endif %}
 {% endfor %}
 '''
 
@@ -149,7 +159,6 @@ def updatedevicesinfo():
 
 @main.route("/getdevices")
 def getdevices():
-	#global device_template
 	updatedevicesinfo()
 	devices = Device.query.all()
 	deviceinfo = Template(device_template).render(

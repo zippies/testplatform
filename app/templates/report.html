@@ -30,7 +30,7 @@
                             mode: "python",
                             theme: "monokai"
                         });
-                        logviewer.setSize('100%',1000);
+                        logviewer.setSize('100%',600);
                     </script>
 				</div>
 				<div class="modal-footer" style="text-align:center"><button class="btn btn-info" data-dismiss="modal">Close</button></div>
@@ -95,7 +95,7 @@
 									<td>{% if jobtype==3 %}{{ case.casename }}{% else %} {{ case.device.deviceName }} {% endif %}</td>
 									<td class="needcenter" >{% if jobtype == 3%}{{ case.casedesc }}{% elif jobtype == 2%}{{ case.actionCount }}{% else %}安装/卸载/调起 测试{% endif %}</td>
 									<td class="needcenter">{{ case.runtime }}</td>
-									<td>{{ case.errorMsg }}</td>
+									<td>{{ case.errorMsg[:18] }}</td>
 									<td class="needcenter">
 										{% if jobtype == 3 %}
 											<a href="javascript:;" onclick="viewAppiumlog('{{ case.casename }}')"  data-toggle="modal" data-target="#reportmodal">Appium</a>

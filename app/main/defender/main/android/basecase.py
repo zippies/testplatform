@@ -832,7 +832,6 @@ Creates a web element with the specified element_id.
 Overrides method in Selenium WebDriver in order to always give them
 Appium WebElement
 		"""
-		#self.logger.log("[action]create_web_element(element_id='%s')" %element_id)
 		return MobileWebElement(self, element_id)
 
 	def scroll(self, origin_el, destination_el):

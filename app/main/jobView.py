@@ -306,6 +306,7 @@ def runFunctionalTest(job):
 	runner.start()
 	job.appium_ports = appium_ports
 	job.status = 1
+	job.result = 0
 	db.session.add(job)
 	db.session.commit()
 
