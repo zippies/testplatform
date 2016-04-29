@@ -112,6 +112,9 @@
 	$("#table").empty().bootstrapTable({
 		method: 'get',
 		cache: false,
+		pagination: true,
+		pageNumber: 1,
+		pageSize: 10,
 		striped: true,
 		search: true,
 		showColumns: true,

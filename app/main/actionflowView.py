@@ -39,22 +39,19 @@ def delflow(id):
 
 @main.route("/editflow/<int:id>",methods=["POST"])
 def editflow(id):
+	info = {"result":True,"errorMsg":None}
 	try:
 		name = request.form.get('name')
 		actions = [action.strip() for action in request.form.get("actions").split("\r\n") if action.strip()]
-		print(name,actions)
 		actionflow = Actionflow.query.filter_by(id=id).first()
-
 		if actionflow:
 			actionflow.name = name
 			actionflow.actions = actions
-
 			db.session.add(actionflow)
 			db.session.commit()
-			flash("编辑成功")
 		else:
-			flash("该动作流不存在")
+			info = {"result":False,"errorMsg":"该动作类不存在或已被删除"}
 	except Exception as e:
-		flash("编辑失败:%s" %str(e))
+		info = {"result": False, "errorMsg": "编辑失败:%s" %str(e)}
 	finally:
-		return redirect(url_for(".actionflows"))
+		return jsonify(info)

@@ -72,62 +72,65 @@
 	</div>
 
 	<div class="tab-pane fade in active" id="casediv">
+		<div class="panel-header">
+
+		</div>
 		<div class="panel-body">
-			{% if testcases%}
-			<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="false">
-				{% set index = 0 %}
-				{% for case in testcases %}
-					{% set index = index + 1 %}
-					<div class="panel">
-						<div class="panel-heading" role="tab" id="heading_{{ case.id }}">
-							<h4 class="panel-title">
-								<table style="width:100%">
-										<tr>
-											<td style="width:5%">{{ index }}</td>
-											<td style="width:15%">
-												<a role="button" class="showcase" id="{{ case.id }}" data-toggle="collapse" data-parent="#accordion" href="#collapse_{{case.id}}" aria-expanded="false" aria-controls="collapseOne">{{ case.caseName }}</a></td>
-											<td style="width:60%">用例描述：{{ case.caseDesc }}</td>
-											<td style="width:20%">
-												<a href="javascript:;" id="pass_{{ case.id }}" onclick="passcase({{ case.id }})" class="btn btn-success" {% if case.status == 0 %}{% elif case.status == 1 %}style="display:none"{% endif %}>设置通过</a>
-												<a href="javascript:;" id="canclepass_{{ case.id }}" onclick="canclepasscase({{ case.id }})" class="btn btn-warning" {% if case.status == 0 %}style="display:none"{% elif case.status == 1 %}{% endif %}>取消通过</a>
-												<a href="javascript:;" id="delcase_{{ case.id }}" class="btn btn-danger delcase">删除</a>
-											</td>
-										</tr>
-								</table>
-							</h4>
-						</div>
-						<div id="collapse_{{ case.id }}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading_{{case.id}}">
-							<div class="panel-body">
-								<div>
-									<form action="/editcase/{{case.id}}" method="post">
-										<ul class="list-inline">
-											<li><label>用例名称：</label></li>
-											<li><input name="casename" type="text" class="form-control" value="{{case.caseName}}" required /></li>
-											<li><label>用例描述：</label></li>
-											<li><input name="casedesc" type="text" class="form-control" value="{{case.caseDesc}}" required/></li>
-											<li>
-												<a href="javascript:;" class="btn btn-info" onclick="parent.showapi()">查看API</a>
-												<a href="/mirror" class="btn btn-info" target="_blank">打开模拟器</a>
-											</li>
-											<li><button type="submit" class="btn btn-success">保存</button></li>
-										</ul>
-										<textarea id="casecontent_{{ case.id }}" name="casecontent" width="1000px" height="400px">{{ case.caseContent }}</textarea>
-										<script>
-											var mirror_{{ case.id }} = CodeMirror.fromTextArea(document.getElementById("casecontent_{{ case.id }}"), {
-												lineNumbers: true,
-												indentUnit: 4,
-												mode: "python",
-												theme: "monokai"
-											});
-											mirror_{{ case.id }}.setSize('100%',500);
-										</script>
-									</form>
+			{% if testcases %}
+			<table class="table col-lg-12">
+				<thead>
+					<th class="col-lg-1">用例ID</th>
+					<th class="col-lg-2">用例名称</th>
+					<th class="col-lg-6">用例描述</th>
+					<th class="col-lg-3">操作</th>
+				</thead>
+				<tbody>
+					<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="false">
+						{% for case in testcases %}
+							<tr>
+								<td >{{ case.id }}</td>
+								<td >
+									<a role="button" class="showcase" id="{{ case.id }}" data-toggle="collapse" data-parent="#accordion" href="#collapse_{{case.id}}" aria-expanded="false" aria-controls="collapseOne">{{ case.caseName }}</a></td>
+								<td>用例描述：{{ case.caseDesc }}</td>
+								<td>
+									<a href="javascript:;" id="pass_{{ case.id }}" onclick="passcase({{ case.id }})" class="btn btn-success" {% if case.status == 0 %}{% elif case.status == 1 %}style="display:none"{% endif %}>设置通过</a>
+									<a href="javascript:;" id="canclepass_{{ case.id }}" onclick="canclepasscase({{ case.id }})" class="btn btn-warning" {% if case.status == 0 %}style="display:none"{% elif case.status == 1 %}{% endif %}>取消通过</a>
+									<a href="javascript:;" id="delcase_{{ case.id }}" class="btn btn-danger delcase">删除</a>
+								</td>
+								<div id="collapse_{{ case.id }}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading_{{case.id}}">
+									<div class="panel-body">
+										<div>
+											<form id="editcaseform_{{ case.id }}">
+												<ul class="list-inline">
+													<li><label>用例名称：</label></li>
+													<li><input name="casename" type="text" class="form-control" value="{{case.caseName}}" required /></li>
+													<li><label>用例描述：</label></li>
+													<li><input name="casedesc" type="text" class="form-control" value="{{case.caseDesc}}" required/></li>
+													<li>
+														<a href="javascript:;" class="btn btn-info" onclick="parent.showapi()">查看API</a>
+														<a href="/mirror" class="btn btn-info" target="_blank">打开模拟器</a>
+													</li>
+													<li><a href="javascript:;" onclick="saveedit({{case.id}})" class="btn btn-success">保存</a></li>
+												</ul>
+												<textarea id="casecontent_{{ case.id }}" name="casecontent" width="1000px" height="400px">{{ case.caseContent }}</textarea>
+												<script>
+													var mirror_{{ case.id }} = CodeMirror.fromTextArea(document.getElementById("casecontent_{{ case.id }}"), {
+														lineNumbers: true,
+														indentUnit: 4,
+														mode: "python",
+														theme: "monokai"
+													});
+													mirror_{{ case.id }}.setSize('100%',500);
+												</script>
+											</form>
+										</div>
+									</div>
 								</div>
-							</div>
-						</div>
+							</tr>
+						{% endfor %}
 					</div>
-				{% endfor %}
-			</div>
+				</tbody>
+			</table>
 			{% else %}
 				<label>没有找到用例</label>
 			{% endif %}
@@ -173,7 +176,7 @@
 						parent.layer.msg('删除成功', {icon: 6})
 						currentCount = parseInt($(window.parent.document.getElementById('casecount')).html());
 						$(window.parent.document.getElementById('casecount')).html(currentCount-1);
-						window.location.reload(true);
+						$("#case_panel_"+id).remove();
 					}else{
 						parent.layer.msg('删除失败:'+data.errorMsg, {icon: 5})
 					}
@@ -297,6 +300,23 @@
 					parent.layer.msg("取消成功")
 				}else{
 					parent.layer.msg("取消失败:"+data.errorMsg)
+				}
+			}
+		})
+	}
+
+	function saveedit(id){
+		mirror = eval("mirror_"+id)
+		$("#casecontent_"+id).val(mirror.getDoc().getValue())
+		$.ajax({
+			url:"/editcase/"+id,
+			type:"post",
+			data:$("#editcaseform_"+id).serialize(),
+			success:function(data){
+				if(data.result){
+					parent.parent.layer.msg("保存成功")
+				}else{
+					parent.parent.layer.msg("保存失败:"+data.errorMsg,{icon: 5})
 				}
 			}
 		})

@@ -65,14 +65,12 @@ def editcase(id):
 			case.caseContent = content
 			db.session.add(case)
 			db.session.commit()
-			flash("编辑成功")
 		else:
-			flash("该用例不存在")
+			info = {"result":False,"errorMsg":"该用例不存在"}
 	except Exception as e:
-		print("editcase failed:",e)
-		flash("编辑失败:%s" %str(e))
+		info = {"result":False,"errorMsg":"编辑失败:%s" %str(e)}
 	finally:
-		return redirect(url_for(".testcases"))
+		return jsonify(info)
 
 @main.route("/delcase/<int:id>")
 def delcase(id):
