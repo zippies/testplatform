@@ -35,7 +35,6 @@ def editdevice():
 		device.manufacturer = request.args.get("manufacturer")
 		device.platform = request.args.get("platform")
 		device.platformVersion = request.args.get("platformVersion")
-		device.resolution = request.args.get("resolution")
 		db.session.add(device)
 		db.session.commit()
 	except Exception as e:

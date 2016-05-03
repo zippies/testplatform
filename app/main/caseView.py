@@ -36,8 +36,8 @@ def getcases():
 @main.route("/writecase",methods=["POST"])
 def writecase():
 	info = {"result": True, "errorMsg": None}
-	name = request.form.get('casename').strip()
-	desc = request.form.get('casedesc').strip()
+	name = request.form.get('casename')
+	desc = request.form.get('casedesc')
 	content = request.form.get('casecontent')
 	try:
 		case = Testcase(

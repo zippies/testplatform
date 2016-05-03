@@ -79,7 +79,7 @@ class Testcase(db.Model):
 	def __init__(self,caseName,caseDesc,caseContent):
 		self.caseName = caseName.strip()
 		self.caseDesc = caseDesc.strip()
-		self.caseContent = caseContent
+		self.caseContent = caseContent.strip()
 
 	def __repr__(self):
 		return "<testcase:%s>" % self.caseName
@@ -92,9 +92,9 @@ class Appelement(db.Model):
 	createdtime = db.Column(db.DateTime,default=datetime.now)
 
 	def __init__(self,findby,name,value):
-		self.findby = findby
-		self.name = name
-		self.value = value
+		self.findby = findby.strip()
+		self.name = name.strip()
+		self.value = value.strip()
 
 	def __repr__(self):
 		return "<Appelement:%s>" % self.name
