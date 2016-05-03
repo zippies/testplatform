@@ -235,7 +235,7 @@ class AndroidRunner(Thread):
 			case.result['result'] = False
 			case.result['errorMsg'] = errorMsg
 		finally:
-			if initsuccess:
+			if initsuccess and not self.callback:
 				case.save_screen("end")
 				case.quit()
 			end = time.time()

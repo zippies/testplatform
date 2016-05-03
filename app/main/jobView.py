@@ -92,6 +92,17 @@ def newjob():
 	choiceddevices = dict(request.form).get('choicedDevice')
 	jobname = request.form.get('jobName')
 	testtype = request.form.get('testType')
+
+	monkeyconfig = {}
+	monkeyconfig["actioncount"] = request.form.get("actioncount")
+	monkeyconfig["actiondelay"] = request.form.get("actiondelay")
+	monkeyconfig["touchpercent"] = request.form.get("touchpercent")
+	monkeyconfig["motionpercent"] = request.form.get("motionpercent")
+	monkeyconfig["pinchzoompercent"] = request.form.get("pinchzoompercent")
+	monkeyconfig["majornavpercent"] = request.form.get("majornavpercent")
+	monkeyconfig["syskeyspercent"] = request.form.get("syskeyspercent")
+	monkeyconfig["appswitchpercent"] = request.form.get("appswitchpercent")
+
 	order = request.args.get("order").split("|")
 	f = request.files['file']
 	fname = secure_filename(f.filename)
@@ -107,7 +118,7 @@ def newjob():
 	packageName = package.stdout.read().decode().split("name='")[1].split("'")[0]
 	activity.kill()
 	package.kill()
-	testjob = Testjob(jobname,testtype,choiceddevices,apk,packageName,main_activity,order)
+	testjob = Testjob(jobname,testtype,choiceddevices,apk,packageName,main_activity,order,monkeyconfig)
 	db.session.add(testjob)
 	db.session.commit()
 	return redirect(url_for(".jobs"))
@@ -134,7 +145,6 @@ def deljob(id):
 							subprocess.run(killcmd,stdout=PIPE)
 				elif job.jobType == 3:
 					appium_ports = job.appium_ports
-					print(appium_ports)
 					for port in appium_ports:
 						info = os.popen("netstat -ano|findstr %s" % port).readline()
 						if "LISTENING" in info:
@@ -235,7 +245,7 @@ def runStabilityTest(job):
 							appelements,
 							testdatas,
 							conflict_datas,
-							MonkeyRunner(job.id,timestamp,choiceddevices,job.appPackage,job.testapk,Config.monkey_action_count,300,Config.log_path,Config.snapshot_path)
+							MonkeyRunner(job.id,timestamp,choiceddevices,job.appPackage,job.testapk,job.monkeyconfig,Config.log_path,Config.snapshot_path)
 	)
 	androidRunner.start()
 	job.status = 1

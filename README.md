@@ -54,5 +54,3 @@
 Doing:
 
     1、不启动appium获取控件，静态解析app控件树
-
-    2、monkey支持配置action数和动作间隔时间

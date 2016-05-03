@@ -16,9 +16,10 @@ class Testjob(db.Model):
 	result = db.Column(db.Integer,default=0)  # 0:未运行    -1：失败   1：成功
 	buildid = db.Column(db.Integer)
 	caseorder = db.Column(db.PickleType)
+	monkeyconfig = db.Column(db.PickleType)
 	createdtime = db.Column(db.DateTime,default=datetime.now)
 
-	def __init__(self,jobName,jobType,relateDevices,testapk,appPackage,appActivity,caseorder,buildid=0):
+	def __init__(self,jobName,jobType,relateDevices,testapk,appPackage,appActivity,caseorder,monkeyconfig,buildid=0):
 		self.jobName = jobName.strip()
 		self.jobType = jobType
 		self.relateDevices = relateDevices
@@ -26,6 +27,7 @@ class Testjob(db.Model):
 		self.appPackage = appPackage
 		self.appActivity = appActivity
 		self.caseorder = caseorder
+		self.monkeyconfig = monkeyconfig
 		self.buildid = buildid
 
 	def __repr__(self):

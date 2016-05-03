@@ -30,8 +30,6 @@ class Config:
     log_path = os.path.join(os.path.dirname(__file__),"logs")
     snapshot_path = os.path.join(os.path.dirname(__file__),"snapshots")
 
-    monkey_action_count = 3000
-
     case_template = \
 '''
 # -*- coding: utf-8 -*-

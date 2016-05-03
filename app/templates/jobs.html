@@ -107,6 +107,40 @@
 							</ul>
 						</li>
 					</label>
+					<div id="editmonkey" style="display:none;margin-left:20px">
+						<div class="input-group input-group-sm">
+							<span class="input-group-addon" id="action-count">设置默认动作数</span>
+							<input type="text" name="actioncount" class="form-control" value="3000" aria-describedby="action-count">
+						</div>
+						<div class="input-group input-group-sm">
+							<span class="input-group-addon" id="action-delay">动作间延迟(ms)</span>
+							<input type="text" name="actiondelay" class="form-control" value="300" aria-describedby="action-delay">
+						</div>
+						<div class="input-group input-group-sm">
+							<span class="input-group-addon" id="pct-touch">触摸事件百分比</span>
+							<input type="text" name="touchpercent" class="form-control" value="40" aria-describedby="pct-touch">
+						</div>
+						<div class="input-group input-group-sm">
+							<span class="input-group-addon" id="pct-motion">滑动事件百分比</span>
+							<input type="text" name="motionpercent" class="form-control" value="20" aria-describedby="pct-motion">
+						</div>
+						<div class="input-group input-group-sm">
+							<span class="input-group-addon" id="pct-pinchzoom">缩放事件百分比</span>
+							<input type="text" name="pinchzoompercent" class="form-control" value="5" aria-describedby="pct-pinchzoom">
+						</div>
+						<div class="input-group input-group-sm">
+							<span class="input-group-addon" id="pct-majornav">导航事件百分比</span>
+							<input type="text" name="majornavpercent" class="form-control" value="10" aria-describedby="pct-majornav">
+						</div>
+						<div class="input-group input-group-sm">
+							<span class="input-group-addon" id="pct-syskeys">系统事件百分比</span>
+							<input type="text" name="syskeyspercent" class="form-control" value="15" aria-describedby="pct-syskeys">
+						</div>
+						<div class="input-group input-group-sm">
+							<span class="input-group-addon" id="pct-appswitch">启动事件百分比</span>
+							<input type="text" name="appswitchpercent" class="form-control" value="10" aria-describedby="pct-appswitch">
+						</div>
+					</div>
 					<div id="choicecase" style="display:none">
 						<div style="margin-left:20px">
 							选择测试用例:
@@ -228,9 +262,15 @@
 		$(".testtype").click(function(){
 			if(this.id == 'functional'){
 				$("#testtype_head").removeClass("panel-danger").addClass("panel-default")
+				$("#editmonkey").hide()
 				$("#choicecase").show()
+			}else if(this.id == "stabilization"){
+				$("#testtype_head").removeClass("panel-danger").addClass("panel-default")
+				$("#choicecase").hide()
+				$("#editmonkey").show()
 			}else{
 				$("#choicecase").hide()
+				$("#editmonkey").hide()
 				$("#testtype_head").removeClass("panel-danger").addClass("panel-default")
 			}
 		})

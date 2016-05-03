@@ -13,13 +13,13 @@ class Device(object):
 		return "<Device:%s>" %self.deviceName
 
 class Monkey(object):
-	def __init__(self,device,packageName,apk,actionCount,actionDelay,timestamp,logpath,snapshotpath):
+	def __init__(self,device,packageName,apk,monkeyconfig,timestamp,logpath,snapshotpath):
 		self.device = device
 		self.packageName = packageName
 		self.apk = apk
-		self.actionDelay = actionDelay
 		self.timestamp = timestamp
-		self.actionCount = actionCount
+		self.monkeyconfig = monkeyconfig
+		self.actionCount = monkeyconfig["actioncount"]
 		self.logpath = logpath
 		self.snapshotpath = snapshotpath
 		self.screenshotimgs = []
@@ -30,12 +30,18 @@ class Monkey(object):
 	def runTest(self):
 		logfile = os.path.join(self.logpath,"%s.log" %self.device.deviceName)
 
-		cmd = "adb -s {deviceName} shell monkey -s {seed} -p {packageName} -v --throttle {actionDelay} {actionCount} > {logfile}".format(
+		cmd = "adb -s {deviceName} shell monkey -s {seed} -p {packageName} -v --pct-touch {touchpercent} --pct-motion {motionpercent} --pct-pinchzoom {pinchzoompercent} --pct-majornav {majornavpercent} --pct-syskeys {syskeyspercent} --pct-appswitch {appswitchpercent} --throttle {actionDelay} {actionCount} > {logfile}".format(
 			deviceName=self.device.deviceName,
 			seed=self.timestamp,
 			packageName=self.packageName,
-			actionDelay=self.actionDelay,
-			actionCount=self.actionCount,
+			touchpercent = self.monkeyconfig["touchpercent"],
+			motionpercent = self.monkeyconfig["motionpercent"],
+			pinchzoompercent = self.monkeyconfig["pinchzoompercent"],
+			majornavpercent = self.monkeyconfig["majornavpercent"],
+			syskeyspercent = self.monkeyconfig["syskeyspercent"],
+			appswitchpercent = self.monkeyconfig["appswitchpercent"],
+			actionDelay=self.monkeyconfig["actiondelay"],
+			actionCount=self.monkeyconfig["actioncount"],
 			logfile=logfile
 		)
 		
@@ -65,18 +71,14 @@ class Monkey(object):
 					self.errorMsg = line
 
 class MonkeyRunner(Thread):
-	def __init__(self,id,timestamp,devices,packageName,apk,actionCount,actionDelay,logpath,snapshotpath):
+	def __init__(self,id,timestamp,devices,packageName,apk,monkeyconfig,logpath,snapshotpath):
 		Thread.__init__(self)
 		self.id = id
 		self.logtime = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 		self.logpath = os.path.join(logpath,self.logtime)
 		self.snapshotpath = os.path.join(snapshotpath,self.logtime)
 		self.devices = devices
-		self.monkeys = self._createMonkeys(packageName,apk,actionCount,actionDelay,timestamp)
-
-		self.packageName = packageName
-		self.actionCount = actionCount
-		self.actionDelay = actionDelay
+		self.monkeys = self._createMonkeys(packageName,apk,monkeyconfig,timestamp)
 		self.result = {
 			"totalcount":len(devices),
 			"casecount":0,
@@ -89,10 +91,10 @@ class MonkeyRunner(Thread):
 	def __repr__(self):
 		return "<MonkeyRunner>"
 
-	def _createMonkeys(self,packageName,apk,actionCount,actionDelay,timestamp):
+	def _createMonkeys(self,packageName,apk,monkeyconfig,timestamp):
 		monkeys = []
 		for device in self.devices:
-			monkey = Monkey(device,packageName,apk,actionCount,actionDelay,timestamp,self.logpath,self.snapshotpath)
+			monkey = Monkey(device,packageName,apk,monkeyconfig,timestamp,self.logpath,self.snapshotpath)
 			monkeys.append(monkey)
 
 		return monkeys
@@ -134,18 +136,3 @@ class MonkeyRunner(Thread):
 
 		with open("data/tasks.pkl","wb") as f:
 			pickle.dump(tasks,f)
-
-
-if __name__ == "__main__":
-	devices = [Device(1,"M3LDU15424001636")]
-	runner = MonkeyRunner(
-		1,
-		devices,
-		"com.wenba.bangbang",
-		100,
-		300,
-		"C:/Users/Administrator/Desktop/selftest/testplatform/logs",
-		"C:/Users/Administrator/Desktop/selftest/testplatform/snapshots"
-	)
-	runner.start()
-	runner.join()

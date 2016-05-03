@@ -19,29 +19,35 @@
 <div class="modal fade bs-example-modal-lg" id="editcasemodal_{{ case.id }}" tabindex="-1" role="dialog" aria-labelledby="editcasemodal">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
-			<form id="editcaseform_{{ case.id }}" style="padding:20px">
-				<ul class="list-inline">
-					<li><label>用例名称：</label></li>
-					<li><input name="casename" type="text" class="form-control" value="{{case.caseName}}" required /></li>
-					<li><label>用例描述：</label></li>
-					<li><input name="casedesc" type="text" class="form-control" value="{{case.caseDesc}}" required/></li>
-					<li>
-						<a href="javascript:;" class="btn btn-info" onclick="parent.showapi()">查看API</a>
-						<a href="/mirror" class="btn btn-info" target="_blank">打开模拟器</a>
-					</li>
-					<li><a href="javascript:;" onclick="saveedit({{case.id}})" class="btn btn-success" data-dismiss="modal" aria-label="Close">保存</a></li>
-				</ul>
-				<textarea id="casecontent_{{ case.id }}" name="casecontent" width="1000px" height="400px">{{ case.caseContent }}</textarea>
-				<script>
-					var mirror_{{ case.id }} = CodeMirror.fromTextArea(document.getElementById("casecontent_{{ case.id }}"), {
-						lineNumbers: true,
-						indentUnit: 4,
-						mode: "python",
-						theme: "monokai"
-					});
-					mirror_{{ case.id }}.setSize('100%',500);
-				</script>
-			</form>
+
+			<div class="modal-body">
+				<form id="editcaseform_{{ case.id }}">
+					<ul class="list-inline">
+						<li><label>用例名称：</label></li>
+						<li><input name="casename" type="text" class="form-control" value="{{case.caseName}}" required /></li>
+						<li><label>用例描述：</label></li>
+						<li><input name="casedesc" type="text" class="form-control" value="{{case.caseDesc}}" required/></li>
+						<li>
+							<a href="javascript:;" class="btn btn-info" onclick="parent.showapi()">查看API</a>
+							<a href="/mirror" class="btn btn-info" target="_blank">打开模拟器</a>
+						</li>
+					</ul>
+					<textarea id="casecontent_{{ case.id }}" name="casecontent" width="1000px" height="400px">{{ case.caseContent }}</textarea>
+					<script>
+						var mirror_{{ case.id }} = CodeMirror.fromTextArea(document.getElementById("casecontent_{{ case.id }}"), {
+							lineNumbers: true,
+							indentUnit: 4,
+							mode: "python",
+							theme: "monokai"
+						});
+						mirror_{{ case.id }}.setSize('100%',500);
+					</script>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+				<a href="javascript:;" onclick="saveedit({{case.id}})" class="btn btn-success" data-dismiss="modal" aria-label="Close">保存</a>
+			</div>
 		</div>
 	</div>
 </div>
