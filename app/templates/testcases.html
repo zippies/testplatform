@@ -102,9 +102,8 @@
 		</div>
 	</div>
 
-	<div class="tab-pane fade in active" id="casediv">
+	<div class="tab-pane fade in active" id="casediv" style="height:800px">
 		<div class="panel-header">
-
 		</div>
 		<div class="panel-body">
 			{% if testcases %}
@@ -122,7 +121,7 @@
 								<td>{{ case.id }}</td>
 								<td>
 									<a role="button" class="showcase" id="{{ case.id }}" data-toggle="modal" data-target="#editcasemodal_{{ case.id }}">{{ case.caseName }}</a></td>
-								<td>用例描述：{{ case.caseDesc }}</td>
+								<td>用例描述：<span id="desc_{{ case.id }}">{{ case.caseDesc }}</span></td>
 								<td>
 									<a href="javascript:;" id="pass_{{ case.id }}" onclick="passcase({{ case.id }})" class="btn btn-success" {% if case.status == 0 %}{% elif case.status == 1 %}style="display:none"{% endif %}>设置通过</a>
 									<a href="javascript:;" id="canclepass_{{ case.id }}" onclick="canclepasscase({{ case.id }})" class="btn btn-warning" {% if case.status == 0 %}style="display:none"{% elif case.status == 1 %}{% endif %}>取消通过</a>
@@ -317,7 +316,9 @@
 			data:$("#editcaseform_"+id).serialize(),
 			success:function(data){
 				if(data.result){
-					parent.parent.layer.msg("保存成功")
+					parent.parent.layer.msg("保存成功");
+					$("#"+id).html(data.data[0]);
+					$("#desc_"+id).html(data.data[1]);
 				}else{
 					parent.parent.layer.msg("保存失败:"+data.errorMsg,{icon: 5})
 				}

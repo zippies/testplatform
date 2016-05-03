@@ -53,7 +53,7 @@ def writecase():
 
 @main.route("/editcase/<int:id>",methods=['POST'])
 def editcase(id):
-	info = {"result": True, "errorMsg": None}
+	info = {"result": True, "errorMsg": None, "data":None}
 	try:
 		name = request.form.get('casename')
 		desc = request.form.get('casedesc')
@@ -65,6 +65,7 @@ def editcase(id):
 			case.caseContent = content
 			db.session.add(case)
 			db.session.commit()
+			info["data"] = [name,desc]
 		else:
 			info = {"result":False,"errorMsg":"该用例不存在"}
 	except Exception as e:

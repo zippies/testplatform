@@ -279,6 +279,7 @@ def runFunctionalTest(job):
 		appiums.append({"port":port,"bootstrap_port":bootstrap_port,"url":"http://localhost:%s/wd/hub" %port})
 
 	reloaded = []
+
 	for case in cases:
 		generateCase(case)
 		module = importlib.import_module(case.caseName)
@@ -286,8 +287,10 @@ def runFunctionalTest(job):
 			module = importlib.reload(importlib.import_module(case.caseName))
 			reloaded.append(case.caseName)
 		undertest_cases = []
+
 		for index,device in enumerate(capabilities):
 			undertest_cases.append(module.TestCase(appiums[index],device))
+
 		testcases[case.caseName] = undertest_cases
 
 	runner = AndroidRunner(
