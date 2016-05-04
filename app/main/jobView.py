@@ -472,6 +472,7 @@ def stopjob(id):
 
 @main.route("/newjobfromjenkins",methods=["POST"])
 def newjobfromjenkins():
+	#need modify
 	info = {"result":True,"errorMsg":None}
 	try:
 		data = request.form
