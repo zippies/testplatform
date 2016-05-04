@@ -428,6 +428,48 @@ def showapi():
 
 	return render_template("api.html",selfapis=selfapis,driverapis=driverapis)
 
+@main.route("/stopjob/<int:id>")
+def stopjob(id):
+	info = {"result":True,"errorMsg":None}
+	try:
+		job = Testjob.query.filter_by(id=id).first()
+		if job:
+			if job.status == 1:
+				if job.jobType == 1:
+					pass
+				elif job.jobType == 2:
+					devices = [device.deviceName for device in
+							   [Device.query.filter_by(id=deviceid).first() for deviceid in job.relateDevices]]
+					for device in devices:
+						searchcmd = "adb -s %s shell ps |grep com.android.commands.monkey" % device
+						info = subprocess.run(searchcmd, stdout=PIPE)
+						result = info.stdout.decode()
+						if info.returncode == 0 and result:
+							monkey_pid = [item for item in result.split(" ") if item.strip()][1]
+							print(result, monkey_pid)
+							killcmd = "adb -s %s shell kill -9 %s" % (device, monkey_pid)
+							subprocess.run(killcmd, stdout=PIPE)
+				elif job.jobType == 3:
+					appium_ports = job.appium_ports
+					for port in appium_ports:
+						info = os.popen("netstat -ano|findstr %s" % port).readline()
+						if "LISTENING" in info:
+							pid = info.split("LISTENING")[1].strip()
+							print("Stop pid:", pid)
+							os.system("ntsd -c q -p %s" % pid)
+				else:
+					pass
+				job.status == 0
+				db.session.add(job)
+				db.session.commit()
+		else:
+			info = {"result":False,"errorMsg":"任务不存在"}
+	except Exception as e:
+		info = {"result": False, "errorMsg": "删除失败:%s" % str(e)}
+	finally:
+		return jsonify(info)
+
+
 @main.route("/newjobfromjenkins",methods=["POST"])
 def newjobfromjenkins():
 	info = {"result":True,"errorMsg":None}

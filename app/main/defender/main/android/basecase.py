@@ -11,7 +11,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import TimeoutException
 from datetime import datetime
-import os,time,random
+from collections import OrderedDict,namedtuple
+import os,time,random,requests,json
 
 
 class ActionTimeOut(Exception):
@@ -34,6 +35,71 @@ class CaseError(Exception):
 
 	def __str__(self):
 		return self.info
+
+class EmptyObj(object):
+	def __init__(self):
+		pass
+
+class ResponseObj(object):
+	def __init__(self, url, resp):
+		self._currentnode = self
+		self.url = url
+		self.success = resp.ok
+		self.headers = resp.headers
+		self.cookies = resp.cookies
+		try:
+			self.elapsed = round(resp.elapsed.microseconds / 1000000, 2)
+		except:
+			self.elapsed = round(resp.elapsed, 2)
+		self.returncode = resp.status_code
+
+		if resp.ok:
+			self.errorMsg = None
+			try:
+				self.data = resp.json()
+				self.__initialize(resp.json())
+			except Exception as e:
+				print(3333,e)
+				self.data = resp.text
+		else:
+			try:
+				self.data = resp.json()
+				self.__initialize(resp.json())
+			except Exception as e:
+				self.data = resp.text
+			self.errorMsg = "%s %s" % (resp.status_code, resp.reason)
+
+	def __repr__(self):
+		return "<ResponseObj:%s>" % self.url
+
+	def __initialize(self, obj):
+		newobj = OrderedDict()
+		orders, single, multi = [], [], []
+		for key, value in obj.items():
+			if isinstance(value, dict):
+				multi.append((key, json.dumps(value)))
+			else:
+				single.append((key, value))
+
+		orders = single + multi
+
+		for item in orders:
+			newobj[item[0]] = item[1]
+
+		for key, value in newobj.items():
+			try:
+				value = eval(value)
+			except:
+				pass
+			if isinstance(value, dict):
+				setattr(self._currentnode, key, EmptyObj())
+				self._currentnode = eval("self._currentnode.%s" % key)
+				for k in value.keys():
+					setattr(self._currentnode, k, EmptyObj())
+				self.__initialize(value)
+			else:
+				setattr(self._currentnode, key, value)
+
 
 # Returns abs path relative to this file and not cwd
 PATH = lambda p: os.path.abspath(
@@ -62,6 +128,84 @@ class AndroidDevice(webdriver.Remote):
 	def __repr__(self):
 		return "<TestCase>:"+self.casename
 #=============================================自定义方法  BEGIN ==============================================================
+	def send_request(self, url, method, data={}, headers={}, timeout=(5,10)):
+		"""[方法]
+send_request(self, url, method, data={}, headers={}, timeout=(5,10))
+参数：
+	url: 接口地址
+	method: get/post/put/delete
+	data: 请求参数,[可不传]
+	headers: 请求头信息，如：content-type [可不传]
+	timeout: 请求超时时间设置,默认连接5秒超时，响应10秒超时 [可不传]
+用法：
+	response = self.send_request('http://www.baidu.com','get')
+	返回是否成功：response.success
+	接口响应时间：response.elapsed
+	接口返回数据：response.data
+说明：
+	若接口返回的数据是json格式的，可以使用response.{key}获取返回中的key对应的value，例：接口返回数据格式为：
+	{"body":{"name":"chris","age":18},"status":0}
+	可以使用：response.body.name    response.status    response.body.age 来获取接口返回数据中的值
+		"""
+		resp = None
+		fakeresp = namedtuple("fakeresp", "ok reason headers cookies status_code elapsed text")
+		if headers.get("content-type", None) == "application/json":
+			data = json.dumps(data)
+		if method.lower() == "post":
+			start = time.time()
+			try:
+				resp = requests.post(url, data=data, headers=headers, timeout=timeout)
+			except requests.exceptions.ChunkedEncodingError as e:
+				print(111,e)
+				elapsed = time.time() - start
+				resp = fakeresp(ok=True, reason=str(e), headers={}, cookies={}, status_code=200, elapsed=elapsed,
+								text="接口无返回")
+			except Exception as e:
+				print(222,e)
+				elapsed = time.time() - start
+				resp = fakeresp(ok=False, reason=str(e), headers={}, cookies={}, status_code=401, elapsed=elapsed,
+								text=str(e))
+		elif method.lower() == "get":
+			start = time.time()
+			try:
+				resp = requests.get(url, params=data, headers=headers, timeout=timeout)
+			except requests.exceptions.ChunkedEncodingError as e:
+				elapsed = time.time() - start
+				resp = fakeresp(ok=True, reason=str(e), headers={}, cookies={}, status_code=200, elapsed=elapsed,
+								text="接口无返回")
+			except Exception as e:
+				elapsed = time.time() - start
+				resp = fakeresp(ok=False, reason=str(e), headers={}, cookies={}, status_code=401, elapsed=elapsed,
+								text=str(e))
+		elif method.lower() == "put":
+			start = time.time()
+			try:
+				resp = requests.put(url, data=data, headers=headers, timeout=timeout)
+			except requests.exceptions.ChunkedEncodingError as e:
+				elapsed = time.time() - start
+				resp = fakeresp(ok=True, reason=str(e), headers={}, cookies={}, status_code=200, elapsed=elapsed,
+								text="接口无返回")
+			except Exception as e:
+				elapsed = time.time() - start
+				resp = fakeresp(ok=False, reason=str(e), headers={}, cookies={}, status_code=401, elapsed=elapsed,
+								text=str(e))
+		elif method.lower() == "delete":
+			start = time.time()
+			try:
+				resp = requests.delete(url, data=data, headers=headers, timeout=timeout)
+			except requests.exceptions.ChunkedEncodingError as e:
+				elapsed = time.time() - start
+				resp = fakeresp(ok=True, reason=str(e), headers={}, cookies={}, status_code=200, elapsed=elapsed,
+								text="接口无返回")
+			except Exception as e:
+				elapsed = time.time() - start
+				resp = fakeresp(ok=False, reason=str(e), headers={}, cookies={}, status_code=401, elapsed=elapsed,
+								text=str(e))
+		else:
+			raise CaseError("unsupportted method:%s" %method)
+
+		return ResponseObj(url, resp)
+#======================================================================================================================
 	def randomInt(self,length=8):
 		a = eval("1" + "0" * (length - 1))
 		b = eval("1" + "0" * length) - 1

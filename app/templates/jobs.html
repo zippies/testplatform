@@ -463,6 +463,20 @@
 		})
 		parent.layer.closeAll('loading');
 	}
+
+	function stop(id){
+		$.ajax({
+			url:"/stopjob/"+id,
+			type:"post",
+			success:function(data){
+				if(data.result){
+					layer.msg("任务已停止")
+				}else{
+					layer.msg(data.errorMsg)
+				}
+			}
+		})
+	}
 </script>
 
 </body>
