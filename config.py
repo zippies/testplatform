@@ -67,10 +67,10 @@ class TestCase(AndroidDevice):
 
     def run(self):
         self.implicitly_wait(10)
+        for i in range(3):
+            self.sleep(1)
+            self.allow_alert(nocheck=True)
 
-        self.allow_alert(nocheck=True)
-
-        self.allow_alert(nocheck=True)
 {% for action in actions %}
         {{ action }}
 {% endfor %}

@@ -296,19 +296,19 @@ sleep(seconds)
 		self.logger.log("[action]sleep(seconds='%s')" %seconds)
 		time.sleep(seconds)
 
-	def find(self,by,value,nocheck=False):
+	def s_find(self,by,value,nocheck=False):
 		'''[方法]
-find(by,value,nocheck=False)
+s_find(by,value,nocheck=False)
 查找一个元素
 参数：
 	by：定位元素的方式/id/name/xpath/class_name等
 	value：定位元素的id/name/xpath/class_name等的值
 	nocheck：如果该值为True,则元素找不到时忽略错误继续执行
 用法：
-	element = self.find('id','element_id')
-	element = self.find('name','element_name')
-	element = self.find('class_name','element_class_name')
-	element = self.find('xpath','element_xpath')
+	element = self.s_find('id','element_id')
+	element = self.s_find('name','element_name')
+	element = self.s_find('class_name','element_class_name')
+	element = self.s_find('xpath','element_xpath')
 	...
 		'''
 		if by not in ['id','accessibility_id','class_name','css_selector','name','link_text','partial_link_text','tag_name','xpath','ios_uiautomation','android_uiautomator']:
@@ -323,19 +323,19 @@ find(by,value,nocheck=False)
 			else:
 				return None
 		
-	def finds(self,by,value,nocheck=False):
+	def s_finds(self,by,value,nocheck=False):
 		'''[方法]
-finds(by,value,nocheck=False)
+s_finds(by,value,nocheck=False)
 查找多个元素
 参数：
 	by：定位元素的方式/id/name/xpath/class_name等
 	value：定位元素的id/name/xpath/class_name等的值
 	nocheck：如果该值为True,则元素找不到时忽略错误继续执行
 用法：
-	elements = self.finds('id','element_id')
-	elements = self.finds('name','element_name')
-	elements = self.finds('class_name','element_class_name')
-	elements = self.finds('xpath','element_xpath')
+	elements = self.s_finds('id','element_id')
+	elements = self.s_finds('name','element_name')
+	elements = self.s_finds('class_name','element_class_name')
+	elements = self.s_finds('xpath','element_xpath')
 	...
 		'''
 		if by not in ['id','accessibility_id','class_name','css_selector','name','link_text','partial_link_text','xpath','ios_uiautomation','android_uiautomator']:
@@ -359,9 +359,9 @@ finds(by,value,nocheck=False)
 			else:
 				return eles
 
-	def click(self,by,value,desc="",nocheck=False):
+	def s_click(self,by,value,desc="",nocheck=False):
 		'''[方法]
-click(by,value,desc="",nocheck=False)
+s_click(by,value,desc="",nocheck=False)
 点击一个元素
 参数：
 	by：定位元素的方式/id/name/xpath/class_name等
@@ -369,17 +369,17 @@ click(by,value,desc="",nocheck=False)
 	desc：描述元素的文本信息，便于在日志中区别
 	nocheck：如果该值为True,则元素找不到时忽略错误继续执行
 用法：
-	self.click('id','element_id')
-	self.click('name','element_name')
-	self.click('class_name','element_class_name')
-	self.click('xpath','element_xpath')
+	self.s_click('id','element_id')
+	self.s_click('name','element_name')
+	self.s_click('class_name','element_class_name')
+	self.s_click('xpath','element_xpath')
 	...
 		'''
 		self.logger.log("[action]click(by='%s',value='%s',nocheck=%s) '%s'" %(by,value,nocheck,desc))
 		if not isinstance(value, str):
 			raise CaseError("'click' function required a str type on 'value' parameter")
 
-		ele = self.find(by,value,nocheck)
+		ele = self.s_find(by,value,nocheck)
 		
 		if not ele and nocheck:
 			return None
@@ -410,9 +410,9 @@ save_screen(filename=None,immediate=False)
 		self.logger.log("[action]save_screen(filename='%s',immediate=%s)" %(screen,immediate))
 		self.get_screenshot_as_file(screen)
 
-	def input(self,by,value,text,desc="",nocheck=False):
+	def s_input(self,by,value,text,desc="",nocheck=False):
 		'''[方法]
-input(by,value,text,desc="",nocheck=False)
+s_input(by,value,text,desc="",nocheck=False)
 向一个元素内输入内容
 参数：
 	by：定位元素的方式/id/name/xpath/class_name等
@@ -421,20 +421,20 @@ input(by,value,text,desc="",nocheck=False)
 	desc：描述元素的文本信息，便于在日志中区别
 	nocheck：如果该值为True,则元素找不到时忽略错误继续执行
 用法：
-	self.input('id','element_id',"文本内容")
-	self.input('name','element_name',"文本内容")
-	self.input('class_name','element_class_name',"文本内容")
-	self.input('xpath','element_xpath',"文本内容")
+	self.s_input('id','element_id',"文本内容")
+	self.s_input('name','element_name',"文本内容")
+	self.s_input('class_name','element_class_name',"文本内容")
+	self.s_input('xpath','element_xpath',"文本内容")
 	...
 		'''
 		self.logger.log("[action]input(by='%s',value='%s',text='%s',nocheck=%s) '%s'" %(by,value,text,nocheck,desc))
-		ele = self.find(by,value,nocheck)
+		ele = self.s_find(by,value,nocheck)
 		if not ele and nocheck:
 			return None
 		else:
 			ele.send_keys(text)
 
-	def gettext(self,by,value,desc="",nocheck=False):
+	def s_gettext(self,by,value,desc="",nocheck=False):
 		'''[方法]
 gettext(by,value,desc="",nocheck=False)
 向一个元素内输入内容
@@ -451,14 +451,14 @@ gettext(by,value,desc="",nocheck=False)
 	...
 		'''
 		self.logger.log("[action]gettext(by='%s',value='%s',nocheck=%s) '%s'" %(by,value,nocheck,desc))
-		ele = self.find(by,value,nocheck)
+		ele = self.s_find(by,value,nocheck)
 
 		if not ele and nocheck:
 			return None
 		else:
 			return ele.text
 
-	def waitfor(self,by,value,desc="",timeout=10):
+	def s_waitfor(self,by,value,desc="",timeout=10):
 		'''[方法]
 waitfor(by,value,desc="",timeout=10)
 向一个元素内输入内容
@@ -479,7 +479,7 @@ waitfor(by,value,desc="",timeout=10)
 			WebDriverWait(self,timeout,1).until(
 				lambda x: getattr(x,'find_element_by_%s' %by)(value).is_displayed()
 			)
-			return self.find(by,value)
+			return self.s_find(by,value)
 		except:
 			raise ActionTimeOut("'%s:%s' element not shown after %s seconds '%s'" %(by,value,timeout,desc))
 
@@ -510,10 +510,62 @@ swipe(begin,end,duration=None)
 		action.perform()
 		return self
 
-	def swipe_up(self,duration=None):
+	def swipe_half_up(self, duration=None):
 		'''[方法]
 swipe_up(duration=None)
 从屏幕中间向上划半个屏幕高度
+参数：
+	duration：滑动操作持续的时间
+用法：
+	self.swipe_up()
+		'''
+		start = (self.device_width / 2, self.device_height / 2)
+		end = (self.device_width / 2, 10)
+		self.swipe(start, end, duration)
+
+	def swipe_half_down(self, duration=None):
+		'''[方法]
+swipe_down(duration=None)
+从屏幕中间向下划半个屏幕高度
+参数：
+	duration：滑动操作持续的时间
+用法：
+	self.swipe_down()
+		'''
+		start = (self.device_width / 2, self.device_height / 2)
+		end = (self.device_width / 2, self.device_height - 10)
+		self.swipe(start, end, duration)
+
+	def swipe_half_left(self, duration=None):
+		'''[方法]
+swipe_left(duration=None)
+从屏幕中间向左划半个屏幕宽度
+参数：
+	duration：滑动操作持续的时间
+用法：
+	self.swipe_left()
+		'''
+		start = (self.device_width / 2, self.device_height / 2)
+		end = (10, self.device_height / 2)
+		self.swipe(start, end, duration)
+
+	def swipe_half_right(self, duration=None):
+		'''[方法]
+swipe_right(duration=None)
+从屏幕中间向右划半个屏幕宽度
+参数：
+	duration：滑动操作持续的时间
+用法：
+	self.swipe_right()
+		'''
+		start = (self.device_width / 2, self.device_height / 2)
+		end = (self.device_width - 10, self.device_height / 2)
+		self.swipe(start, end, duration)
+
+	def swipe_up(self,duration=None):
+		'''[方法]
+swipe_up(duration=None)
+从屏幕中间向上划整个屏幕高度
 参数：
 	duration：滑动操作持续的时间
 用法：
@@ -526,7 +578,7 @@ swipe_up(duration=None)
 	def swipe_down(self,duration=None):
 		'''[方法]
 swipe_down(duration=None)
-从屏幕中间向下划半个屏幕高度
+从屏幕中间向下划整个屏幕高度
 参数：
 	duration：滑动操作持续的时间
 用法：
@@ -539,7 +591,7 @@ swipe_down(duration=None)
 	def swipe_left(self,duration=None):
 		'''[方法]
 swipe_left(duration=None)
-从屏幕中间向左划半个屏幕宽度
+从屏幕中间向左划整个屏幕宽度
 参数：
 	duration：滑动操作持续的时间
 用法：
@@ -552,7 +604,7 @@ swipe_left(duration=None)
 	def swipe_right(self,duration=None):
 		'''[方法]
 swipe_right(duration=None)
-从屏幕中间向右划半个屏幕宽度
+从屏幕中间向右划整个屏幕宽度
 参数：
 	duration：滑动操作持续的时间
 用法：
@@ -617,9 +669,10 @@ allow_alert(nocheck=True)
 		pageSource = self.page_source
 		for id in self.system_alert_ids:
 			if id[0] in pageSource:
-				ele = self.find('id',id[0],nocheck=True)
+				ele = self.s_find('id',id[0],nocheck=True)
 				if ele:
 					ele.click()
+
 
 	def reject_alert(self,nocheck=True):
 		'''[方法]
@@ -632,7 +685,7 @@ reject_alert(nocheck=True)
 		pageSource = self.page_source
 		for id in self.system_alert_ids:
 			if id[1] in pageSource:
-				ele = self.find('id',id[1],nocheck=True)
+				ele = self.s_find('id',id[1],nocheck=True)
 				if ele:
 					ele.click()
 
@@ -742,7 +795,7 @@ gestures_password(case_element_name,gestures,nocheck=False)
 用法：
 	self.gestures_password("手势密码九宫格",[1,2,3,5,7,8,9])  -- 写了一个Z字的手势密码
 		'''
-		elem = self.super_find(case_element_name,nocheck=nocheck)
+		elem = self.find(case_element_name,nocheck=nocheck)
 		if elem:
 			points = self.parseGestures(elem.location,elem.size)
 			action = TouchAction(self)
@@ -759,68 +812,68 @@ gestures_password(case_element_name,gestures,nocheck=False)
 			action.release().perform()
 			return self
 
-	def super_click(self,case_element_name,nocheck=False):
+	def click(self,case_element_name,nocheck=False):
 		'''[方法]
-super_click(case_element_name,nocheck=False)
+click(case_element_name,nocheck=False)
 点击系统内已添加的某个元素
 参数：
 	case_element_name：系统内已添加的元素名称
 	nocheck：该值为True时，找不到元素会忽略错误继续执行
 用法：
-	self.super_click("登录按钮")
+	self.click("登录按钮")
 		'''
 		by,value = self.case_elements.get(case_element_name)
 		if by and value:
-			self.click(by,value,desc=case_element_name,nocheck=nocheck)
+			self.s_click(by,value,desc=case_element_name,nocheck=nocheck)
 		else:
 			error = "系统内未保存名称为'%s'的元素" %case_element_name
 			raise CaseError(error)
 
-	def super_clicks(self,case_element_names,nocheck=False):
+	def clicks(self,case_element_names,nocheck=False):
 		'''[方法]
-super_clicks(case_element_names,nocheck=False)
+clicks(case_element_names,nocheck=False)
 点击系统内已添加的多个元素
 参数：
 	case_element_names：系统内已添加的元素名称列表
 	nocheck：该值为True时，找不到元素会忽略错误继续执行
 用法：
-	self.super_clicks(["同意授权按钮",登录按钮"])
+	self.clicks(["同意授权按钮",登录按钮"])
 		'''
 		for name in case_element_names:
-			self.super_click(name,nocheck=nocheck)
+			self.click(name,nocheck=nocheck)
 
-	def super_exists(self,case_element_name):
+	def exists(self,case_element_name):
 		'''[方法]
-super_exists(case_element_name)
+exists(case_element_name)
 判断是否能找到系统内已添加的某个元素
 参数：
 	case_element_name：系统内已添加的元素名称
 用法：
-	isexists = self.super_exists("登录按钮")
+	isexists = self.exists("登录按钮")
 		'''
-		if self.super_find(case_element_name,nocheck=True):
+		if self.find(case_element_name,nocheck=True):
 			return True
 		else:
 			return False
 
-	def super_find(self,case_element_name,nocheck=False):
+	def find(self,case_element_name,nocheck=False):
 		'''[方法]
-super_find(case_element_name,nocheck=False)
+find(case_element_name,nocheck=False)
 查找系统内已添加的某个元素
 参数：
 	case_element_name：系统内已添加的元素名称
 	nocheck：该值为True时，找不到元素会忽略错误继续执行
 用法：
-	self.super_find("登录按钮")
+	self.find("登录按钮")
 		'''
 		by,value = self.case_elements.get(case_element_name)
 		if by and value:
-			return self.find(by,value,nocheck=nocheck)
+			return self.s_find(by,value,nocheck=nocheck)
 		else:
 			error = "系统内未保存名称为'%s'的元素" %case_element_name
 			raise CaseError(error)
 
-	def super_finds(self,case_element_name,nocheck=False):
+	def finds(self,case_element_name,nocheck=False):
 		'''[方法]
 super_finds(case_element_name,nocheck=False)
 返回与系统内已添加的元素拥有相同属性的元素列表
@@ -832,7 +885,7 @@ super_finds(case_element_name,nocheck=False)
 		'''
 		by,value = self.case_elements.get(case_element_name)
 		if by and value:
-			return self.finds(by,value,nocheck=nocheck)
+			return self.s_finds(by,value,nocheck=nocheck)
 		else:
 			error = "系统内未保存名称为'%s'的元素" %case_element_name
 			raise CaseError(error)
@@ -847,7 +900,7 @@ exist_text(text)
 		self.logger.log("[action]exist_text(text='%s')" %text)
 		elem = None
 		try:
-			elem = self.find("name",str(text),nocheck=False)
+			elem = self.s_find("name",str(text),nocheck=False)
 		except:
 			pass
 		finally:
@@ -863,68 +916,68 @@ exist_texts(texts)
 		for text in texts:
 			self.exist_text(text)
 
-	def super_input(self,case_element_name,text,nocheck=False):
+	def input(self,case_element_name,text,nocheck=False):
 		'''[方法]
-super_input(case_element_name,text,nocheck=False)
+input(case_element_name,text,nocheck=False)
 向系统内已添加的某个元素输入内容
 参数：
 	case_element_name：系统内已添加的元素名称
 	text：需要输入的文字内容
 	nocheck：该值为True时，找不到元素会忽略错误继续执行
 用法：
-	self.super_input("用户名输入框","chao.chen")
+	self.input("用户名输入框","chao.chen")
 		'''
 		by,value = self.case_elements.get(case_element_name)
 		if by and value:
-			self.input(by,value,text,desc=case_element_name,nocheck=nocheck)
+			self.s_input(by,value,text,desc=case_element_name,nocheck=nocheck)
 		else:
 			error = "系统内未保存名称为'%s'的元素" %case_element_name
 			raise CaseError(error)
 
-	def super_inputs(self,case_element_names,text,nocheck=False):
+	def inputs(self,case_element_names,text,nocheck=False):
 		'''[方法]
-super_inputs(case_element_names,text,nocheck=False)
+inputs(case_element_names,text,nocheck=False)
 向系统内已添加的多个元素输入内容
 参数：
 	case_element_names：系统内已添加的元素名称列表
 	text：需要输入的文字内容
 	nocheck：该值为True时，找不到元素会忽略错误继续执行
 用法：
-	self.super_inputs(["用户名输入框","密码输入框"],"chao.chen")
+	self.inputs(["用户名输入框","密码输入框"],"chao.chen")
 		'''
 		for name in case_element_names:
-			self.super_input(name,text,nocheck=nocheck)
+			self.input(name,text,nocheck=nocheck)
 
-	def super_gettext(self,case_element_name,nocheck=False):
+	def gettext(self,case_element_name,nocheck=False):
 		'''[方法]
-super_gettext(case_element_name,nocheck=False)
+gettext(case_element_name,nocheck=False)
 获取某个元素的文本内容
 参数：
 	case_element_name：系统内已添加的元素名称
 	nocheck：该值为True时，找不到元素会忽略错误继续执行
 用法：
-	text = self.super_gettext("登录按钮")
+	text = self.gettext("登录按钮")
 		'''
 		by,value = self.case_elements.get(case_element_name)
 		if by and value:
-			return self.gettext(by,value,desc=case_element_name,nocheck=nocheck)
+			return self.s_gettext(by,value,desc=case_element_name,nocheck=nocheck)
 		else:
 			error = "系统内未保存名称为'%s'的元素" %case_element_name
 			raise CaseError(error)
 
-	def super_waitfor(self,case_element_name,timeout=10):
+	def waitfor(self,case_element_name,timeout=10):
 		'''[方法]
-super_waitfor(case_element_name,timeout=10)
+waitfor(case_element_name,timeout=10)
 等待某个元素出现
 参数：
 	case_element_name：系统内已添加的元素名称
 	timeout：超时时间
 用法：
-	self.super_waitfor("登录按钮")
+	self.waitfor("登录按钮")
 		'''
 		by,value = self.case_elements.get(case_element_name)
 		if by and value:
-			return self.waitfor(by,value,desc=case_element_name,timeout=timeout)
+			return self.s_waitfor(by,value,desc=case_element_name,timeout=timeout)
 		else:
 			error = "系统内未保存名称为'%s'的元素" %case_element_name
 			raise CaseError(error)
