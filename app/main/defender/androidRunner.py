@@ -237,7 +237,7 @@ class AndroidRunner(Thread):
 		finally:
 			if initsuccess and not self.callback:
 				case.save_screen("end")
-				case.quit()
+				#case.quit()  #开启会退出并卸载app
 			end = time.time()
 			time.sleep(2)
 			case.result['runtime'] = round(end-start,2)
