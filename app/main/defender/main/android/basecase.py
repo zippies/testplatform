@@ -11,8 +11,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import TimeoutException
 from datetime import datetime
+from config import Config
 from collections import OrderedDict,namedtuple
-import os,time,random,requests,json
+import os,time,random,requests,json,pymysql.cursors
 
 
 class ActionTimeOut(Exception):
@@ -125,12 +126,68 @@ class AndroidDevice(webdriver.Remote):
 		By.ANDROID_UIAUTOMATOR = MobileBy.ANDROID_UIAUTOMATOR
 		By.ACCESSIBILITY_ID = MobileBy.ACCESSIBILITY_ID
 
+
 	def __repr__(self):
 		return "<TestCase>:"+self.casename
+
 #=============================================自定义方法  BEGIN ==============================================================
+	def execSQL(self, sql, host=None, user=None, password=None, db=None, port=3306):
+		"""
+execSQL(sql, host=None, user=None, password=None, db=None)
+参数：
+	sql: 需要执行的sql语句
+	host: 数据库连接url
+	user: 数据库用户
+	password: 用户密码
+	db: 需要连接的数据库名
+	port: 数据库连接端口号
+用法：
+	users = self.execSQL("select * from user limit 10",'localhost','root','rootpassword','testdb')
+注：
+	建议将数据库连接信息配置在环境变量中，变量名对应保存为：
+	DB_HOST
+	DB_USER
+	DB_PASSWORD
+	DB_DATABASE
+	DB_PORT
+	保存后只需要传sql语句，例：users = self.execSQL("select * from user limit 10")
+		"""
+		if not host or not user or not password or not db or not port:
+			host = Config.db_host
+			user = Config.db_user
+			password = Config.db_password
+			db = Config.db_database
+			port = Config.db_port or 3306
+
+		connection = pymysql.connect(
+			host=host,
+			user=user,
+			password=password,
+			db=db,
+			port=port,
+			charset='utf8'
+		)
+		try:
+			with connection.cursor() as cursor:
+				cursor.execute(sql)
+				if sql.strip().lower().startswith("select"):
+					result = cursor.fetchall()
+					return result
+				else:
+					return True
+		finally:
+			try:
+				connection.close()
+			except Exception as e:
+				print("close db failed:", e)
+
+
+
+
+
 	def send_request(self, url, method, data={}, headers={}, timeout=(5,10)):
 		"""[方法]
-send_request(self, url, method, data={}, headers={}, timeout=(5,10))
+send_request(url, method, data={}, headers={}, timeout=(5,10))
 参数：
 	url: 接口地址
 	method: get/post/put/delete
@@ -1669,3 +1726,13 @@ Args:
 			('POST', '/session/$sessionId/location')
 		self.command_executor._commands[Command.LOCATION_IN_VIEW] = \
 			('GET', '/session/$sessionId/element/$id/location_in_view')
+
+if __name__ == '__main__':
+	host = "rdsj4ckkj0pwiiivzw3y5public.mysql.rds.aliyuncs.com"
+	port = 3306
+	user = "wenji_hzj"
+	db = "wenji_prod_dev"
+	password = "jfkdlafdiaelk33"
+	driver = AndroidDevice({},desired_capabilities={})
+	orders = driver.execSQL("select * from wenji_print_order limit 1",host=host,user=user,password=password,db=db,port=port)
+	print(orders)

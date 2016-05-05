@@ -11,6 +11,13 @@ class Config:
     CASE_FOLDER = os.path.join(os.path.dirname(__file__),"testcases")
     SQLALCHEMY_TRACK_MODIFICATIONS = True
     APPIUM_LOG_LEVEL = "debug"
+
+    db_host = os.environ.get("DB_HOST")
+    db_user = os.environ.get("DB_USER")
+    db_password = os.environ.get("DB_PASSWORD")
+    db_database = os.environ.get("DB_DATABASE")
+    db_port = os.environ.get("DB_PORT")
+
     SHAIRED_CAPABILITIES = {
         "newCommandTimeout" : 120,
         "noSign" : True,
