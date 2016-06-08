@@ -37,6 +37,19 @@ class Config:
     log_path = os.path.join(os.path.dirname(__file__),"logs")
     snapshot_path = os.path.join(os.path.dirname(__file__),"snapshots")
 
+
+    ci_monkeyconfig = {
+        "actioncount":3000,
+        "actiondelay":300,
+        "touchpercent":40,
+        "motionpercent":20,
+        "pinchzoompercent":5,
+        "majornavpercent":10,
+        "syskeyspercent":15,
+        "appswitchpercent":10
+    }
+
+
     case_template = \
 '''
 # -*- coding: utf-8 -*-

@@ -199,7 +199,7 @@ def getdevicestatusfromjenkins():
 	devices = []
 	result = subprocess.run(cmd,stdout=subprocess.PIPE)
 	if result.returncode == 0:
-		for info in result.stdout.decode():
+		for info in result.stdout.decode().split("\r\n"):
 			if "List" in info:
 				continue
 			elif 'device' in info:

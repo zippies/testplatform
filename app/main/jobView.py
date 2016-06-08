@@ -481,7 +481,8 @@ def newjobfromjenkins():
 		choicedcases = dict(data).get("cases")
 		choiceddevices = dict(data).get("devices")
 		buildid = data.get("buildid")
-		jobname = "Suime_AutomationTest_Build_%s" %buildid
+		jobname = "Jenkins_AutomationTest_Build_%s" %buildid
+
 		if "all" in choicedcases:
 			choicedcases = [case.id for case in Testcase.query.filter_by(status=1).all()]
 		else:
@@ -507,7 +508,8 @@ def newjobfromjenkins():
 		packageName = package.stdout.read().decode().split("name='")[1].split("'")[0]
 		activity.kill()
 		package.kill()
-		testjob = Testjob(jobname,jobtype,choiceddevices,apk,packageName,main_activity,choicedcases,buildid=buildid)
+
+		testjob = Testjob(jobname,jobtype,choiceddevices,apk,packageName,main_activity,choicedcases,Config.ci_monkeyconfig,buildid=buildid)
 		db.session.add(testjob)
 		db.session.commit()
 	except Exception as e:
@@ -523,19 +525,20 @@ def runjobfromjenkins(build_id):
 		if job.status == 0:
 			info = runJenkinsTest(job)
 		else:
-			info = {"result":False,"errorMsg":"该任务已被运行,当前状态:%s" %job.status}
+			info = {"result":False,"jobid":job.id,"errorMsg":"该任务已被运行,当前状态:%s" %job.status}
 	else:
-		info = {"result":False,"errorMsg":"该任务未创建或已被删除"}
+		info = {"result":False,"jobid":job.id,"errorMsg":"该任务未创建或已被删除"}
 
 	return jsonify(info)
 
+
 def runJenkinsTest(job):
-	info = {"result":True,"errorMsg":None}
+	info = {"result":True,"jobid":job.id,"errorMsg":None}
 	testcases = OrderedDict()
 	cases = [Testcase.query.filter_by(id=caseid).first() for caseid in job.caseorder]
 
 	if not len(cases) > 0:
-		info = {"result":False,"errorMsg":"没有可用的测试用例"}
+		info = {"result":False,"jobid":job.id,"errorMsg":"没有可用的测试用例"}
 		return info
 	choiceddevices = []
 	for deviceid in job.relateDevices:
@@ -544,7 +547,7 @@ def runJenkinsTest(job):
 			choiceddevices.append(device)
 
 	if not len(choiceddevices) > 0:
-		info = {"result":False,"errorMsg":"没有可用的设备"}
+		info = {"result":False,"jobid":job.id,"errorMsg":"没有可用的设备"}
 		return info
 
 	appelements = Appelement.query.all()
@@ -554,6 +557,7 @@ def runJenkinsTest(job):
 	for c_device in choiceddevices:
 		capabilities.append({"deviceName":c_device.deviceName,"platformName":c_device.platform,"platformVersion":c_device.platformVersion})
 	appiums = []
+
 	for index,device in enumerate(capabilities):		
 		for key,value in Config.SHAIRED_CAPABILITIES.items():
 			device[key] = value
@@ -566,10 +570,20 @@ def runJenkinsTest(job):
 		bootstrap_port = str(17230 + index)
 		selendroid_port = str(15230 + index)
 		appiums.append({"port":port,"bootstrap_port":bootstrap_port,"url":"http://localhost:%s/wd/hub" %port})
+
+	reloaded = []
+
 	for case in cases:
+		generateCase(case)
+		module = importlib.import_module(case.caseName)
+		if case.caseName not in reloaded:
+			module = importlib.reload(importlib.import_module(case.caseName))
+			reloaded.append(case.caseName)
 		undertest_cases = []
+
 		for index,device in enumerate(capabilities):
-			undertest_cases.append(__import__(case.caseName).TestCase(appiums[index],device))
+			undertest_cases.append(module.TestCase(appiums[index],device))
+
 		testcases[case.caseName] = undertest_cases
 
 	runner = AndroidRunner(
@@ -594,7 +608,7 @@ def runJenkinsTest(job):
 
 @main.route("/getjobstatusfromjenkins/<buildid>")
 def getjobstatusfromjenkins(buildid):
-	info = {"result":True,"status":True,"errorMsg":None}
+	info = {"result":True,"status":True,"jobid":None,"errorMsg":None}
 	task = {}
 	try:
 		task = pickle.load(open("data/tasks.pkl",'rb'))
@@ -602,6 +616,7 @@ def getjobstatusfromjenkins(buildid):
 		pass
 	job = Testjob.query.filter_by(buildid=buildid).first()
 	if job:
+		info["jobid"] = job.id
 		if task.values():
 			result = task[str(job.id)]["result"]
 			info["status"] = False if len(result["success"]) != result['totalcount'] else True
@@ -624,5 +639,4 @@ def getjobstatusfromjenkins(buildid):
 	else:
 		info = {"result":False,"errorMsg":"job is not exists！"}
 
-	print(info)
 	return jsonify(info)

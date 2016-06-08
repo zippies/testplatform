@@ -1,22 +1,20 @@
 import requests,sys,time
 
-host = "127.0.0.1"
-
 app = sys.argv[1]
 cases = sys.argv[2]
 buildid = sys.argv[3]
-server_port = sys.argv[4]
+host_port = sys.argv[4]
 
-device_url = "http://%s:%s/getdevicestatusfromjenkins" %(host,server_port)
-newjob_url = "http://%s:%s/newjobfromjenkins" %(host,server_port)
+device_url = "http://%s/getdevicestatusfromjenkins" %host_port
+newjob_url = "http://%s/newjobfromjenkins" %host_port
 
 devices = requests.get(device_url).json()
 if not devices:
 	print("[error]no device can be used")
 	sys.exit(-1)
 
-runjob_url = "http://%s:%s/runjobfromjenkins/%s" %(host,server_port,buildid)
-status_url = "http://%s:%s/getjobstatusfromjenkins/%s" %(host,server_port,buildid)
+runjob_url = "http://%s/runjobfromjenkins/%s" %(host_port,buildid)
+status_url = "http://%s/getjobstatusfromjenkins/%s" %(host_port,buildid)
 
 
 data = {
@@ -48,6 +46,7 @@ if result_new["result"]:
 			else:
 				if r["status"]:
 					print("[status]success")
+					print("see details: http://%s/viewreport/%s" %(host_port,r["jobid"]))
 					sys.exit(0)
 				else:
 					print("[status]failed:AutomationTest Failed!")
@@ -56,7 +55,7 @@ if result_new["result"]:
 			print("[status]failed:Job timeout - 1800s")
 	else:
 		print("[status]failed:%s" %result_run["errorMsg"])
-		print("see details: http://%s:%s" %(host,server_port))
+		print("see details: http://%s/viewreport/%s" %(host_port,result_run["jobid"]))
 		sys.exit(-1)
 
 else:
