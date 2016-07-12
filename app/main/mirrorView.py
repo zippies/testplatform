@@ -26,6 +26,8 @@ deviceStatus = {}
 packageName = ""
 main_activity = ""
 current_activity = ""
+current_context = ""
+current_contexts = []
 
 def getChildNodes(node):
 	nodes = [n for n in node.childNodes if n.nodeName !='#text']
@@ -46,6 +48,7 @@ def parseBounds(bound_str):
 	width = round((int(end_x) -int(start_x))*0.4)
 	return (round(int(start_x)*0.4),round(int(start_y)*0.4),height,width)
 
+
 def setXpath(node,xpaths):
 	xpathinfo = None
 	if node.nodeName != "hierarchy":
@@ -65,6 +68,7 @@ def setXpath(node,xpaths):
 		setXpath(parent_node,xpaths)
 
 		return xpaths
+
 
 def setNodeInfo(node,nodeinfos,frameinfos):
 	global _id
@@ -109,6 +113,7 @@ def setNodeInfo(node,nodeinfos,frameinfos):
 	nodeinfo['id'] = _id
 	nodeinfos[_id] = nodeinfo
 	frameinfos[_id] = notes
+
 
 def getNodes(index,node,nodeinfos,frameinfos):
 	global _id
@@ -170,6 +175,7 @@ def getDeviceState():
 	
 	return devices
 
+
 def is_Appium_Alive(port):
 	'''
 		检查指定端口的appium是否已启动
@@ -181,6 +187,7 @@ def is_Appium_Alive(port):
 			return False
 	except Exception as e:
 		return False
+
 
 def stopAppium():
 	'''
@@ -223,6 +230,7 @@ def connectDevice(devicename):
 	deviceStatus[devicename] = True
 	return info
 
+
 @main.route("/mirror/disconnect")
 def disconnect():
 	global driver,deviceStatus
@@ -238,6 +246,7 @@ def disconnect():
 
 	return jsonify(resp)
 
+
 @main.route("/mirror/isappiumready")
 def isAppiumReady():
 	data = None
@@ -247,6 +256,7 @@ def isAppiumReady():
 		data = {"status":False,"info":"appium is not ready,keep waitting.."}
 
 	return jsonify(data)
+
 
 @main.route("/mirror/swipe/<direction>")
 def swipe(direction):
@@ -278,6 +288,7 @@ def swipe(direction):
 		resp = {"status":False,"info":"swipe out of device screen"}
 	return jsonify(resp)
 
+
 @main.route("/mirror/click/<id>")
 def click(id):
 	global driver,frameinfos
@@ -292,6 +303,7 @@ def click(id):
 		resp["info"] = "长时间无操作,appium已断开连接,请重新启动"
 	
 	return jsonify(resp)
+
 
 @main.route("/mirror/sendtext/<id>")
 def sendText(id):
@@ -312,6 +324,7 @@ def sendText(id):
 		resp["info"] = "长时间无操作,appium已断开连接,请重新启动"
 
 	return jsonify(resp)
+
 
 @main.route("/mirror/cleartext/<id>")
 def clearText(id):
@@ -334,6 +347,7 @@ def clearText(id):
 
 	return jsonify(resp)
 
+
 @main.route("/mirror/sendkeycode/<code>")
 def back(code):
 	global driver
@@ -347,11 +361,13 @@ def back(code):
 
 	return jsonify(resp)
 
+
 def save_screen():
 	save = "adb -s {deviceName} shell /system/bin/screencap -p /sdcard/current.png".format(deviceName=devicename)
 	pull = "adb -s {deviceName} pull /sdcard/current.png {snapshotpath}".format(deviceName=devicename,snapshotpath=os.path.join(Config.UPLOAD_FOLDER,"current.png"))
 	os.system(save)
 	os.system(pull)
+
 
 @main.route("/mirror/fresh")
 def fresh():
@@ -365,10 +381,24 @@ def fresh():
 		# os.system(dump)
 		# os.system(pull)
 	except Exception as e:
+
 		resp["status"] = False
-		resp["info"] = "长时间无操作,appium已断开连接,请重新启动"
+		resp["info"] = str(e)#"长时间无操作,appium已断开连接,请重新启动"
 
 	return jsonify(resp)
+
+
+@main.route("/mirror/switchcontext/<context>")
+def switchContext(context):
+	global driver
+	resp = {"status":True,"info":None}
+	try:
+		driver.switch_to.context(context)
+	except Exception as e:
+		resp["status"] = False
+		resp["info"] = str(e)
+	finally:
+		return jsonify(resp)
 
 
 @main.route("/mirror/getapp",methods=["POST"])
@@ -391,23 +421,36 @@ def getAppInfo():
 
 
 def freshScreen(seconds=2):
-	global _id,driver,nodeDatas,nodeinfos,frameinfos,current_activity
+	global _id,driver,nodeDatas,nodeinfos,frameinfos,current_activity,current_context,current_contexts
 	_id = 0
 	nodeDatas,nodeinfos,frameinfos = [],{},{}
 	current = os.path.join(Config.UPLOAD_FOLDER,"current.png")
-	driver.save_screen(current,seconds=seconds)
+	current_context = driver.context
+	if current_context != "NATIVE_APP":
+		driver.switch_to.context("NATIVE_APP")
+		driver.save_screen(current, seconds=seconds)
+		driver.switch_to.context(current_context)
+	else:
+		driver.save_screen(current,seconds=seconds)
 	current_activity = driver.current_activity
+
+	current_contexts = driver.contexts
 	page_source = driver.page_source
-	page_source = re.sub("[\x00-\x08\x0b-\x0c\x0e-\x1f]+",u"",page_source)
+
+	page_source = re.sub("[\x00-\x08\x0b-\x0c\x0e-\x1f-\xa0]+",u"",page_source)
+	#print(page_source.encode("utf-8").decode("GBK", "ignore"))
+	root = None
 	try:
 		root = minidom.parseString(page_source).documentElement
 	except Exception as e:
-		print(e)
+		#当切换到webview时应该使用html解析,此处先不处理
+		print(123,e,234)
 
 	for i,node in enumerate([n for n in root.childNodes if n.nodeName !="#text"]):
 		if node.nodeName != "#text":
 			datadict = getNodes(i+1,root,nodeinfos,frameinfos)
 			nodeDatas.append(datadict)
+
 
 @main.route("/mirror/showcloser")
 def showCloser():
@@ -424,17 +467,21 @@ def showCloser():
 
 	return str(closer)
 
+
 @main.route("/mirror/getdata")
 def getdata():
-	global nodeDatas,nodeinfos,frameinfos,current_activity
+	global nodeDatas,nodeinfos,frameinfos,current_activity,current_context,current_contexts
 	resp = {
 		"nodeDatas":nodeDatas,
 		"nodeinfos":nodeinfos,
 		"frameinfos":frameinfos,
-		"current_activity":current_activity
+		"current_activity":current_activity,
+		"current_context":current_context,
+		"current_contexts":current_contexts
 	}
 
 	return jsonify(resp)
+
 
 @main.route("/mirror/isconnect")
 def isconnect():
@@ -448,6 +495,7 @@ def isconnect():
 		resp["info"] = "No device connected!"
 
 	return jsonify(resp)
+
 
 @main.route('/mirror/getscreen',methods=["GET","POST"])
 def getScreen():
@@ -487,6 +535,7 @@ def getScreen():
 							nodeinfos=nodeinfos,
 							frameinfos=frameinfos if not reversedframe else reverseframe
 						)
+
 
 @main.route('/mirror')
 def mirror():

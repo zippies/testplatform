@@ -22,25 +22,22 @@
 
 			<div class="modal-body">
 				<form id="editcaseform_{{ case.id }}">
-					<ul class="list-inline">
-						<li><label>用例名称：</label></li>
-						<li><input name="casename" type="text" class="form-control" value="{{case.caseName}}" required /></li>
-						<li><label>用例描述：</label></li>
-						<li><input name="casedesc" type="text" class="form-control" value="{{case.caseDesc}}" required/></li>
-						<li>
-							<a href="javascript:;" class="btn btn-info" onclick="parent.showapi()">查看API</a>
-							<a href="/mirror" class="btn btn-info" target="_blank">打开模拟器</a>
-						</li>
+					<ul class="list-inline" style="width:100%">
+						<li style="width:10%"><label>用例名称：</label></li>
+						<li style="width:20%"><input name="casename" type="text" class="form-control" value="{{case.caseName}}" required /></li>
+						<li style="width:10%"><label>用例描述：</label></li>
+						<li style="width:50%"><input name="casedesc" type="text" class="form-control" value="{{case.caseDesc}}" style="width:100%" required/></li>
 					</ul>
 					<textarea id="casecontent_{{ case.id }}" name="casecontent" width="1000px" height="400px">{{ case.caseContent }}</textarea>
 					<script>
 						var mirror_{{ case.id }} = CodeMirror.fromTextArea(document.getElementById("casecontent_{{ case.id }}"), {
 							lineNumbers: true,
 							indentUnit: 4,
+							indentWithTabs: true,
 							mode: "python",
 							theme: "monokai"
 						});
-						mirror_{{ case.id }}.setSize('100%',500);
+						mirror_{{ case.id }}.setSize('100%',600);
 					</script>
 				</form>
 			</div>
@@ -78,14 +75,10 @@
 	<div class="tab-pane fade" id="writecasediv">
 		<div class="panel-body">
 			<form id="writecaseform">
-				<ul class="list-inline">
-					<li><label>用例名称：</label></li>
-					<li><input id="casename" name="casename" type="text" class="form-control"/></li>
-					<li><label>用例描述：</label></li>
-					<li><input id="casedesc" name="casedesc" type="text" class="form-control"/></li>
-					<li><a href="javascript:;" class="btn btn-info" id="viewapi">查看api</a></li>
-					<li><a href="/mirror" class="btn btn-info" target="_blank">打开模拟器</a></li>
-					<li><a href="javascript:;" id="submitwritecase" class="btn form-control btn-success">保存</a></li>
+				<ul class="list-inline" style="width:100%">
+					<li style="width:20%"><input id="casename" name="casename" type="text" placeholder="用例名称" class="form-control"/></li>
+					<li style="width:50%"><input id="casedesc" name="casedesc" type="text" class="form-control" placeholder="用例检查点描述,例：1、正确用户名密码是否能登录 2、登录后是否调整到首页 3、首页用户名是否为登录用户名" style="width:100%"/></li>
+					<li style="width:10%"><a href="javascript:;" id="submitwritecase" class="btn form-control btn-success">保存</a></li>
 					<input type="reset" id="reset" style="display:none"/>
 				</ul>
 				<div>
@@ -94,10 +87,12 @@
 						var casecode = CodeMirror.fromTextArea(document.getElementById("casecontent"), {
 							lineNumbers: true,
 							indentUnit: 4,
+							indentWithTabs: true,
 							mode: "python",
 							theme: "monokai"
 						});
-						casecode.setSize('100%',500);
+						casecode.setSize('100%',600);
+
 						setTimeout(function(){
 							casecode.refresh();
 						},200);
@@ -123,7 +118,7 @@
 				<tbody>
 					<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="false">
 						{% for case in testcases %}
-							<tr>
+							<tr id="case_panel_{{ case.id }}">
 								<td>{{ case.id }}</td>
 								<td>
 									<a role="button" class="showcase" id="{{ case.id }}" data-toggle="modal" data-target="#editcasemodal_{{ case.id }}">{{ case.caseName }}</a></td>

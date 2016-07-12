@@ -2,7 +2,7 @@
 import os
 
 class Config:
-    DEBUG = False
+    DEBUG = True
     #SQLALCHEMY_DATABASE_URI = 'mysql+mysqlconnector://root@localhost:3306/websnail'
     SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(os.path.abspath(os.path.dirname(__file__)),'data.sqlite')
     SECRET_KEY = 'what does the fox say?'
@@ -82,7 +82,6 @@ class TestCase(AndroidDevice):
         self.implicitly_wait(10)
         for i in range(3):
             self.sleep(1)
-            self.allow_alert(nocheck=True)
 
 {% for action in actions %}
         {{ action }}

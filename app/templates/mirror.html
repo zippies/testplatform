@@ -59,7 +59,7 @@
 									<td>{% if deviceStatus[device.deviceName] %}操作中..{% else %}连接正常{% endif %}</td>
 									<td>
 										<button class="btn btn-danger disconnDevice" desc="{{device.replacedName}}" name="{{device.deviceName}}" id="dis_{{ device.replacedName }}" {% if not deviceStatus[device.deviceName] %}style="display:none"{% endif %}>断开连接</button>
-										<button class="btn btn-default connectDevice" desc="{{device.replacedName}}" name="{{device.deviceName}}" id="con_{{ device.replacedName }}" data-toggle="tooltip" data-placement="right" title="初始化可能较慢,请耐心等待" {% if deviceStatus[device.deviceName] %}style="display:none"{% endif %}>安装并启动app</button>
+										<button class="btn btn-default connectDevice" desc="{{device.replacedName}}" name="{{device.deviceName}}" id="con_{{ device.replacedName }}" data-toggle="tooltip" data-placement="right" title="首次启动可能较慢,请耐心等待" {% if deviceStatus[device.deviceName] %}style="display:none"{% endif %}>安装并启动app</button>
 									</td>
 								{% elif device.state == 'unauthorized' %}
 									<td>{{ device.deviceName }}</td><td>未授权</td><td><button class="btn btn-default connectDevice" name="{{device.deviceName}}" id="{{ device.replacedName }}" disabled>未授权(unauthorized)</button></td>

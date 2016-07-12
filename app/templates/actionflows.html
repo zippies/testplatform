@@ -54,6 +54,7 @@
 									var mirror_{{ flow.id }} = CodeMirror.fromTextArea(document.getElementById("flowcontent_{{ flow.id }}"), {
 										lineNumbers: true,
 										mode: "python",
+										indentWithTabs: true,
 										theme: "monokai"
 									});
 									mirror_{{ flow.id }}.setSize('100%',200);
@@ -83,6 +84,7 @@
 				var flowcode = CodeMirror.fromTextArea(document.getElementById("actionflowsarea"), {
 					lineNumbers: true,
 					mode: "python",
+					indentWithTabs: true,
 					theme: "monokai"
 				});
 				flowcode.setSize('100%',200);

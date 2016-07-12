@@ -152,6 +152,7 @@ execSQL(sql, host=None, user=None, password=None, db=None)
 	DB_PORT
 	保存后只需要传sql语句，例：users = self.execSQL("select * from user limit 10")
 		"""
+		self.log("execSQL:%s" %sql)
 		if not host or not user or not password or not db or not port:
 			host = Config.db_host
 			user = Config.db_user
@@ -167,22 +168,24 @@ execSQL(sql, host=None, user=None, password=None, db=None)
 			port=port,
 			charset='utf8'
 		)
+		self.log("connect to mysql success")
 		try:
 			with connection.cursor() as cursor:
 				cursor.execute(sql)
+				self.log("sql execute success")
+				print(cursor.fetchall())
 				if sql.strip().lower().startswith("select"):
 					result = cursor.fetchall()
 					return result
 				else:
 					return True
+		except Exception as e:
+			self.log("Error occured:" %str(e))
 		finally:
 			try:
 				connection.close()
 			except Exception as e:
 				print("close db failed:", e)
-
-
-
 
 
 	def send_request(self, url, method, data={}, headers={}, timeout=(5,10)):
@@ -482,6 +485,7 @@ waitfor(by,value,desc="",timeout=10)
 			return self.s_find(by,value)
 		except:
 			raise ActionTimeOut("'%s:%s' element not shown after %s seconds '%s'" %(by,value,timeout,desc))
+
 
 	def swipe(self,begin,end,duration=None):
 		"""[方法]
@@ -811,6 +815,16 @@ gestures_password(case_element_name,gestures,nocheck=False)
 
 			action.release().perform()
 			return self
+
+	def clear(self,case_element_name,nocheck=False):
+		"""
+		"""
+		text = self.gettext(case_element_name)
+		size = len(text)
+		self.log("clear text:%s size:%s" %(text,size))
+		self.keyevent(123)
+		for i in range(size):
+			self.keyevent(67)
 
 	def click(self,case_element_name,nocheck=False):
 		'''[方法]

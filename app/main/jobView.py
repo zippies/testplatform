@@ -349,7 +349,6 @@ def generateCase(case):
 						actions += flowactions
 				else:
 					actions.append(c)
-
 		content = Template(Config.case_template.strip()).render(
 			desc = case.caseDesc,
 			libs = libs,

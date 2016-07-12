@@ -54,8 +54,8 @@ function viewdeviceinfo(){
         shadeClose:true,
         shade:false,
         maxxin:false,
-        offset:['100px',position_x+'px'],
-        area:['300px','300px'],
+        //offset:['100px',position_x+'px'],
+        area:['600px','300px'],
         content:'/getconnecteddevice'
     })
 }

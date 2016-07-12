@@ -3,7 +3,7 @@ from flask import render_template,redirect,url_for,request,jsonify,Response,flas
 from ..models import Device,db
 from . import main
 from jinja2 import Template
-import json,subprocess
+import json,subprocess,re
 
 @main.route("/newdevice",methods=["POST"])
 def newdevice():
@@ -179,14 +179,56 @@ def getdevicestatus():
 
 	return Response("data:"+status+"\n\n",mimetype="text/event-stream")
 
+adb_devices_template = """
+<table style="width:100%">
+	<thead>
+		<tr style="width:100%">
+			<td style="width:25%;text-align:center">设备序号</td>
+			<td style="width:25%;text-align:center">连接状态</td>
+			<td style="width:25%;text-align:center">系统版本</td>
+			<td style="width:25%;text-align:center">手机型号</td>
+		</tr>
+	</thead>
+	<tbody>
+		{% for device in deviceinfos %}
+			<tr style="text-align:center">
+				<td>{{ device[0] }}</td>
+				<td>{{ device[1] }}</td>
+				<td>{{ device[2] }}</td>
+				<td>{{ device[3] }}</td>
+			</tr>
+		{% endfor %}
+	</tbody>
+</table>
+"""
+
 @main.route("/getconnecteddevice")
 def getconnecteddevice():
 	resp = None
 	info = isadbok()
 	if info:
-		devices = "".join(["<li>%s</li>" %device for device in info.split("\r\n")[1:] if device.strip()])
-		if devices:
-			resp = "".join(["<ul>",devices,"</ul>"])
+		deviceinfos = [inf.split("\t") for inf in info.split("\r\n")[1:] if inf.strip()]
+		pattern_1 = re.compile(r"\[ro.product.brand\]: \[(.+)\]")
+		pattern_2 = re.compile(r"\[ro.product.board\]: \[(.+)\]")
+		for index,deviceinfo in enumerate(deviceinfos):
+			cmd_1 = "adb -s %s shell getprop ro.build.version.release" %deviceinfo[0]
+			info_1 = subprocess.run(cmd_1, stdout=subprocess.PIPE)
+			if info_1.returncode == 0:
+				deviceinfos[index].append(info_1.stdout.decode().strip())
+
+			cmd_2 = "adb -s %s shell getprop" %deviceinfo[0]
+			info_2 = subprocess.run(cmd_2, stdout=subprocess.PIPE)
+			output = info_2.stdout.decode()
+			if info_2.returncode == 0:
+				productor = re.search(pattern_1,output).group(1)
+				model = re.search(pattern_2,output).group(1)
+				deviceinfos[index].append("%s %s" %(productor,model))
+
+		if deviceinfos:
+			print(1111,deviceinfos)
+			resp = Template(adb_devices_template).render(
+				deviceinfos=deviceinfos
+			)
 		else:
 			resp = "<code>没有连接的设备</code>"
 	else:
